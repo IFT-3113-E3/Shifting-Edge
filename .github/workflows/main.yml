@@ -1,4 +1,4 @@
-name: Actions 😎 [Regarde dans le mirror]
+name: Actions 😎
 
 on: [push, pull_request]
 

@@ -1,4 +1,4 @@
-name: Testing 🧪 [Regarde dans le mirror]
+name: Testing 🧪
 
 on: [push, pull_request]
 
