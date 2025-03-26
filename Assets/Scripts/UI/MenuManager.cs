@@ -1,0 +1,41 @@
+using UnityEngine;
+using UnityEngine.UI;
+
+public class MenuManager : MonoBehaviour
+{
+    [Header("Panels")]
+    public GameObject launchPanel;
+    public GameObject mainMenuPanel;
+    public GameObject optionsPanel;
+    public GameObject creditsPanel;
+
+    public void OpenMainMenu()
+    {
+        SetActivePanel(mainMenuPanel);
+    }
+
+    public void OpenOptions()
+    {
+        SetActivePanel(optionsPanel);
+    }
+
+    public void OpenCredits()
+    {
+        SetActivePanel(creditsPanel);
+    }
+
+    public void QuitGame()
+    {
+        Debug.Log("Quitter le jeu...");
+        Application.Quit();
+    }
+
+    private void SetActivePanel(GameObject panelToActivate)
+    {
+        if (launchPanel != null)
+            launchPanel.SetActive(false);
+
+        if (panelToActivate != null)
+            panelToActivate.SetActive(true);
+    }
+}
