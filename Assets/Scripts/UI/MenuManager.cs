@@ -9,11 +9,6 @@ public class MenuManager : MonoBehaviour
     public GameObject optionsPanel;
     public GameObject creditsPanel;
 
-    public void OpenMainMenu()
-    {
-        SetActivePanel(mainMenuPanel);
-    }
-
     public void OpenOptions()
     {
         SetActivePanel(optionsPanel);
@@ -32,10 +27,10 @@ public class MenuManager : MonoBehaviour
 
     private void SetActivePanel(GameObject panelToActivate)
     {
-        if (launchPanel != null)
-            launchPanel.SetActive(false);
+        if (mainMenuPanel != null)
+            mainMenuPanel?.SetActive(false);
 
         if (panelToActivate != null)
-            panelToActivate.SetActive(true);
+            panelToActivate?.SetActive(true);
     }
 }

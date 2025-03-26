@@ -13,11 +13,10 @@ public class LaunchScreen : MonoBehaviour
 
     private void Awake()
     {
-        // Configuration de l'action qui écoute tous les inputs
         anyInputAction = new InputAction(type: InputActionType.PassThrough);
-        anyInputAction.AddBinding("<Gamepad>/<Button>");  // Tous les boutons gamepad
-        anyInputAction.AddBinding("<Keyboard>/anyKey");   // Toutes les touches clavier
-        anyInputAction.AddBinding("<Mouse>/<Button>");    // Tous les boutons souris
+        anyInputAction.AddBinding("<Gamepad>/<Button>"); 
+        anyInputAction.AddBinding("<Keyboard>/anyKey");
+        anyInputAction.AddBinding("<Mouse>/<Button>");
 
         anyInputAction.performed += _ => OnAnyInput();
     }
@@ -38,6 +37,5 @@ public class LaunchScreen : MonoBehaviour
         hasSwitched = true;
         launchPanel?.SetActive(false);
         mainMenuPanel?.SetActive(true);
-        Debug.Log("Passage au menu principal !");
     }
 }
