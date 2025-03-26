@@ -4,12 +4,14 @@ using UnityEngine.UI;
 public class InventorySlot : MonoBehaviour
 {
     public Image icon;
-    private Button button;
+    public Button button;
 
-    private void Awake()
+    private void Start()
     {
-        button = GetComponent<Button>();
-        button.onClick.AddListener(SelectSlot);
+        if (button != null)
+        {
+            button.onClick.AddListener(SelectSlot);
+        }
     }
 
     public void UpdateSlot(ItemData item)
