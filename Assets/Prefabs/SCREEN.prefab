@@ -98,7 +98,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 50
   field of view: 60
   orthographic: 1
   orthographic size: 5
@@ -171,11 +171,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2473124954499634082, guid: 8bff0b1ad60e537468b6fbffd53fb175, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 855
+      value: 1920
       objectReference: {fileID: 0}
     - target: {fileID: 2473124954499634082, guid: 8bff0b1ad60e537468b6fbffd53fb175, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 481
+      value: 1080
       objectReference: {fileID: 0}
     - target: {fileID: 5225135510934502171, guid: 8bff0b1ad60e537468b6fbffd53fb175, type: 3}
       propertyPath: m_Layer

@@ -4,7 +4,6 @@ using UnityEngine.UI;
 public class MenuManager : MonoBehaviour
 {
     [Header("Panels")]
-    public GameObject launchPanel;
     public GameObject mainMenuPanel;
     public GameObject optionsPanel;
     public GameObject creditsPanel;

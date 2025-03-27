@@ -12,7 +12,7 @@ TagManager:
   - Water
   - UI
   - ScreenOverlay
-  - 
+  - Particles
   - 
   - 
   - 
@@ -41,8 +41,14 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: HUD
+  - name: Particles
+    uniqueID: 259431859
+    locked: 0
+  - name: UI
     uniqueID: 1614771853
+    locked: 0
+  - name: Background
+    uniqueID: 1815812603
     locked: 0
   m_RenderingLayers:
   - Default
