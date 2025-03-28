@@ -180,14 +180,18 @@ public class ChunkManager : MonoBehaviour
                 if (index < 0 || index >= mapData.tiles.Count) continue;
 
                 int packedValue = mapData.tiles[index];
-                int tileType = packedValue & 0b111;
-                int height = packedValue >> 3;
+                int tileType = packedValue & 0b111; // Les 3 derniers bits pour le type de tuile
+                int rotationIndex = (packedValue >> 3) & 0b11; // Les 2 bits suivants pour la rotation
+                int height = packedValue >> 5; // Les bits restants pour la hauteur
 
                 if (tileType < 0 || tileType >= tilePrefabs.Length) continue;
 
                 Vector3 position = new(worldX, height, worldZ);
-                GameObject tile = Instantiate(tilePrefabs[tileType], position, Quaternion.identity, newChunk.chunkObject.transform);
+                Quaternion rotation = Quaternion.Euler(0, rotationIndex * 90, 0); // Appliquer la rotation en fonction de l'index
+                GameObject tile = Instantiate(tilePrefabs[tileType], position, rotation, newChunk.chunkObject.transform);
                 newChunk.tiles.Add(tile);
+
+                Debug.Log($"Tuile instanciée à {position} avec type {tileType}, hauteur {height}, rotation {rotationIndex * 90}°");
             }
         }
     }
