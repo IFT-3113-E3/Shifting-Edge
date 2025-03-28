@@ -9,6 +9,8 @@ public class ComboManager : MonoBehaviour
     [Tooltip("Time (in seconds) that the next input can be accepted for the combo.")]
     public float comboWindowDuration = 2f;
     public int maxCombo = 3;
+    public float attackCooldown = 1f;
+    public float comboBreakTime = 0.5f;
 
     private bool _canQueueNext = false;
     private bool _attackQueued = false;
@@ -93,7 +95,7 @@ public class ComboManager : MonoBehaviour
     {
         if (_currentCombo > 0)
         {
-            _cooldownTime = Time.time + 0.5f;
+            _cooldownTime = Time.time + comboBreakTime;
         }
 
         _currentCombo = 0;
@@ -107,7 +109,7 @@ public class ComboManager : MonoBehaviour
     
     public void EndOfCombo()
     {
-        _cooldownTime = Time.time + 1.5f;
+        _cooldownTime = Time.time + attackCooldown;
         
         _currentCombo = 0;
         _isAttacking = false;
