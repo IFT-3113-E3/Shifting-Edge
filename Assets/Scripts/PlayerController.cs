@@ -46,6 +46,7 @@ public class PlayerController : MonoBehaviour
     private CharacterController _cc;
     private Camera _camera;
     private ComboManager _cm;
+    private DynamicSwordSlash _slashController;
     
     private Vector3 _externalForce = Vector3.zero;
     private bool _movementLocked;
@@ -81,6 +82,7 @@ public class PlayerController : MonoBehaviour
         _cc = GetComponent<CharacterController>();
         _animator = GetComponent<Animator>();
         _cm = GetComponent<ComboManager>();
+        _slashController = GetComponent<DynamicSwordSlash>();
 
         if (!_animator)
             Debug.LogWarning("Animator is required on the PlayerController");
@@ -96,10 +98,28 @@ public class PlayerController : MonoBehaviour
             _cm.OnComboStep += PlayAttack;
             _cm.OnComboEnd += BreakCombo;
         }
+
+        if (_slashController)
+        {
+            _slashController.SetOnSlashTriggered(OnSlashInfo);
+        }
     }
 
     public int FPS = 12;
     private float _time;
+    
+    void OnSlashInfo(SlashInfo slashInfo)
+    {
+        // draw the debug slash segments
+        for (int i = 0; i < slashInfo.segments.Length; i++)
+        {
+            var segment = slashInfo.segments[i];
+            var basePos = transform.position + segment.basePosition;
+            var tipPos = transform.position + segment.tipPosition;
+            Debug.DrawLine(basePos, tipPos, Color.red, 1f);
+        }
+        
+    }
     
     void PlayAttack(int i)
     {
