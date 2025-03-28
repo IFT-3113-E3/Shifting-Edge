@@ -1,70 +1,57 @@
 using UnityEngine;
-using UnityEngine.UI; // Pour les UI Image/Text
 using System.Collections;
 
 public class PanelTransition : MonoBehaviour
 {
-    [Header("Références")]
-    public CanvasGroup panelCanvasGroup; // Assignez le CanvasGroup du panel
-    public float fadeDuration = 0.5f; // Durée du fade
+    [Header("Settings")]
+    public float fadeInDuration = 1f;
+    public float fadeOutDuration = 0.5f;
+    public AnimationCurve fadeCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
-    private Coroutine currentFadeCoroutine;
+    private CanvasGroup _cg;
+    private Coroutine _currentTransition;
+
+    private void Awake()
+    {
+        _cg = GetComponent<CanvasGroup>();
+        _cg.alpha = 0; // Start hidden
+    }
 
     public void TogglePanel(bool show)
     {
-        if (currentFadeCoroutine != null)
-        {
-            StopCoroutine(currentFadeCoroutine);
-        }
-        currentFadeCoroutine = StartCoroutine(show ? FadeIn() : FadeOut());
+        if (_currentTransition != null) StopCoroutine(_currentTransition);
+        _currentTransition = StartCoroutine(show ? FadeIn() : FadeOut());
     }
 
-    // Fade In (apparition progressive)
     private IEnumerator FadeIn()
     {
-        panelCanvasGroup.blocksRaycasts = true; // Active les interactions
-        panelCanvasGroup.interactable = true;
+        _cg.interactable = true;
+        _cg.blocksRaycasts = true;
 
-        float elapsedTime = 0f;
-        float startAlpha = panelCanvasGroup.alpha;
-
-        while (elapsedTime < fadeDuration)
+        float elapsed = 0f;
+        while (elapsed < fadeInDuration)
         {
-            elapsedTime += Time.unscaledDeltaTime; // Ignore le Time.timeScale
-            panelCanvasGroup.alpha = Mathf.Lerp(startAlpha, 1f, elapsedTime / fadeDuration);
+            _cg.alpha = fadeCurve.Evaluate(elapsed / fadeInDuration);
+            elapsed += Time.unscaledDeltaTime;
             yield return null;
         }
-
-        panelCanvasGroup.alpha = 1f;
+        _cg.alpha = 1;
     }
 
-    // Fade Out (disparition progressive)
     private IEnumerator FadeOut()
     {
-        panelCanvasGroup.blocksRaycasts = false; // Désactive les interactions
-        panelCanvasGroup.interactable = false;
+        _cg.interactable = false;
+        _cg.blocksRaycasts = false;
 
-        float elapsedTime = 0f;
-        float startAlpha = panelCanvasGroup.alpha;
-
-        while (elapsedTime < fadeDuration)
+        float elapsed = 0f;
+        while (elapsed < fadeOutDuration)
         {
-            elapsedTime += Time.unscaledDeltaTime;
-            panelCanvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, elapsedTime / fadeDuration);
+            _cg.alpha = 1 - fadeCurve.Evaluate(elapsed / fadeOutDuration);
+            elapsed += Time.unscaledDeltaTime;
             yield return null;
         }
-
-        panelCanvasGroup.alpha = 0f;
+        _cg.alpha = 0;
     }
 
-    public void ResetPanel()
-    {
-        if (currentFadeCoroutine != null)
-        {
-            StopCoroutine(currentFadeCoroutine);
-        }
-        panelCanvasGroup.alpha = 0f;
-        panelCanvasGroup.blocksRaycasts = false;
-        panelCanvasGroup.interactable = false;
-    }
+    public bool IsDoneFading() => _cg.alpha == 0f || _cg.alpha == 1f;
 }

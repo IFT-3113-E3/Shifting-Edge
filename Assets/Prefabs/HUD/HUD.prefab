@@ -172,10 +172,10 @@ RectTransform:
   - {fileID: 3300745255955974684}
   m_Father: {fileID: 7074421373167906900}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -661.6999, y: 447.5}
-  m_SizeDelta: {x: -1323.3, y: -895}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 298.30078, y: -92.5}
+  m_SizeDelta: {x: 596.69995, y: 185}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8680981134831178223
 CanvasRenderer:
@@ -198,7 +198,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -390,7 +390,7 @@ GameObject:
   - component: {fileID: 7074421373167906900}
   - component: {fileID: 6055250890697115439}
   - component: {fileID: 6078992230492305910}
-  - component: {fileID: 6509599723062083055}
+  - component: {fileID: 2054705704410243327}
   m_Layer: 5
   m_Name: HUD
   m_TagString: Untagged
@@ -467,7 +467,7 @@ MonoBehaviour:
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
   m_PresetInfoIsWorld: 0
---- !u!114 &6509599723062083055
+--- !u!114 &2054705704410243327
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -476,7 +476,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8430015143153787124}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Script: {fileID: 11500000, guid: 241fc5a69ad44a879561845b9ed48b41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_IgnoreReversedGraphics: 1
@@ -484,6 +484,8 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  gameCamera: {fileID: 0}
+  canvasScaler: {fileID: 0}
 --- !u!1001 &874412227431564183
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -682,6 +684,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Inventory System
       objectReference: {fileID: 0}
+    - target: {fileID: 2453928882437121408, guid: b2b4f3872ff0718439a335cec5512cc8, type: 3}
+      propertyPath: m_PresetInfoIsWorld
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3514846006274836100, guid: b2b4f3872ff0718439a335cec5512cc8, type: 3}
       propertyPath: m_text
       value: Select pour selectionner un slot, w, x, c pour add 1 item parmi 3, d
@@ -700,7 +706,8 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1438006218324306699}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 8733226052076834145, guid: b2b4f3872ff0718439a335cec5512cc8, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b2b4f3872ff0718439a335cec5512cc8, type: 3}
@@ -838,6 +845,7 @@ PrefabInstance:
     - {fileID: 4860691092142020674, guid: 80bbb792d1937b24a9bc45006a403d7d, type: 3}
     m_RemovedGameObjects:
     - {fileID: 7733510712688547917, guid: 80bbb792d1937b24a9bc45006a403d7d, type: 3}
+    - {fileID: 3261222368197955675, guid: 80bbb792d1937b24a9bc45006a403d7d, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 80bbb792d1937b24a9bc45006a403d7d, type: 3}

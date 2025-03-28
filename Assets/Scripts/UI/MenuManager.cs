@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class MenuManager : MonoBehaviour
 {
@@ -7,6 +8,11 @@ public class MenuManager : MonoBehaviour
     public GameObject mainMenuPanel;
     public GameObject optionsPanel;
     public GameObject creditsPanel;
+
+    public void StartGame()
+    {
+        SceneManager.LoadScene("MainMenu", LoadSceneMode.Additive);
+    }
 
     public void OpenOptions()
     {
