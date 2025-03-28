@@ -14,9 +14,9 @@ public class ButtonSoundManager : MonoBehaviour, IPointerEnterHandler, IPointerC
     private void Awake()
     {
         _audioSource = GetComponent<AudioSource>();
-        
+
         // S'abonne aux événements de tous les boutons
-        Button[] allButtons = FindObjectsOfType<Button>(true);
+        Button[] allButtons = FindObjectsByType<Button>(FindObjectsSortMode.None);
         foreach (Button btn in allButtons)
         {
             AddTriggers(btn.gameObject);
