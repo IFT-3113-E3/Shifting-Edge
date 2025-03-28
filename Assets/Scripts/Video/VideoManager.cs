@@ -13,8 +13,8 @@ namespace UI
         [SerializeField] private Button applyButton;
         [SerializeField] private Button cancelButton;
 
-        [Header("Pixel Art Setup")] 
-        [SerializeField] private VirtualScreen virtualScreen; 
+        [Header("Pixel Art Setup")]
+        [SerializeField] private VirtualScreen virtualScreen;
         [SerializeField] private GameCanvasScaler canvasScaler;
 
         private List<Resolution> availableResolutions = new List<Resolution>();
@@ -24,7 +24,7 @@ namespace UI
 
         private void Start()
         {
-            foreach (var dropdown in FindObjectsOfType<TMP_Dropdown>())
+            foreach (var dropdown in FindObjectsByType<TMP_Dropdown>(FindObjectsSortMode.InstanceID))
             {
                 var template = dropdown.template?.GetComponent<VirtualScreen>();
                 if (template != null) template.enabled = false;
@@ -40,7 +40,7 @@ namespace UI
 
         private void FixAllDropdowns()
     {
-        foreach (var dropdown in FindObjectsOfType<TMP_Dropdown>(true))
+        foreach (var dropdown in FindObjectsByType<TMP_Dropdown>(FindObjectsSortMode.None))
         {
             if (dropdown.template != null)
             {
@@ -76,8 +76,8 @@ namespace UI
             for (int i = 0; i < availableResolutions.Count; i++)
             {
                 options.Add($"{availableResolutions[i].width}x{availableResolutions[i].height}");
-                
-                if (availableResolutions[i].width == currentResolution.width && 
+
+                if (availableResolutions[i].width == currentResolution.width &&
                     availableResolutions[i].height == currentResolution.height)
                 {
                     currentIndex = i;
@@ -130,7 +130,7 @@ namespace UI
         public void ApplyVideoSettings()
         {
             Screen.SetResolution(pendingResolution.width, pendingResolution.height, pendingDisplayMode);
-            
+
             // Remplacez cette partie :
             if (canvasScaler != null)
             {
@@ -148,11 +148,11 @@ namespace UI
         public void CancelPendingChanges()
         {
             resolutionDropdown.value = availableResolutions.FindIndex(
-                r => r.width == Screen.currentResolution.width && 
+                r => r.width == Screen.currentResolution.width &&
                      r.height == Screen.currentResolution.height);
-            
+
             displayModeDropdown.value = (int)Screen.fullScreenMode;
-            
+
             pendingResolution = Screen.currentResolution;
             pendingDisplayMode = Screen.fullScreenMode;
 

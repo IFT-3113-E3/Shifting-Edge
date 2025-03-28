@@ -64,7 +64,7 @@ public class SkillNode : MonoBehaviour
 
     public void UpdateAllSkills()
     {
-        SkillNode[] allSkills = FindObjectsOfType<SkillNode>();
+        SkillNode[] allSkills = FindObjectsByType<SkillNode>(FindObjectsSortMode.None);
 
         foreach (SkillNode skill in allSkills)
         {

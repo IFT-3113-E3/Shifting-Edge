@@ -1,5 +1,6 @@
 # Line endings
 * text eol=lf
+
 # Binary files
 *.jpg binary
 *.png binary
@@ -8,6 +9,7 @@
 *.icns binary
 *.obj binary
 *.fbx filter=lfs diff=lfs merge=lfs -text
+*.wav filter=lfs diff=lfs merge=lfs -text
 *.o binary
 *.a binary
 *.lib binary
@@ -23,6 +25,7 @@
 *.ttf binary
 *.mat binary
 *.asset binary
+
 # Handling of C-specific and C++-specific files
 *.c linguist-language=C
 *.cpp linguist-language=C++
