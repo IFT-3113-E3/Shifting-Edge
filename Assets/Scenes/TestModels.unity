@@ -335,6 +335,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: viking 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8303980003325856569, guid: c0988a03691247e4fbf37ac0553e1d20, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
     - target: {fileID: 8680258911906763139, guid: c0988a03691247e4fbf37ac0553e1d20, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -378,30 +382,8 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 8303980003325856569, guid: c0988a03691247e4fbf37ac0553e1d20, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1004807886}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c0988a03691247e4fbf37ac0553e1d20, type: 3}
---- !u!1 &1004807885 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8303980003325856569, guid: c0988a03691247e4fbf37ac0553e1d20, type: 3}
-  m_PrefabInstance: {fileID: 1004807884}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1004807886
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1004807885}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e8a65786c1c4daab0046a95f3a240ab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  comboWindowDuration: 0.5
-  maxCombo: 3
 --- !u!4 &1004807890 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8680258911906763139, guid: c0988a03691247e4fbf37ac0553e1d20, type: 3}

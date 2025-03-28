@@ -1,6 +1,7 @@
 ﻿
 using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
@@ -22,6 +23,8 @@ public class PlayerController : MonoBehaviour
     [Space]
     [Tooltip("Force that pulls the player down. Changing this value causes all movement, jumping and falling to be changed as well.")]
     public float gravity = 9.8f;
+    
+    private InputSystem_Actions _playerControls;
 
     private float _jumpElapsedTime = 0;
 
@@ -44,8 +47,34 @@ public class PlayerController : MonoBehaviour
     private Camera _camera;
     private ComboManager _cm;
     
-    private Vector2 attackVelocity = Vector2.zero;
+    private Vector3 _externalForce = Vector3.zero;
+    private bool _movementLocked;
+
+    private InputAction _moveAction;
+    private InputAction _jumpAction;
+    private InputAction _attackAction;
     
+    private void Awake()
+    {
+        _playerControls = new InputSystem_Actions();
+        
+        _moveAction = _playerControls.Player.Move;
+        _moveAction.Enable();
+        
+        _jumpAction = _playerControls.Player.Jump;
+        _jumpAction.Enable();
+        
+        _attackAction = _playerControls.Player.Attack;
+        _attackAction.Enable();
+    }
+
+    private void OnDisable()
+    {
+        _moveAction.Disable();
+        _jumpAction.Disable();
+        _attackAction.Disable();
+    }
+
     void Start()
     {
         _camera = Camera.main;
@@ -81,31 +110,63 @@ public class PlayerController : MonoBehaviour
             float angle = Mathf.Atan2(input.x, input.y) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0, angle, 0);
         }
+        _movementLocked = true;
+
         _animator.ResetTrigger(BreakAttack);
         _animator.SetTrigger(Attack);
     }
     
     void BreakCombo(bool cancelled, string debug)
     {
+        _movementLocked = false;
         Debug.LogError($"Combo broken: {debug}, cancelled: {cancelled}");
         _isInCombo = false;
         if (_animator)
         {
             _animator.ResetTrigger(Attack);
-            _animator.SetTrigger(BreakAttack);  
+            _animator.SetTrigger(BreakAttack);
         }
     }
     
     public void OnAttackAnimationEnd()
     {
+        _movementLocked = false;
         _cm.OnAttackEnd();
     }
 
     public void OnAttackDash()
     {
         // dash a little bit forward
-        
-        attackVelocity = new Vector2(_inputHorizontal, _inputVertical) * 2.5f;
+        float force = new Vector2(_inputHorizontal, _inputVertical).normalized.magnitude * 2.5f;
+        ApplyExternalForce(
+            new Vector3(0, -2f, force),
+            true, true);
+    }
+   
+    public void ApplyExternalForce(Vector3 force, bool immediate = false, bool local = false)
+    {
+        // apply force to the player
+        if (local)
+        {
+            force = transform.TransformDirection(force);
+        }
+
+        if (immediate)
+        {
+            _externalForce = force;
+        }
+        else
+        {
+            _externalForce += force;
+        }
+    }
+    
+    public void ApplyKnockback(Vector2 direction, float force)
+    {
+        // create a knockback force going up in the air in the direction of the hit
+        var height = force + gravity;
+        var knockback = new Vector3(direction.x, height, direction.y) * force;
+        ApplyExternalForce(knockback, true);
     }
     
     void Update()
@@ -120,12 +181,12 @@ public class PlayerController : MonoBehaviour
             _animator.speed = updateTime / Time.deltaTime;
         }
         
-        _inputHorizontal = Input.GetAxis("Horizontal");
-        _inputVertical = Input.GetAxis("Vertical");
-        _inputJump = Mathf.Approximately(Input.GetAxis("Jump"), 1f);
-        _inputSprint = Mathf.Approximately(Input.GetAxis("Fire3"), 1f);
-        _inputCrouch = Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.JoystickButton1);
-        _inputAttack = Input.GetKeyDown(KeyCode.Mouse0);
+        _inputHorizontal = _moveAction.ReadValue<Vector2>().x;
+        _inputVertical = _moveAction.ReadValue<Vector2>().y;
+        _inputJump = _jumpAction.triggered;
+        // _inputSprint = Mathf.Approximately(Input.GetAxis("Fire3"), 1f);
+        // _inputCrouch = Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.JoystickButton1);
+        _inputAttack = _attackAction.triggered;
 
         // if ( _inputCrouch )
         //     _isCrouching = !_isCrouching;
@@ -159,63 +220,65 @@ public class PlayerController : MonoBehaviour
             _isInCombo = true;
         }
 
-        if (!_cc.isGrounded)
+        if (!_cc.isGrounded && _isInCombo)
         {
             _cm.ResetCombo("Player is not grounded");
         }
+        
+        if (!_cm.IsAttacking && _isInCombo && (_inputHorizontal != 0 || _inputVertical != 0))
+        {
+            _cm.ResetCombo("Player is moving while attacking");
+        }
+        
         HeadHittingDetect();
-
     }
 
 
     private void FixedUpdate()
     {
+        Vector3 inputVector = new Vector3(_inputHorizontal, 0, _inputVertical);
+        inputVector = Vector3.ClampMagnitude(inputVector, 1f);
+        Debug.Log($"Input: {inputVector}");
         
-        float velocityAddition = 0;
+        if (_movementLocked)
+        {
+            inputVector = Vector3.zero;
+        }
+        
+        Vector3 moveDirection = Vector3.zero;
+        if (inputVector.magnitude > 0.1)
+        {
+            Vector3 camForward  = _camera.transform.forward;
+            camForward.y = 0;
+            camForward.Normalize();
+            Vector3 camRight = _camera.transform.right;
+            camRight.y = 0;
+            camRight.Normalize();
+            moveDirection = (camForward * inputVector.z + camRight * inputVector.x).normalized;
+            
+            float targetAngle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.Euler(0, Mathf.Round(targetAngle / 45f) * 45f, 0);
+        }
+        
+        
+        float velocityAddition = velocity;
         if ( _isSprinting )
-            velocityAddition = sprintAdittion;
+            velocityAddition += sprintAdittion;
         if (_isCrouching)
-            velocityAddition =  - (velocity * 0.50f);
-
-        float horiz, vert;
-        if (_cm.IsAttacking)
-        {
-            horiz = 0;
-            vert = 0;
-            if (attackVelocity.magnitude > 0)
-            {
-                _cc.Move(new Vector3(attackVelocity.x, 0, attackVelocity.y) * Time.deltaTime);
-            }
-        }
-        else
-        {
-            if (_isInCombo && (_inputHorizontal != 0 || _inputVertical != 0))
-            {
-                _cm.ResetCombo("Player is moving while attacking");
-            }
-            horiz = _inputHorizontal;
-            vert = _inputVertical;
-        }
+            velocityAddition -= (velocity * 0.50f);
         
-        if (attackVelocity.magnitude > 0)
-        {
-            attackVelocity = Vector2.Lerp(attackVelocity, Vector2.zero, Time.deltaTime * 5f);
-        }
-
+        Vector3 horizontalVelocity = moveDirection * velocityAddition;
         
-        float directionX = (horiz * (velocity + velocityAddition)) * Time.deltaTime;
-        float directionZ = (vert * (velocity + velocityAddition)) * Time.deltaTime;
-        float directionY = 0;
-
+        float verticalVelocity = 0;
         if ( _isJumping )
         {
 
             // Apply inertia and smoothness when climbing the jump
             // It is not necessary when descending, as gravity itself will gradually pulls
-            directionY = Mathf.SmoothStep(jumpForce, jumpForce * 0.30f, _jumpElapsedTime / jumpTime) * Time.deltaTime;
+            verticalVelocity = Mathf.SmoothStep(jumpForce, jumpForce * 0.30f, _jumpElapsedTime / jumpTime);
 
             // Jump timer
-            _jumpElapsedTime += Time.deltaTime;
+            _jumpElapsedTime += Time.fixedDeltaTime;
             if (_jumpElapsedTime >= jumpTime)
             {
                 _isJumping = false;
@@ -224,39 +287,25 @@ public class PlayerController : MonoBehaviour
         }
 
         // Add gravity to Y axis
-        directionY -= gravity * Time.deltaTime;
-
-        
-        if (!_camera) return;
-        Vector3 forward = _camera.transform.forward;
-        Vector3 right = _camera.transform.right;
-
-        forward.y = 0;
-        right.y = 0;
-
-        forward.Normalize();
-        right.Normalize();
-
-        // Relate the front with the Z direction (depth) and right with X (lateral movement)
-        forward *= directionZ;
-        right *= directionX;
-
-        if (directionX != 0 || directionZ != 0)
+        if (!_cc.isGrounded)
         {
-            float angle = Mathf.Atan2(forward.x + right.x, forward.z + right.z) * Mathf.Rad2Deg;
-
-            var rotation =
-                // Snap rotation to 8 directions
-                Quaternion.Euler(0, Mathf.Round(angle / 45) * 45, 0);
-            
-            transform.rotation = rotation;
+            verticalVelocity -= gravity;
+        }
+        else
+        {
+            verticalVelocity -= 1f; // to keep the character grounded
         }
         
-        Vector3 verticalDirection = Vector3.up * directionY;
-        Vector3 horizontalDirection = forward + right;
-
-        Vector3 moviment = verticalDirection + horizontalDirection;
-        _cc.Move( moviment );
+        // Apply external force
+        if (_externalForce.magnitude > 0)
+        {
+            _externalForce = Vector3.Lerp(_externalForce, Vector3.zero, Time.fixedDeltaTime * 5f);
+        }
+        
+        Vector3 finalVelocity = horizontalVelocity + Vector3.up * verticalVelocity + _externalForce; 
+        
+        // Apply the final velocity to the character controller
+        _cc.Move(finalVelocity * Time.fixedDeltaTime);
     }
 
     void HeadHittingDetect()
@@ -277,6 +326,7 @@ public class PlayerController : MonoBehaviour
         if (_cm)
         {
             _cm.OnComboStep -= PlayAttack;
+            _cm.OnComboEnd -= BreakCombo;
         }
     }
 }
