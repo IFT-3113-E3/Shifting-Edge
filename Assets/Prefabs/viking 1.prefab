@@ -356,6 +356,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 75140ed55d663d84d8888b6658b1184e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7488409002622138760}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 75140ed55d663d84d8888b6658b1184e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1207785437670173944}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 75140ed55d663d84d8888b6658b1184e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6377835240025035572}
   m_SourcePrefab: {fileID: 100100000, guid: 75140ed55d663d84d8888b6658b1184e, type: 3}
 --- !u!4 &3407960210131304146 stripped
 Transform:
@@ -469,3 +475,131 @@ MonoBehaviour:
     color: {r: 1, g: 1, b: 1, a: 1}
   _slashAnimator: {fileID: 0}
   _swordTransform: {fileID: 1460913513230021472}
+--- !u!82 &1207785437670173944
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8303980003325856569}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: -6062185815088664046, guid: 1841b968e98e4b545a81dd690d13459e, type: 2}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &6377835240025035572
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8303980003325856569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aceb90391b744304da0dc66a72ff0186, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  soundLibrary:
+  - animationEventName: Jump
+    clip: {fileID: 8300000, guid: ee8c5978883e9dc4e915ae5616ec8097, type: 3}
+    pitchVariation: 0
+  - animationEventName: Slash1
+    clip: {fileID: 8300000, guid: 354e3f70e25bb6c43a86e4e05d87cb85, type: 3}
+    pitchVariation: 0
+  - animationEventName: Land
+    clip: {fileID: 8300000, guid: e2999cc0f4c436742ab7e2107e940452, type: 3}
+    pitchVariation: 0
+  - animationEventName: Footstep
+    clip: {fileID: 8300000, guid: f29ccfe4bbe69cd41b424520b9c74b47, type: 3}
+    pitchVariation: 0
+  - animationEventName: Slash2
+    clip: {fileID: 8300000, guid: e5905a35dcdab894798fd9673b79b537, type: 3}
+    pitchVariation: 0
+  - animationEventName: Slash3
+    clip: {fileID: 8300000, guid: 733533b4430275940b8fa0b405b7b2c0, type: 3}
+    pitchVariation: 0
