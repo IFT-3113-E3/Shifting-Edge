@@ -4,128 +4,43 @@ using System.Collections;
 
 public class LaunchManager : MonoBehaviour
 {
-    [Header("Panels")]
-    public GameObject launchPanel;
-    public GameObject mainMenuPanel;
+    // Références vers les scripts de transition de chaque panel
+    public PanelTransition launchScreen;
+    public PanelTransition mainMenu;
 
-    [Header("Transition Settings")]
-    public float fadeDuration = 0.5f;
-
-    private bool hasSwitched = false;
-    private InputAction anyInputAction;
-    private CanvasGroup launchCanvasGroup;
-    private CanvasGroup mainMenuCanvasGroup;
+    private InputAction _anyKeyInput;
 
     private void Awake()
     {
-        // Initialiser les CanvasGroup
-        if (launchPanel != null)
-        {
-            launchCanvasGroup = launchPanel.GetComponent<CanvasGroup>();
-            if (launchCanvasGroup == null)
-                launchCanvasGroup = launchPanel.AddComponent<CanvasGroup>();
-
-            // Configurer le launchPanel comme transparent au départ
-            launchCanvasGroup.alpha = 0f;
-            launchCanvasGroup.interactable = false;
-            launchCanvasGroup.blocksRaycasts = false;
-            launchPanel.SetActive(true); // Gardez-le activé !
-        }
-
-        if (mainMenuPanel != null)
-        {
-            mainMenuCanvasGroup = mainMenuPanel.GetComponent<CanvasGroup>();
-            if (mainMenuCanvasGroup == null)
-                mainMenuCanvasGroup = mainMenuPanel.AddComponent<CanvasGroup>();
-
-            // Configurer le mainMenuPanel comme invisible au départ
-            mainMenuCanvasGroup.alpha = 0f;
-            mainMenuCanvasGroup.interactable = false;
-            mainMenuCanvasGroup.blocksRaycasts = false;
-            mainMenuPanel.SetActive(true); // Gardez-le activé mais transparent !
-        }
-
-        // Configurer l'input
-        anyInputAction = new InputAction(type: InputActionType.PassThrough);
-        anyInputAction.AddBinding("<Gamepad>/<Button>");
-        anyInputAction.AddBinding("<Keyboard>/anyKey");
-        anyInputAction.AddBinding("<Mouse>/<Button>");
-        anyInputAction.performed += _ => OnAnyInput();
+        // Configuration de l'input
+        _anyKeyInput = new InputAction(binding: "<Keyboard>/anyKey");
+        _anyKeyInput.performed += _ => SwitchToMainMenu();
     }
 
     private void Start()
     {
-        // Fade-in du launchPanel au démarrage
-        if (launchCanvasGroup != null)
-        {
-            StartCoroutine(FadeInLaunchPanel());
-        }
+        // Au démarrage : fade-in du launch screen
+        launchScreen.TogglePanel(true);
     }
 
-    private IEnumerator FadeInLaunchPanel()
+    public void SwitchToMainMenu()
     {
-        // Activer les interactions
-        launchCanvasGroup.interactable = true;
-        launchCanvasGroup.blocksRaycasts = true;
-
-        float elapsedTime = 0f;
-        while (elapsedTime < fadeDuration)
-        {
-            launchCanvasGroup.alpha = Mathf.Lerp(0f, 1f, elapsedTime / fadeDuration);
-            elapsedTime += Time.deltaTime;
-            yield return null;
-        }
-        launchCanvasGroup.alpha = 1f;
+        StartCoroutine(TransitionToPanel(launchScreen, mainMenu));
     }
 
-    private void OnAnyInput()
+    // Méthode générique pour passer d'un panel à un autre
+    private IEnumerator TransitionToPanel(PanelTransition fromPanel, PanelTransition toPanel)
     {
-        if (!hasSwitched && launchCanvasGroup.alpha >= 0.99f) // Attendre que le fade-in soit fini
-        {
-            SwitchToMainMenu();
-        }
+        // Fade-out de l'écran actuel
+        fromPanel.TogglePanel(false);
+        
+        // Attendre que le fade-out soit terminé (optionnel)
+        yield return new WaitUntil(() => fromPanel.IsDoneFading());
+        
+        // Fade-in du nouvel écran
+        toPanel.TogglePanel(true);
     }
 
-    private void OnEnable() => anyInputAction.Enable();
-    private void OnDisable() => anyInputAction.Disable();
-
-    private void SwitchToMainMenu()
-    {
-        hasSwitched = true;
-        StartCoroutine(TransitionPanels());
-    }
-
-    private IEnumerator TransitionPanels()
-    {
-        // Fade Out du launchPanel
-        if (launchCanvasGroup != null)
-        {
-            float elapsedTime = 0f;
-            while (elapsedTime < fadeDuration)
-            {
-                launchCanvasGroup.alpha = Mathf.Lerp(1f, 0f, elapsedTime / fadeDuration);
-                elapsedTime += Time.deltaTime;
-                yield return null;
-            }
-            launchCanvasGroup.alpha = 0f;
-            launchCanvasGroup.interactable = false;
-            launchCanvasGroup.blocksRaycasts = false;
-        }
-
-        // Fade In du mainMenuPanel
-        if (mainMenuCanvasGroup != null)
-        {
-            mainMenuCanvasGroup.interactable = true;
-            mainMenuCanvasGroup.blocksRaycasts = true;
-
-            float elapsedTime = 0f;
-            while (elapsedTime < fadeDuration)
-            {
-                mainMenuCanvasGroup.alpha = Mathf.Lerp(0f, 1f, elapsedTime / fadeDuration);
-                elapsedTime += Time.deltaTime;
-                yield return null;
-            }
-            mainMenuCanvasGroup.alpha = 1f;
-        }
-    }
+    private void OnEnable() => _anyKeyInput.Enable();
+    private void OnDisable() => _anyKeyInput.Disable();
 }

@@ -23413,6 +23413,13 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
+  - time: 0.20833333
+    functionName: PlayAnimationSound
+    data: Slash3
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
   - time: 0.375
     functionName: OnAttackAnimationEnd
     data: 
