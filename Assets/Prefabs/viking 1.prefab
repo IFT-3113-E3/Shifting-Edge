@@ -584,22 +584,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aceb90391b744304da0dc66a72ff0186, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  soundLibrary:
-  - animationEventName: Jump
-    clip: {fileID: 8300000, guid: ee8c5978883e9dc4e915ae5616ec8097, type: 3}
-    pitchVariation: 0
-  - animationEventName: Slash1
-    clip: {fileID: 8300000, guid: 354e3f70e25bb6c43a86e4e05d87cb85, type: 3}
-    pitchVariation: 0
-  - animationEventName: Land
-    clip: {fileID: 8300000, guid: e2999cc0f4c436742ab7e2107e940452, type: 3}
-    pitchVariation: 0
-  - animationEventName: Footstep
-    clip: {fileID: 8300000, guid: f29ccfe4bbe69cd41b424520b9c74b47, type: 3}
-    pitchVariation: 0
-  - animationEventName: Slash2
-    clip: {fileID: 8300000, guid: e5905a35dcdab894798fd9673b79b537, type: 3}
-    pitchVariation: 0
-  - animationEventName: Slash3
-    clip: {fileID: 8300000, guid: 733533b4430275940b8fa0b405b7b2c0, type: 3}
-    pitchVariation: 0
+  soundGroups:
+  - eventName: Jump
+    clips:
+    - {fileID: 8300000, guid: ee8c5978883e9dc4e915ae5616ec8097, type: 3}
+    pitchVariation: 0.8
+    noRepeat: 0
+  - eventName: Land
+    clips:
+    - {fileID: 8300000, guid: e2999cc0f4c436742ab7e2107e940452, type: 3}
+    pitchVariation: 0.8
+    noRepeat: 0
+  - eventName: Footstep
+    clips:
+    - {fileID: 8300000, guid: f29ccfe4bbe69cd41b424520b9c74b47, type: 3}
+    - {fileID: 8300000, guid: 5f266ea9614199a4d8e761f262f9a05a, type: 3}
+    - {fileID: 8300000, guid: fd550044e53ad6a438f4b905e610ee8b, type: 3}
+    - {fileID: 8300000, guid: bbfa639db434feb409dd30e2215f1ad1, type: 3}
+    - {fileID: 8300000, guid: 636402f882274374ab8309e3e706ebb2, type: 3}
+    - {fileID: 8300000, guid: 147004a03ea15ab4aa1d0ae55f310c87, type: 3}
+    - {fileID: 8300000, guid: 295db9b883937e546a88ff6cf58f2380, type: 3}
+    - {fileID: 8300000, guid: f61e2cb6ef926584b8596858dc4b544d, type: 3}
+    - {fileID: 8300000, guid: 835c4cdd671e6444f90e63c0cafb443c, type: 3}
+    pitchVariation: 0.8
+    noRepeat: 1
+  - eventName: Swing
+    clips:
+    - {fileID: 8300000, guid: 354e3f70e25bb6c43a86e4e05d87cb85, type: 3}
+    - {fileID: 8300000, guid: e5905a35dcdab894798fd9673b79b537, type: 3}
+    - {fileID: 8300000, guid: 733533b4430275940b8fa0b405b7b2c0, type: 3}
+    pitchVariation: 0.8
+    noRepeat: 1

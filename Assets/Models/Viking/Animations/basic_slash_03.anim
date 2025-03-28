@@ -23414,8 +23414,8 @@ AnimationClip:
     intParameter: 0
     messageOptions: 0
   - time: 0.20833333
-    functionName: PlayAnimationSound
-    data: Slash3
+    functionName: PlayRandomSwing
+    data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
