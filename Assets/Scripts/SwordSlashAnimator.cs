@@ -62,6 +62,11 @@ public class SwordSlashAnimator : MonoBehaviour
         _meshFilter.sharedMesh = _mesh;
         _material = new Material(Shader.Find("Effects/SwordSlash"));
         _meshRenderer.sharedMaterial = _material;
+        _meshRenderer.enabled = false;
+        _meshCollider.sharedMesh = _mesh;
+        _meshCollider.convex = true;
+        _meshCollider.isTrigger = true;
+        _meshCollider.enabled = false;
     }
 
     void GenerateCurvePoints()
@@ -227,6 +232,7 @@ public class SwordSlashAnimator : MonoBehaviour
         float t = 0f;
         _material.SetFloat(Progress, 0f);
         _meshRenderer.enabled = true;
+        _meshCollider.enabled = true;
         
         while (t < duration)
         {
@@ -237,6 +243,7 @@ public class SwordSlashAnimator : MonoBehaviour
         
         _material.SetFloat(Progress, 1f);
         _meshRenderer.enabled = false;
+        _meshCollider.enabled = false;
         onComplete?.Invoke();
     }
     
@@ -248,5 +255,10 @@ public class SwordSlashAnimator : MonoBehaviour
         }
 
         _coroutine = StartCoroutine(PlaySlashRoutine(_config.duration, onComplete));
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        Debug.Log("Trigger Entered: " + other.name);
     }
 }

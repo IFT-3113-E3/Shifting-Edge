@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using Status;
 using UnityEngine;
 
 // Info on a triggered slash geometry
@@ -29,6 +30,8 @@ public class DynamicSwordSlash : MonoBehaviour
 
     private float _slashTimer;
     private bool _isSlashing;
+    
+    public GameObject slashPrefab;
 
     
     private Vector3 _previousPosition;
@@ -87,7 +90,21 @@ public class DynamicSwordSlash : MonoBehaviour
     
     IEnumerator SlashAnimSwordDrag(Vector3 start, Vector3 end, Vector3 startDirection, Vector3 endDirection, float alignment)
     {
-        var slashAnimator = new GameObject().AddComponent<SwordSlashAnimator>();
+        GameObject slashObject = Instantiate(slashPrefab, transform.position, Quaternion.identity);
+        var slashHitbox = slashObject.GetComponent<DamageHitbox>();
+        if (slashHitbox == null)
+        {
+            Debug.LogError("No DamageHitbox found on the slash prefab!");
+            yield break;
+        }
+        slashHitbox.owner = gameObject;
+        var slashAnimator = slashObject.GetComponent<SwordSlashAnimator>();
+        if (slashAnimator == null)
+        {
+            Debug.LogError("No SwordSlashAnimator found on the slash prefab!");
+            yield break;
+        }
+        
         slashAnimator.name = "Dynamic Sword Slash Animator";
         slashAnimator.transform.SetParent(null, false);
 
