@@ -8,6 +8,7 @@
 *.xpm binary
 *.icns binary
 *.obj binary
+*.fbx binary
 *.o binary
 *.a binary
 *.lib binary
