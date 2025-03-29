@@ -1,31 +1,54 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Status;
 
-public class HealthBar : MonoBehaviour
+public class HealthBar : MonoBehaviour 
 {
-    public Image healthBar;
-    public float maxHealth = 100f;
-    private float currentHealth;
-    public Gradient healthGradient;
+    [Header("References")]
+    [SerializeField] private Image fillImage;
+    [SerializeField] private Image borderImage;
+    
+    [Header("Settings")]
+    [SerializeField] private float smoothSpeed = 5f;
+    [SerializeField] private bool hideWhenFull = true;
 
-    void Start()
+    private EntityStatus _targetStatus;
+    private float _targetFill;
+    private RectTransform _fillRect;
+
+    private void Awake() 
     {
-        currentHealth = maxHealth;
-        UpdateHealthBar();
+        // Trouve automatiquement EntityStatus sur le parent
+        _targetStatus = GetComponentInParent<EntityStatus>();
+        _fillRect = fillImage.GetComponent<RectTransform>();
+        
+        if (_targetStatus == null) 
+        {
+            Debug.LogError($"HealthBar sur {gameObject.name} : Aucun EntityStatus trouvé sur le parent !");
+            enabled = false;
+            return;
+        }
     }
 
-    public void TakeDamage(float damage)
+    private void OnEnable() => _targetStatus.OnDamageTaken += UpdateHealth;
+    private void OnDisable() => _targetStatus.OnDamageTaken -= UpdateHealth;
+
+    private void Update() 
     {
-        currentHealth -= damage;
-        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth); 
-        UpdateHealthBar();
+        // Animation fluide
+        float currentFill = _fillRect.localScale.x;
+        if (Mathf.Abs(currentFill - _targetFill) > 0.01f) 
+        {
+            float newFill = Mathf.Lerp(currentFill, _targetFill, smoothSpeed * Time.deltaTime);
+            _fillRect.localScale = new Vector3(newFill, 1, 1);
+        }
     }
 
-    void UpdateHealthBar()
+    private void UpdateHealth(float damage, GameObject source) 
     {
-        float healthRatio = currentHealth / maxHealth;
-        healthBar.fillAmount = healthRatio;
-
-        healthBar.color = healthGradient.Evaluate(healthRatio);
+        _targetFill = Mathf.Clamp01(_targetStatus.CurrentHealth / _targetStatus.maxHealth);
+        
+        if (hideWhenFull)
+            gameObject.SetActive(!Mathf.Approximately(_targetFill, 1f));
     }
 }
