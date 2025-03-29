@@ -148,7 +148,7 @@ Transform:
   m_GameObject: {fileID: 3890723849095545373}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 1.42, z: 0}
+  m_LocalPosition: {x: 0, y: 1.672, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -714,7 +714,7 @@ ParticleSystem:
     serializedVersion: 6
     enabled: 1
     type: 4
-    angle: 15
+    angle: 72.1
     length: 5
     boxThickness: {x: 0, y: 0, z: 0}
     radiusThickness: 1
@@ -5289,6 +5289,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 75140ed55d663d84d8888b6658b1184e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1475713745477728930}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 75140ed55d663d84d8888b6658b1184e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7228999680706149434}
   m_SourcePrefab: {fileID: 100100000, guid: 75140ed55d663d84d8888b6658b1184e, type: 3}
 --- !u!4 &3407960210131304146 stripped
 Transform:
@@ -5394,13 +5397,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   motionThreshold: 1.2
-  cooldown: 0.2
+  cooldown: 0.25
   followUpFrames: 12
   slashConfig:
     arcAmount: 0.5
     length: 1
     duration: 0.3
-    segments: 20
+    segments: 30
     color: {r: 1, g: 1, b: 1, a: 1}
   _swordTransform: {fileID: 1460913513230021472}
   slashPrefab: {fileID: 3423610839208438812, guid: e5f3c14c109521a4b95163085f31130b, type: 3}
@@ -5569,6 +5572,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e6271c7478044af9dc8e9a603c5f29c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &7228999680706149434
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8303980003325856569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d26de8dc14b4f02b56fa2a60b083b20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  flashColor: {r: 1, g: 0, b: 0, a: 1}
+  flashDuration: 0.1
+  hitParticles: {fileID: 2739757752336651807}
 --- !u!4 &8680258911906763139 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 75140ed55d663d84d8888b6658b1184e, type: 3}

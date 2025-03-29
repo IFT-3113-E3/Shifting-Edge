@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 namespace Status
@@ -17,7 +18,7 @@ namespace Status
         
         private void Awake()
         {
-            _renderers = GetComponentsInChildren<Renderer>();
+            _renderers = GetComponentsInChildren<Renderer>().Except(GetComponentsInChildren<ParticleSystemRenderer>()).ToArray();
             _originalColors = new Color[_renderers.Length];
             for (int i = 0; i < _renderers.Length; i++)
             {
