@@ -5505,32 +5505,32 @@ MonoBehaviour:
   soundGroups:
   - eventName: Jump
     clips:
-    - {fileID: 8300000, guid: ee8c5978883e9dc4e915ae5616ec8097, type: 3}
+    - {fileID: 8300000, guid: 9494691e842fa134992d909c6a0c26dc, type: 3}
     pitchVariation: 0.8
     noRepeat: 0
   - eventName: Land
     clips:
-    - {fileID: 8300000, guid: e2999cc0f4c436742ab7e2107e940452, type: 3}
+    - {fileID: 8300000, guid: e97f7bf04be66df4a86df5817e78ec5a, type: 3}
     pitchVariation: 0.8
     noRepeat: 0
   - eventName: Footstep
     clips:
-    - {fileID: 8300000, guid: f29ccfe4bbe69cd41b424520b9c74b47, type: 3}
-    - {fileID: 8300000, guid: 5f266ea9614199a4d8e761f262f9a05a, type: 3}
-    - {fileID: 8300000, guid: fd550044e53ad6a438f4b905e610ee8b, type: 3}
-    - {fileID: 8300000, guid: bbfa639db434feb409dd30e2215f1ad1, type: 3}
-    - {fileID: 8300000, guid: 636402f882274374ab8309e3e706ebb2, type: 3}
-    - {fileID: 8300000, guid: 147004a03ea15ab4aa1d0ae55f310c87, type: 3}
-    - {fileID: 8300000, guid: 295db9b883937e546a88ff6cf58f2380, type: 3}
-    - {fileID: 8300000, guid: f61e2cb6ef926584b8596858dc4b544d, type: 3}
-    - {fileID: 8300000, guid: 835c4cdd671e6444f90e63c0cafb443c, type: 3}
+    - {fileID: 8300000, guid: 76d6d10c2a8dd5a4b9f0d744374bcbed, type: 3}
+    - {fileID: 8300000, guid: f8a51cccfa4213f4386dab6b34cbd593, type: 3}
+    - {fileID: 8300000, guid: e2bc114d5c6c7f842b1275f2fd5b9eaa, type: 3}
+    - {fileID: 8300000, guid: 8e4e4ec00d1c87447a47766b6cb262a7, type: 3}
+    - {fileID: 8300000, guid: b4ba80733524f7e4aa00c498d23d7ecf, type: 3}
+    - {fileID: 8300000, guid: 6417d945c58d5c04dbf73fc7a88bac4f, type: 3}
+    - {fileID: 8300000, guid: 8caa1bc6fb68e3e4696787603db28f44, type: 3}
+    - {fileID: 8300000, guid: 765ac3f05f03a5544ad96503c1dfd166, type: 3}
+    - {fileID: 8300000, guid: c501672aca73c754bb504eb2a019459d, type: 3}
     pitchVariation: 0.8
     noRepeat: 1
   - eventName: Swing
     clips:
-    - {fileID: 8300000, guid: 354e3f70e25bb6c43a86e4e05d87cb85, type: 3}
-    - {fileID: 8300000, guid: e5905a35dcdab894798fd9673b79b537, type: 3}
-    - {fileID: 8300000, guid: 733533b4430275940b8fa0b405b7b2c0, type: 3}
+    - {fileID: 8300000, guid: 759f1c8deb734d340a2d4dff1bada768, type: 3}
+    - {fileID: 8300000, guid: 639958da58790c644bcd72bb9c1d20fc, type: 3}
+    - {fileID: 8300000, guid: 7d0f0efab47d61848b6ac253fdfccc2e, type: 3}
     pitchVariation: 0.8
     noRepeat: 1
 --- !u!114 &6252254898539983023
