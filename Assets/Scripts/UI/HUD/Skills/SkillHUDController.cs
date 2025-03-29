@@ -3,28 +3,53 @@ using UnityEngine.UI;
 
 public class SkillHUDController : MonoBehaviour
 {
-    [Header("Références Stacks")]
-    public Image[] stackFills;
+    [Header("UI References")]
+    [SerializeField] private Image[] stackImages;
+    [SerializeField] private float fillSpeed = 5f;
 
     public void Initialize(int maxStacks)
     {
-        foreach (var fill in stackFills)
+        foreach (var img in stackImages)
         {
-            if (fill != null) fill.fillAmount = 0f;
+            img.fillAmount = 0;
         }
     }
 
-    public void UpdateStacks(float totalProgress)
+    public void UpdateStacks(int currentStacks)
     {
-        for (int i = 0; i < stackFills.Length; i++)
-        {
-            if (stackFills[i] != null)
-            {
-                float stackProgress = Mathf.Clamp(totalProgress - i, 0f, 1f);
-                stackFills[i].fillAmount = stackProgress;
+        StopAllCoroutines();
+        StartCoroutine(AnimateStacks(currentStacks));
+    }
 
-                stackFills[i].color = stackProgress > 0 ? Color.green : Color.gray;
-            }
+    private System.Collections.IEnumerator AnimateStacks(int targetStacks)
+    {
+        float[] targetFills = new float[stackImages.Length];
+        for (int i = 0; i < targetFills.Length; i++)
+        {
+            targetFills[i] = (i < targetStacks) ? 1f : 0f;
         }
+
+        while (!AllFillsMatch(targetFills))
+        {
+            for (int i = 0; i < stackImages.Length; i++)
+            {
+                stackImages[i].fillAmount = Mathf.MoveTowards(
+                    stackImages[i].fillAmount,
+                    targetFills[i],
+                    fillSpeed * Time.deltaTime
+                );
+            }
+            yield return null;
+        }
+    }
+
+    private bool AllFillsMatch(float[] targets)
+    {
+        for (int i = 0; i < stackImages.Length; i++)
+        {
+            if (Mathf.Abs(stackImages[i].fillAmount - targets[i]) > 0.01f)
+                return false;
+        }
+        return true;
     }
 }

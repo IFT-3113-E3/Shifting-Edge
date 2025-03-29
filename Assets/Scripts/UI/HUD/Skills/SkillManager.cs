@@ -2,75 +2,70 @@ using UnityEngine;
 
 public class SkillManager : MonoBehaviour
 {
-    [Header("Paramètres Généraux")]
+    [Header("Skill Settings")]
     public int maxStacks = 3;
-    public int attacksPerStack = 4;
+    public int[] skillCosts = new int[3]; // Coût pour chaque compétence
 
-    [Header("Coûts des Compétences")]
-    public int skill1Cost = 1;
-    public int skill2Cost = 2;
-
-    [Header("Effets Visuels")]
-
-    [Header("Références UI")]
+    [Header("References")]
     public SkillHUDController hudController;
+    public Animator characterAnimator;
 
-    private float totalProgress;
-    private int attackCounter;
+    private int _currentStacks;
+    private bool[] _animationTriggered = new bool[3];
 
     private void Start()
     {
-        totalProgress = 0f;
-        attackCounter = 0;
         hudController.Initialize(maxStacks);
     }
 
     private void Update()
     {
-        HandleInput();
+        CheckAnimations();
+        HandleSkillInput();
     }
 
-    private void HandleInput()
+    private void CheckAnimations()
     {
-        if (Input.GetMouseButtonDown(0))
+        for (int i = 0; i < 3; i++)
         {
-            attackCounter++;
-            UpdateStackProgress();
-        }
-
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            TryUseSkill(skill1Cost, Color.red);
-        }
-
-        if (Input.GetKeyDown(KeyCode.W))
-        {
-            TryUseSkill(skill2Cost, Color.blue);
-        }
-    }
-
-    private void UpdateStackProgress()
-    {
-        if (totalProgress >= maxStacks) return;
-
-        totalProgress += 1f / attacksPerStack;
-        attackCounter = 0;
-
-        hudController.UpdateStacks(totalProgress);
-    }
-
-    private void TryUseSkill(int cost, Color color)
-    {
-        if (totalProgress >= cost)
-        {
-            totalProgress -= cost;
-            hudController.UpdateStacks(totalProgress);
-            TriggerSkillEffect(color);
+            if (characterAnimator.GetCurrentAnimatorStateInfo(0).IsName($"Attack_{i+1}") && 
+                !_animationTriggered[i])
+            {
+                OnAnimationCompleted(i);
+                _animationTriggered[i] = true;
+            }
+            else if (!characterAnimator.GetCurrentAnimatorStateInfo(0).IsName($"Attack_{i+1}"))
+            {
+                _animationTriggered[i] = false;
+            }
         }
     }
 
-    private void TriggerSkillEffect(Color color)
+    private void OnAnimationCompleted(int animationIndex)
     {
-        return;
+        if (_currentStacks < maxStacks)
+        {
+            _currentStacks++;
+            hudController.UpdateStacks(_currentStacks);
+        }
+    }
+
+    private void HandleSkillInput()
+    {
+        if (Input.GetKeyDown(KeyCode.Q)) TryUseSkill(0);
+        if (Input.GetKeyDown(KeyCode.W)) TryUseSkill(1);
+        if (Input.GetKeyDown(KeyCode.E)) TryUseSkill(2);
+    }
+
+    private void TryUseSkill(int skillIndex)
+    {
+        if (skillIndex < skillCosts.Length && _currentStacks >= skillCosts[skillIndex])
+        {
+            _currentStacks -= skillCosts[skillIndex];
+            hudController.UpdateStacks(_currentStacks);
+            
+            // Déclencher l'effet de la compétence ici
+            Debug.Log($"Skill {skillIndex+1} used!");
+        }
     }
 }
