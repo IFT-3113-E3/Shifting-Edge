@@ -235,6 +235,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: HUD
       objectReference: {fileID: 0}
+    - target: {fileID: 9127422576542939658, guid: 003af499a5394db4f952cdc04b87c5dd, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 1892216900}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 470958314825273961, guid: 003af499a5394db4f952cdc04b87c5dd, type: 3}
@@ -713,6 +717,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1850333645}
   - component: {fileID: 1850333644}
+  - component: {fileID: 1850333646}
   m_Layer: 0
   m_Name: TileManager
   m_TagString: Untagged
@@ -744,6 +749,7 @@ MonoBehaviour:
   mapFile: MainScene
   chunkSize: 10
   renderDistance: 2
+  generateNavMesh: 1
 --- !u!4 &1850333645
 Transform:
   m_ObjectHideFlags: 0
@@ -759,6 +765,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1850333646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1850333643}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0b4b9906dd5bb4487644642bc70508, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyTypes:
+  - enemyPrefab: {fileID: 8303980003325856569, guid: fc765d44d712f264f8914d34379ba185, type: 3}
+    minSpawnCount: 1
+    maxSpawnCount: 3
+    spawnHeight: 0
+    spawnChance: 100
+  minDistanceFromPlayer: 10
+  despawnDistance: 50
 --- !u!1001 &1892216899
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -773,7 +799,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8680258911906763139, guid: c0988a03691247e4fbf37ac0553e1d20, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8680258911906763139, guid: c0988a03691247e4fbf37ac0553e1d20, type: 3}
       propertyPath: m_LocalPosition.y
@@ -842,11 +868,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 237317625404452477, guid: e449c248750ed0b4e846a64d481c4594, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 1920
+      value: 928
       objectReference: {fileID: 0}
     - target: {fileID: 237317625404452477, guid: e449c248750ed0b4e846a64d481c4594, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 1080
+      value: 522
       objectReference: {fileID: 0}
     - target: {fileID: 883777343307218551, guid: e449c248750ed0b4e846a64d481c4594, type: 3}
       propertyPath: m_LocalPosition.x

@@ -2,6 +2,8 @@ using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using UnityEngine.AI;
+using Unity.AI.Navigation;
 
 [System.Serializable]
 public class MapData
@@ -25,6 +27,9 @@ public class ChunkManager : MonoBehaviour
     public string mapFile = ""; // Path to the JSON file
     public int chunkSize = 10;
     public int renderDistance = 2;
+    public bool generateNavMesh = true;
+    private NavMeshSurface navMeshSurface;
+
 
     private readonly Dictionary<Vector2Int, Chunk> chunks = new();
     private MapData mapData;
@@ -33,6 +38,13 @@ public class ChunkManager : MonoBehaviour
     internal void Awake()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
+
+        if (generateNavMesh)
+            {
+                navMeshSurface = gameObject.AddComponent<NavMeshSurface>();
+                navMeshSurface.collectObjects = CollectObjects.All;
+                navMeshSurface.useGeometry = NavMeshCollectGeometry.PhysicsColliders;
+            }
     }
 
     internal void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -144,6 +156,12 @@ public class ChunkManager : MonoBehaviour
         }
     }
 
+        private void UpdateNavMesh()
+    {
+        // Reconstruire la NavMesh pour inclure les nouveaux chunks
+        navMeshSurface.BuildNavMesh();
+    }
+
     private void LoadChunk(Vector2Int chunkPos)
     {
         if (chunks.ContainsKey(chunkPos)) return;
@@ -151,6 +169,10 @@ public class ChunkManager : MonoBehaviour
         Chunk newChunk = CreateNewChunk(chunkPos);
         PopulateChunkWithTiles(newChunk);
         chunks[chunkPos] = newChunk;
+
+        if (generateNavMesh) {
+            UpdateNavMesh();
+        }
     }
 
     private Chunk CreateNewChunk(Vector2Int chunkPos)
@@ -198,6 +220,10 @@ public class ChunkManager : MonoBehaviour
                 Quaternion rotation = Quaternion.Euler(0, rotationIndex * 90, 0); // Appliquer la rotation
                 GameObject tile = Instantiate(tilePrefabs[tileType], position, rotation, newChunk.chunkObject.transform);
                 newChunk.tiles.Add(tile);
+                if (tile.GetComponent<Collider>() == null)
+                {
+                    tile.AddComponent<BoxCollider>();
+                }
 
                 Debug.Log($"Tuile instanciée à {position} avec type {tileType}, hauteur {height}, rotation {rotationIndex * 90}°");
             }
@@ -214,6 +240,10 @@ public class ChunkManager : MonoBehaviour
             }
             Destroy(chunk.chunkObject);
             chunks.Remove(chunkPos);
+        }
+
+        if (generateNavMesh) {
+            UpdateNavMesh();
         }
     }
 }
