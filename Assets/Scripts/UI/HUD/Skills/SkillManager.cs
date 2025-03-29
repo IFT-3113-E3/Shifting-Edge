@@ -11,7 +11,6 @@ public class SkillManager : MonoBehaviour
     public int skill2Cost = 2;
 
     [Header("Effets Visuels")]
-    public ScreenFlashEffect flashEffect;
 
     [Header("Références UI")]
     public SkillHUDController hudController;
@@ -72,7 +71,6 @@ public class SkillManager : MonoBehaviour
 
     private void TriggerSkillEffect(Color color)
     {
-        // Déclencher l'effet de flash
-        if (flashEffect != null) flashEffect.TriggerFlash(color);
+        return;
     }
 }
