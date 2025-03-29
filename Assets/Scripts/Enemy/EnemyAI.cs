@@ -1,7 +1,9 @@
+using System;
 using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
 using Status;
+using Random = UnityEngine.Random;
 
 public enum EnemyState
 {
@@ -13,6 +15,9 @@ public enum EnemyState
 
 public class EnemyAI : MonoBehaviour
 {
+    private static readonly int IsMoving = Animator.StringToHash("isRunning");
+    private static readonly int Attack1 = Animator.StringToHash("lightAttack");
+
     [Header("AI Settings")]
     public EnemyState currentState = EnemyState.Idle;
     public float detectionRange = 15f;
@@ -45,10 +50,10 @@ public class EnemyAI : MonoBehaviour
     
     public void Initialize(Transform playerTransform)
     {
-        this.player = playerTransform;
+        player = playerTransform;
         
         // Configurer l'agent NavMesh
-        if (agent != null)
+        if (agent)
         {
             agent.stoppingDistance = attackRange * 0.8f;
         }
@@ -75,7 +80,8 @@ public class EnemyAI : MonoBehaviour
         
         if (animator != null)
         {
-            animator.SetBool("IsMoving", false);
+            animator.ResetTrigger(Attack1);
+            animator.SetBool(IsMoving, false);
         }
         
         // Attendre un certain temps
@@ -125,7 +131,7 @@ public class EnemyAI : MonoBehaviour
                     
                     if (animator != null)
                     {
-                        animator.SetBool("IsMoving", true);
+                        animator.SetBool(IsMoving, true);
                     }
                 }
             }
@@ -172,7 +178,8 @@ public class EnemyAI : MonoBehaviour
             
             if (animator != null)
             {
-                animator.SetBool("IsMoving", true);
+                animator.ResetTrigger(Attack1);
+                animator.SetBool(IsMoving, true);
             }
         }
         
@@ -229,8 +236,8 @@ public class EnemyAI : MonoBehaviour
         // Lancer l'animation d'attaque
         if (animator != null)
         {
-            animator.SetBool("IsMoving", false);
-            animator.SetTrigger("Attack");
+            animator.SetBool(IsMoving, false);
+            animator.SetTrigger(Attack1);
         }
         
         // Effectuer des dégâts après un court délai
@@ -284,7 +291,7 @@ public class EnemyAI : MonoBehaviour
             currentState = EnemyState.Idle;
         }
     }
-    
+
     // Pour le débogage
     void OnDrawGizmosSelected()
     {
