@@ -245,6 +245,8 @@ public class SwordSlashAnimator : MonoBehaviour
         _meshRenderer.enabled = false;
         _meshCollider.enabled = false;
         onComplete?.Invoke();
+        _coroutine = null;
+        Destroy(gameObject);
     }
     
     public void PlaySlash(Action onComplete = null)
