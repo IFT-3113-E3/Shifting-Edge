@@ -92,14 +92,14 @@ public class DynamicSwordSlash : MonoBehaviour
     {
         GameObject slashObject = Instantiate(slashPrefab, transform.position, Quaternion.identity);
         var slashHitbox = slashObject.GetComponent<DamageHitbox>();
-        if (slashHitbox == null)
+        if (!slashHitbox)
         {
             Debug.LogError("No DamageHitbox found on the slash prefab!");
             yield break;
         }
         slashHitbox.owner = gameObject;
         var slashAnimator = slashObject.GetComponent<SwordSlashAnimator>();
-        if (slashAnimator == null)
+        if (!slashAnimator)
         {
             Debug.LogError("No SwordSlashAnimator found on the slash prefab!");
             yield break;
@@ -110,9 +110,11 @@ public class DynamicSwordSlash : MonoBehaviour
 
         slashAnimator.transform.position = transform.position;
 
+        bool isCompleted = false;
+        
         slashAnimator.Configure(slashConfig);
         slashAnimator.SetupSlash(start, end, startDirection, endDirection, alignment < 0f);
-        slashAnimator.PlaySlash();
+        slashAnimator.PlaySlash(() => isCompleted = true);
 
         if (_onSlashTriggered != null)
         {
@@ -131,13 +133,18 @@ public class DynamicSwordSlash : MonoBehaviour
         for (int i = 0; i < followUpFrames; i++)
         {
             yield return 0;
-
+            
+            if (isCompleted)
+            {
+                slashAnimator.gameObject.SetActive(false);
+                Destroy(slashAnimator.gameObject);
+                yield break;
+            }
             
             slashAnimator.transform.position = transform.position;
 
             Vector3 currentPosition = _swordTransform.position;
             Vector3 currentDirection = _swordTransform.forward;
-            Debug.Log($"Distance: {Vector3.Distance(currentPosition, end)}, Direction: {Vector3.Distance(currentDirection, endDirection)}");
             // if currentPositon and currentDirection are too far from the original end configuration, dont update
             if (Vector3.Distance(currentPosition, end) < 0.1f &&
                 Vector3.Distance(currentDirection, endDirection) < 0.5f)
@@ -146,6 +153,10 @@ public class DynamicSwordSlash : MonoBehaviour
             }
 
         }
+        
+        yield return new WaitUntil(() => isCompleted);
+        slashAnimator.gameObject.SetActive(false);
+        Destroy(slashAnimator.gameObject);
     }
     
     public void SetOnSlashTriggered(Action<SlashInfo> onSlashTriggered)

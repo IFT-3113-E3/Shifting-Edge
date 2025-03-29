@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Rendering;
 using Quaternion = UnityEngine.Quaternion;
 
 [Serializable]
@@ -60,7 +61,7 @@ public class SwordSlashAnimator : MonoBehaviour
     {
         _mesh = new Mesh { name = "Slash Mesh" };
         _meshFilter.sharedMesh = _mesh;
-        _material = new Material(Shader.Find("Effects/SwordSlash"));
+        _material = CoreUtils.CreateEngineMaterial(Shader.Find("Effects/SwordSlash"));
         _meshRenderer.sharedMaterial = _material;
         _meshRenderer.enabled = false;
         _meshCollider.sharedMesh = _mesh;
@@ -245,8 +246,6 @@ public class SwordSlashAnimator : MonoBehaviour
         _meshRenderer.enabled = false;
         _meshCollider.enabled = false;
         onComplete?.Invoke();
-        _coroutine = null;
-        Destroy(gameObject);
     }
     
     public void PlaySlash(Action onComplete = null)
