@@ -100,9 +100,6 @@ public class SwordSlashAnimator : MonoBehaviour
 
         _p1 = _p0 + startRight * handleLength;
         _p2 = _p3 - endRight * handleLength;
-
-        Debug.DrawRay(_p0, _p1, Color.red, 1);
-        Debug.DrawRay(_p3, _p2, Color.green, 1);
     }
     
     Vector3 CubicBezier(float t, Vector3 a, Vector3 b, Vector3 c, Vector3 d) {

@@ -22,8 +22,9 @@ public class DynamicSwordSlash : MonoBehaviour
     public float cooldown = 0.2f;
     public int followUpFrames = 1;
     public SlashAnimationConfig slashConfig;
-    
-    public SwordSlashAnimator _slashAnimator;
+    public Transform _swordTransform;
+    public GameObject slashPrefab;
+
     private Vector3 _previousBladeDirection;
     private Vector3 _motionDirection;
     private float _currentVelocity;
@@ -31,61 +32,76 @@ public class DynamicSwordSlash : MonoBehaviour
     private float _slashTimer;
     private bool _isSlashing;
     
-    public GameObject slashPrefab;
 
     
-    private Vector3 _previousPosition;
-    private Quaternion _previousRotation;
     private float _cooldownTimer;
     
-    private Coroutine _slashCoroutine;
-    
-    public Transform _swordTransform;
     
     private Action<SlashInfo> _onSlashTriggered;
     
     void Start()
     {
+        if (_swordTransform == null)
+        {
+            Debug.LogError("Sword Transform is not assigned!");
+            return;
+        }
 
-        
-        _previousPosition = _swordTransform.position;
-        _previousRotation = _swordTransform.rotation;
+        if (slashPrefab == null)
+        {
+            Debug.LogError("Slash Prefab is not assigned!");
+            return;
+        }
+
+        _lastBladePosition = _swordTransform.position;
+        _lastLocalBladePosition = transform.InverseTransformPoint(_swordTransform.position);
+        _lastBladeDirection = _swordTransform.forward;
     }
+
+    private Vector3 _lastBladePosition;
+    private Vector3 _lastLocalBladePosition;
+    private Vector3 _lastBladeDirection;
 
     void Update()
     {
         _cooldownTimer -= Time.deltaTime;
 
-        Vector3 currentPosition = _swordTransform.position;
-        Quaternion currentRotation = _swordTransform.rotation;
+        Vector3 localBladePosition = transform.InverseTransformPoint(_swordTransform.position);
 
-        Vector3 movementDelta = currentPosition - _previousPosition;
+        Vector3 movementDelta = localBladePosition - _lastLocalBladePosition;
         float distanceMoved = movementDelta.magnitude;
 
         if (distanceMoved > Mathf.Epsilon && _cooldownTimer <= 0f)
         {
-            Vector3 bladeDirection = _swordTransform.right;
-
+            Vector3 bladeDirection = transform.InverseTransformDirection(_swordTransform.right);
             float bladeAlignedMovement = Vector3.Dot(movementDelta.normalized, bladeDirection);
 
             if (Mathf.Abs(bladeAlignedMovement) <= 1f && distanceMoved >= motionThreshold)
             {
-                TriggerSlashEffect(_previousPosition, currentPosition, _previousRotation * Vector3.forward, currentRotation * Vector3.forward, bladeAlignedMovement);
+                Vector3 prevPos = _lastBladePosition;
+                Vector3 currPos = _swordTransform.position;
+                Vector3 prevDir = _lastBladeDirection;
+                Vector3 currDir = _swordTransform.forward;
+                
+                if (prevPos == currPos && prevDir == currDir)
+                {
+                    return;
+                }
+                
+                TriggerSlashEffect(prevPos, currPos, prevDir, currDir, bladeAlignedMovement);
                 _cooldownTimer = cooldown;
             }
         }
 
-        _previousPosition = currentPosition;
-        _previousRotation = currentRotation;
+        _lastBladePosition = _swordTransform.position;
+        _lastBladeDirection = _swordTransform.forward;
+        _lastLocalBladePosition = localBladePosition;
     }
+
 
     void TriggerSlashEffect(Vector3 start, Vector3 end, Vector3 startDirection, Vector3 endDirection, float alignment)
     {
-        // if (_slashCoroutine != null)
-        // {
-        //     StopCoroutine(_slashCoroutine);
-        // }
-        _slashCoroutine = StartCoroutine(SlashAnimSwordDrag(start, end, startDirection, endDirection, alignment));
+        StartCoroutine(SlashAnimSwordDrag(start, end, startDirection, endDirection, alignment));
     }
     
     IEnumerator SlashAnimSwordDrag(Vector3 start, Vector3 end, Vector3 startDirection, Vector3 endDirection, float alignment)
@@ -129,6 +145,9 @@ public class DynamicSwordSlash : MonoBehaviour
             };
             _onSlashTriggered.Invoke(slashInfo);            
         }
+
+        Vector3 lastLocalEnd = transform.InverseTransformPoint(end);
+        Vector3 lastEndDir = endDirection;
         
         for (int i = 0; i < followUpFrames; i++)
         {
@@ -145,11 +164,15 @@ public class DynamicSwordSlash : MonoBehaviour
 
             Vector3 currentPosition = _swordTransform.position;
             Vector3 currentDirection = _swordTransform.forward;
+            
+            Vector3 localCurrentPosition = transform.InverseTransformPoint(currentPosition);
             // if currentPositon and currentDirection are too far from the original end configuration, dont update
-            if (Vector3.Distance(currentPosition, end) < 0.1f &&
-                Vector3.Distance(currentDirection, endDirection) < 0.5f)
+            if (Vector3.Distance(localCurrentPosition, lastLocalEnd) < 0.1f &&
+                Vector3.Distance(currentDirection, lastEndDir) < 0.5f)
             {
                 slashAnimator.SetupSlash(start, currentPosition, startDirection, currentDirection, alignment < 0f);
+                lastLocalEnd = localCurrentPosition;
+                lastEndDir = currentDirection;
             }
 
         }
