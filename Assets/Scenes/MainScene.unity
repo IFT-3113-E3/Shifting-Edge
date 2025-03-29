@@ -245,7 +245,7 @@ PrefabInstance:
     - target: {fileID: 2054705704410243327, guid: 003af499a5394db4f952cdc04b87c5dd, type: 3}
       propertyPath: gameCamera
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1269042001}
     - target: {fileID: 2054705704410243327, guid: 003af499a5394db4f952cdc04b87c5dd, type: 3}
       propertyPath: canvasScaler
       value: 
