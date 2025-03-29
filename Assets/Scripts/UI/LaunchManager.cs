@@ -1,46 +1,47 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using System.Collections;
+using UnityEngine.EventSystems;
 
 public class LaunchManager : MonoBehaviour
 {
-    // Références vers les scripts de transition de chaque panel
-    public PanelTransition launchScreen;
-    public PanelTransition mainMenu;
+    // Références aux panels
+    public GameObject launchScreen;
+    public GameObject mainMenu;
 
-    private InputAction _anyKeyInput;
+    private InputAction _anyInput;
 
     private void Awake()
     {
-        // Configuration de l'input
-        _anyKeyInput = new InputAction(binding: "<Keyboard>/anyKey");
-        _anyKeyInput.performed += _ => SwitchToMainMenu();
+        // Configuration de l'input pour clavier ET souris
+        _anyInput = new InputAction(binding: "/*/<button>"); // Tous les boutons (clavier + souris)
+        _anyInput.performed += _ => SwitchToMainMenu();
     }
 
     private void Start()
     {
-        // Au démarrage : fade-in du launch screen
-        launchScreen.TogglePanel(true);
+        // Vérification des références
+        if (launchScreen == null || mainMenu == null)
+        {
+            Debug.LogError("Les panels ne sont pas assignés dans l'inspecteur !");
+            return;
+        }
+
+        // Initialisation de l'UI
+        launchScreen.SetActive(true);
+        mainMenu.SetActive(false);
     }
 
     public void SwitchToMainMenu()
     {
-        StartCoroutine(TransitionToPanel(launchScreen, mainMenu));
+        if (!launchScreen.activeSelf) return; // Évite les déclenchements multiples
+
+        launchScreen.SetActive(false);
+        mainMenu.SetActive(true);
+        
+        // Optionnel : Focus sur le premier élément du menu
+        EventSystem.current.SetSelectedGameObject(mainMenu.transform.GetChild(0).gameObject);
     }
 
-    // Méthode générique pour passer d'un panel à un autre
-    private IEnumerator TransitionToPanel(PanelTransition fromPanel, PanelTransition toPanel)
-    {
-        // Fade-out de l'écran actuel
-        fromPanel.TogglePanel(false);
-        
-        // Attendre que le fade-out soit terminé (optionnel)
-        yield return new WaitUntil(() => fromPanel.IsDoneFading());
-        
-        // Fade-in du nouvel écran
-        toPanel.TogglePanel(true);
-    }
-
-    private void OnEnable() => _anyKeyInput.Enable();
-    private void OnDisable() => _anyKeyInput.Disable();
+    private void OnEnable() => _anyInput.Enable();
+    private void OnDisable() => _anyInput.Disable();
 }

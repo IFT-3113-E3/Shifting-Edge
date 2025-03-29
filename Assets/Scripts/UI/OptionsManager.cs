@@ -4,6 +4,7 @@ using UnityEngine.UI;
 public class OptionsManager : MonoBehaviour
 {
     [Header("Panels")]
+    public GameObject mainMenuPanel;
     public GameObject optionsMainPanel;
     public GameObject gamePanel;
     public GameObject videoPanel;
@@ -16,10 +17,20 @@ public class OptionsManager : MonoBehaviour
 
     private void Start()
     {
+        // Initialisation des panels
+        if (optionsMainPanel != null) optionsMainPanel.SetActive(false);
         CloseAllSubPanels();
         
+        // Configuration du bouton back
         if (backButton != null)
+        {
+            backButton.onClick.RemoveAllListeners(); // Nettoyage préalable
             backButton.onClick.AddListener(BackToMenu);
+        }
+        else
+        {
+            Debug.LogError("Le bouton Back n'est pas assigné dans l'inspecteur !");
+        }
     }
 
     public void GameOptions()
@@ -39,22 +50,25 @@ public class OptionsManager : MonoBehaviour
 
     private void ToggleSubPanel(GameObject panelToActivate)
     {
-        // Désactiver le panel actuel s'il y en a un
-        if (currentSubPanel != null && currentSubPanel != panelToActivate)
+        // Désactiver le panel actuel s'il existe
+        if (currentSubPanel != null) 
         {
             currentSubPanel.SetActive(false);
         }
 
-        // Activer/désactiver le nouveau panel
+        // Activer le nouveau panel seulement si différent
         if (panelToActivate != currentSubPanel)
         {
             panelToActivate.SetActive(true);
             currentSubPanel = panelToActivate;
+            
+            // S'assurer que le panel principal des options est actif
+            if (optionsMainPanel != null) 
+                optionsMainPanel.SetActive(true);
         }
         else
         {
             currentSubPanel = null;
-            panelToActivate.SetActive(false);
         }
     }
 
@@ -68,13 +82,17 @@ public class OptionsManager : MonoBehaviour
 
     public void BackToMenu()
     {
-        // Désactiver le panel principal des options
+        // 1. Fermer tous les sous-panels
+        CloseAllSubPanels();
+        
+        // 2. Fermer le panel principal des options
         if (optionsMainPanel != null)
             optionsMainPanel.SetActive(false);
         
-        CloseAllSubPanels();
-        
-        // Activer le panel du menu principal (à assigner dans l'Inspector)
-        // FindObjectOfType<MainMenuManager>().mainMenuPanel.SetActive(true);
+        // 3. Réactiver le menu principal
+        if (mainMenuPanel != null)
+            mainMenuPanel.SetActive(true);
+        else
+            Debug.LogError("Le panel du menu principal n'est pas assigné !");
     }
 }
