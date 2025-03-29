@@ -139,7 +139,7 @@ public class PlayerController : MonoBehaviour
     void BreakCombo(bool cancelled, string debug)
     {
         _movementLocked = false;
-        Debug.LogError($"Combo broken: {debug}, cancelled: {cancelled}");
+        // Debug.LogError($"Combo broken: {debug}, cancelled: {cancelled}");
         _isInCombo = false;
         if (_animator)
         {
