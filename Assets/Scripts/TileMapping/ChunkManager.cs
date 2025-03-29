@@ -29,6 +29,9 @@ public class ChunkManager : MonoBehaviour
     public int renderDistance = 2;
     public bool generateNavMesh = true;
     private NavMeshSurface navMeshSurface;
+    private readonly float cleanupInterval = 30f; // Intervalle de nettoyage en secondes
+    private float cleanupTimer = 0f; // Minuteur pour suivre le temps écoulé
+    private Transform playerTransform;
 
 
     private readonly Dictionary<Vector2Int, Chunk> chunks = new();
@@ -91,14 +94,32 @@ public class ChunkManager : MonoBehaviour
         }
     }
 
+    internal void FixedUpdate()
+    {
+        cleanupTimer += Time.fixedDeltaTime;
+
+        if (cleanupTimer >= cleanupInterval)
+        {
+            CleanupInactiveChunks();
+            cleanupTimer = 0f;
+        }
+    }
+
     private Transform GetPlayerTransform()
     {
-        Transform player = GameObject.FindGameObjectWithTag("Player")?.transform;
-        if (player == null)
+        if (playerTransform == null || playerTransform.gameObject == null)
         {
-            Debug.LogError("Player not found.");
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+            {
+                playerTransform = player.transform;
+            }
+            else
+            {
+                Debug.LogError("Player not found.");
+            }
         }
-        return player;
+        return playerTransform;
     }
 
     private Vector2Int GetPlayerChunk(Vector3 playerPosition)
@@ -164,15 +185,26 @@ public class ChunkManager : MonoBehaviour
 
     private void LoadChunk(Vector2Int chunkPos)
     {
-        if (chunks.ContainsKey(chunkPos)) return;
+        if (chunks.TryGetValue(chunkPos, out Chunk existingChunk) && !existingChunk.isLoaded)
+        {
+            // Réactiver un chunk désactivé
+            existingChunk.chunkObject.SetActive(true);
+            existingChunk.isLoaded = true;
 
+            if (generateNavMesh)
+            {
+                UpdateNavMesh();
+            }
+            return;
+        }
+
+        // Si aucun chunk désactivé n'existe, en créer un nouveau
         Chunk newChunk = CreateNewChunk(chunkPos);
         PopulateChunkWithTiles(newChunk);
         chunks[chunkPos] = newChunk;
 
-        if (generateNavMesh) {
+        if (generateNavMesh)
             UpdateNavMesh();
-        }
     }
 
     private Chunk CreateNewChunk(Vector2Int chunkPos)
@@ -234,16 +266,26 @@ public class ChunkManager : MonoBehaviour
     {
         if (chunks.TryGetValue(chunkPos, out Chunk chunk))
         {
-            foreach (var tile in chunk.tiles)
+            chunk.chunkObject.SetActive(false);
+            chunk.isLoaded = false;
+        }
+    }
+
+    private void CleanupInactiveChunks()
+    {
+        List<Vector2Int> chunksToRemove = new();
+        foreach (var chunk in chunks)
+        {
+            if (!chunk.Value.isLoaded)
             {
-                Destroy(tile);
+                Destroy(chunk.Value.chunkObject);
+                chunksToRemove.Add(chunk.Key);
             }
-            Destroy(chunk.chunkObject);
-            chunks.Remove(chunkPos);
         }
 
-        if (generateNavMesh) {
-            UpdateNavMesh();
+        foreach (var chunkPos in chunksToRemove)
+        {
+            chunks.Remove(chunkPos);
         }
     }
 }
