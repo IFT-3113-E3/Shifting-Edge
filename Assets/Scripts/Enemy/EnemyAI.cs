@@ -17,6 +17,7 @@ public class EnemyAI : MonoBehaviour
 {
     private static readonly int IsMoving = Animator.StringToHash("isRunning");
     private static readonly int Attack1 = Animator.StringToHash("lightAttack");
+    private static readonly int BreakAttack = Animator.StringToHash("breakAttack");
 
     [Header("AI Settings")]
     public EnemyState currentState = EnemyState.Idle;
@@ -81,6 +82,7 @@ public class EnemyAI : MonoBehaviour
         if (animator != null)
         {
             animator.ResetTrigger(Attack1);
+            animator.SetTrigger(BreakAttack);
             animator.SetBool(IsMoving, false);
         }
         
@@ -179,6 +181,7 @@ public class EnemyAI : MonoBehaviour
             if (animator != null)
             {
                 animator.ResetTrigger(Attack1);
+                animator.SetTrigger(BreakAttack);
                 animator.SetBool(IsMoving, true);
             }
         }
@@ -237,6 +240,7 @@ public class EnemyAI : MonoBehaviour
         if (animator != null)
         {
             animator.SetBool(IsMoving, false);
+            animator.ResetTrigger(BreakAttack);
             animator.SetTrigger(Attack1);
         }
         
