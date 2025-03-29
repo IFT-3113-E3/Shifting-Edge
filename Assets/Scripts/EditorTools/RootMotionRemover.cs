@@ -1,68 +1,72 @@
-﻿using UnityEngine;
-using UnityEditor;
-using System.IO;
+﻿using UnityEditor;
+using UnityEngine;
 
-public class RootMotionRemover : EditorWindow
+#if UNITY_EDITOR
+namespace EditorTools
 {
-    private AnimationClip sourceClip;
-    private string savePath = "Assets/NoRootMotion.anim";
-
-    [MenuItem("Tools/Remove Root Motion From Clip")]
-    public static void ShowWindow()
+    public class RootMotionRemover : EditorWindow
     {
-        GetWindow<RootMotionRemover>("Remove Root Motion");
-    }
+        private AnimationClip sourceClip;
+        private string savePath = "Assets/NoRootMotion.anim";
 
-    void OnGUI()
-    {
-        GUILayout.Label("Remove Root Motion From Animation", EditorStyles.boldLabel);
-        sourceClip = (AnimationClip)EditorGUILayout.ObjectField("Source Clip", sourceClip, typeof(AnimationClip), false);
-        savePath = EditorGUILayout.TextField("Save Path", savePath);
-
-        if (GUILayout.Button("Remove Root Motion and Save"))
+        [MenuItem("Tools/Remove Root Motion From Clip")]
+        public static void ShowWindow()
         {
-            if (sourceClip == null)
-            {
-                Debug.LogWarning("Please assign a source animation clip.");
-                return;
-            }
-
-            RemoveRootMotion(sourceClip, savePath);
+            GetWindow<RootMotionRemover>("Remove Root Motion");
         }
-    }
 
-    private void RemoveRootMotion(AnimationClip clip, string path)
-    {
-        AnimationClip newClip = new AnimationClip();
-        EditorUtility.CopySerialized(clip, newClip);
-
-        var bindings = AnimationUtility.GetCurveBindings(newClip);
-        foreach (var binding in bindings)
+        void OnGUI()
         {
-            if (IsRootMotionBinding(binding))
+            GUILayout.Label("Remove Root Motion From Animation", EditorStyles.boldLabel);
+            sourceClip = (AnimationClip)EditorGUILayout.ObjectField("Source Clip", sourceClip, typeof(AnimationClip), false);
+            savePath = EditorGUILayout.TextField("Save Path", savePath);
+
+            if (GUILayout.Button("Remove Root Motion and Save"))
             {
-                newClip.SetCurve(binding.path, binding.type, binding.propertyName, null);
+                if (sourceClip == null)
+                {
+                    Debug.LogWarning("Please assign a source animation clip.");
+                    return;
+                }
+
+                RemoveRootMotion(sourceClip, savePath);
             }
         }
 
-        // Save the new clip as an asset
-        AssetDatabase.CreateAsset(newClip, path);
-        AssetDatabase.SaveAssets();
+        private void RemoveRootMotion(AnimationClip clip, string path)
+        {
+            AnimationClip newClip = new AnimationClip();
+            EditorUtility.CopySerialized(clip, newClip);
 
-        Debug.Log("Saved animation without root motion to: " + path);
-    }
+            var bindings = AnimationUtility.GetCurveBindings(newClip);
+            foreach (var binding in bindings)
+            {
+                if (IsRootMotionBinding(binding))
+                {
+                    newClip.SetCurve(binding.path, binding.type, binding.propertyName, null);
+                }
+            }
 
-    private bool IsRootMotionBinding(EditorCurveBinding binding)
-    {
-        string prop = binding.propertyName.ToLower();
-        string path = binding.path.ToLower();
+            // Save the new clip as an asset
+            AssetDatabase.CreateAsset(newClip, path);
+            AssetDatabase.SaveAssets();
 
-        // Typical root motion path and properties
-        bool isRootPath = path == "" || path.Contains("root") || path.Contains("hips");
+            Debug.Log("Saved animation without root motion to: " + path);
+        }
 
-        bool isRootPos = prop.Contains("motiont") || prop.Contains("roott") || prop.EndsWith(".x") || prop.EndsWith(".y") || prop.EndsWith(".z");
-        bool isRootRot = prop.Contains("motionq") || prop.Contains("rootq") || prop.EndsWith(".w");
+        private bool IsRootMotionBinding(EditorCurveBinding binding)
+        {
+            string prop = binding.propertyName.ToLower();
+            string path = binding.path.ToLower();
 
-        return isRootPath && (isRootPos || isRootRot);
+            // Typical root motion path and properties
+            bool isRootPath = path == "" || path.Contains("root") || path.Contains("hips");
+
+            bool isRootPos = prop.Contains("motiont") || prop.Contains("roott") || prop.EndsWith(".x") || prop.EndsWith(".y") || prop.EndsWith(".z");
+            bool isRootRot = prop.Contains("motionq") || prop.Contains("rootq") || prop.EndsWith(".w");
+
+            return isRootPath && (isRootPos || isRootRot);
+        }
     }
 }
+#endif

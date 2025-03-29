@@ -1,6 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
+#if UNITY_EDITOR
 public class AnimationImporterEditor : EditorWindow
 {
     private AnimationClip _clip;
@@ -82,3 +83,4 @@ public class AnimationImporterEditor : EditorWindow
         Debug.Log($"Duplicate keyframes cleaned for {clip.name}");
     }
 }
+#endif

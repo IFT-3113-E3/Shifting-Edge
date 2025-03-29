@@ -1,6 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
+#if UNITY_EDITOR
 namespace EditorTools
 {
     public class FBXImporterEditor : EditorWindow
@@ -60,3 +61,4 @@ namespace EditorTools
         }
     }
 }
+#endif
