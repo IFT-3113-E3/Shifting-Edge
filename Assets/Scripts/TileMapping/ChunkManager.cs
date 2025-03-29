@@ -171,23 +171,31 @@ public class ChunkManager : MonoBehaviour
         {
             for (int x = 0; x < chunkSize; x++)
             {
+                // Calcul des coordonnées mondiales
                 int worldX = newChunk.position.x * chunkSize + x;
                 int worldZ = newChunk.position.y * chunkSize + z;
 
-                if (worldX >= mapData.width || worldZ >= mapData.height) continue;
+                // Vérification des limites pour éviter les erreurs
+                if (worldX < 0 || worldZ < 0 || worldX >= mapData.width || worldZ >= mapData.height) continue;
 
+                // Calcul de l'index dans la liste des tuiles
                 int index = worldZ * mapData.width + worldX;
+
+                // Vérification de l'index pour éviter les dépassements
                 if (index < 0 || index >= mapData.tiles.Count) continue;
 
+                // Décodage des informations de la tuile
                 int packedValue = mapData.tiles[index];
                 int tileType = packedValue & 0b111; // Les 3 derniers bits pour le type de tuile
                 int rotationIndex = (packedValue >> 3) & 0b11; // Les 2 bits suivants pour la rotation
                 int height = packedValue >> 5; // Les bits restants pour la hauteur
 
+                // Vérification du type de tuile
                 if (tileType < 0 || tileType >= tilePrefabs.Length) continue;
 
+                // Création et positionnement de la tuile
                 Vector3 position = new(worldX, height, worldZ);
-                Quaternion rotation = Quaternion.Euler(0, rotationIndex * 90, 0); // Appliquer la rotation en fonction de l'index
+                Quaternion rotation = Quaternion.Euler(0, rotationIndex * 90, 0); // Appliquer la rotation
                 GameObject tile = Instantiate(tilePrefabs[tileType], position, rotation, newChunk.chunkObject.transform);
                 newChunk.tiles.Add(tile);
 
