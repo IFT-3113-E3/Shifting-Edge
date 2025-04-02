@@ -11,7 +11,7 @@ public class MenuManager : MonoBehaviour
 
     public void StartGame()
     {
-        SceneManager.LoadScene("MainScene", LoadSceneMode.Additive);
+        SceneManager.LoadScene("MainScene");
     }
 
     public void OpenOptions()

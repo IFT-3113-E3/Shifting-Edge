@@ -251,14 +251,15 @@ public class PlayerController : MonoBehaviour
         }
         
         HeadHittingDetect();
+
+        MovementUpdate();
     }
 
 
-    private void FixedUpdate()
+    private void MovementUpdate()
     {
         Vector3 inputVector = new Vector3(_inputHorizontal, 0, _inputVertical);
         inputVector = Vector3.ClampMagnitude(inputVector, 1f);
-        Debug.Log($"Input: {inputVector}");
         
         if (_movementLocked)
         {
@@ -298,7 +299,7 @@ public class PlayerController : MonoBehaviour
             verticalVelocity = Mathf.SmoothStep(jumpForce, jumpForce * 0.30f, _jumpElapsedTime / jumpTime);
 
             // Jump timer
-            _jumpElapsedTime += Time.fixedDeltaTime;
+            _jumpElapsedTime += Time.deltaTime;
             if (_jumpElapsedTime >= jumpTime)
             {
                 _isJumping = false;
@@ -319,13 +320,13 @@ public class PlayerController : MonoBehaviour
         // Apply external force
         if (_externalForce.magnitude > 0)
         {
-            _externalForce = Vector3.Lerp(_externalForce, Vector3.zero, Time.fixedDeltaTime * 5f);
+            _externalForce = Vector3.Lerp(_externalForce, Vector3.zero, Time.deltaTime * 5f);
         }
         
         Vector3 finalVelocity = horizontalVelocity + Vector3.up * verticalVelocity + _externalForce; 
         
         // Apply the final velocity to the character controller
-        _cc.Move(finalVelocity * Time.fixedDeltaTime);
+        _cc.Move(finalVelocity * Time.deltaTime);
     }
 
     void HeadHittingDetect()
