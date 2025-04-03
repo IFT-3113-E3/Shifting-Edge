@@ -2,7 +2,7 @@ using UnityEngine;
 using TMPro;
 using System.Collections;
 
-public class FadeTextManual : MonoBehaviour
+public class FadeText : MonoBehaviour
 {
     public TMP_Text text;
     public float fadeDuration = 1.5f;
