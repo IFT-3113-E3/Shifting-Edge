@@ -25,7 +25,7 @@ public class OrbitCamera : MonoBehaviour
         _targetRotation = _currentRotation;
         _targetPosition = target.position;
 
-        _currentTransition = StartCoroutine(EntranceTransition());
+        // _currentTransition = StartCoroutine(EntranceTransition());
     }
 
     private void Update()

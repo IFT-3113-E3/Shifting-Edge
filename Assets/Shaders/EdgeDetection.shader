@@ -125,7 +125,7 @@
                 indicator += neighborNormalEdgeIndicator(vUv, 0,  1, depth, normal);
                 indicator += neighborNormalEdgeIndicator(vUv, -1, 0, depth, normal);
                 indicator += neighborNormalEdgeIndicator(vUv, 1,  0, depth, normal);
-                return step(0.1, indicator);
+                return step(0.6, indicator);
             }
 
             // Computes the normal-based edge indicator.

@@ -24,8 +24,8 @@ namespace Status
         public float CurrentHealth { get; private set; }
         public bool IsDead { get; private set; }
 
-        public event Action<float, GameObject> OnDamageTaken;
-        public event Action<GameObject> OnDeath;
+        public event Action<DamageRequest> OnDamageTaken;
+        public event Action<DamageRequest> OnDeath;
 
         private void Awake()
         {
@@ -37,17 +37,16 @@ namespace Status
             if (IsDead) return;
 
             var amount = damageRequest.damage;
-            var source = damageRequest.source;
             
             CurrentHealth = Mathf.Max(CurrentHealth - amount, 0);
-            OnDamageTaken?.Invoke(amount, source);
+            OnDamageTaken?.Invoke(damageRequest);
 
             foreach (var reaction in GetComponents<IHitReaction>())
                 reaction.ReactToHit(damageRequest);
 
             if (CurrentHealth <= 0)
             {
-                Die(source);
+                Die(damageRequest);
             }
         }
 
@@ -59,12 +58,12 @@ namespace Status
             CurrentHealth = Mathf.Min(CurrentHealth + amount, maxHealth);
         }
 
-        private void Die(GameObject source)
+        private void Die(DamageRequest damageRequest)
         {
             if (IsDead) return;
             IsDead = true;
-            OnDeath?.Invoke(source);
-            gameObject.SetActive(false);
+            OnDeath?.Invoke(damageRequest);
+            // gameObject.SetActive(false);
         }
 
         public void Revive()

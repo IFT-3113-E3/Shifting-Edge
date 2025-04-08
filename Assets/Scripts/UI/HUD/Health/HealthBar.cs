@@ -78,7 +78,7 @@ public class HealthBar : MonoBehaviour
         }
     }
 
-    private void UpdateHealth(float damage, GameObject source)
+    private void UpdateHealth(DamageRequest damageRequest)
     {
         if (!_isInitialized) return;
         
