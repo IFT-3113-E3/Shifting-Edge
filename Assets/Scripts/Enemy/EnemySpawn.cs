@@ -22,6 +22,8 @@ public class EnemySpawn : MonoBehaviour
     
     private ChunkManager chunkManager;
     private Transform player;
+    public GameObject healthBarPrefab;
+
     private Dictionary<Vector2Int, List<GameObject>> spawnedEnemies = new Dictionary<Vector2Int, List<GameObject>>();
     
     void Awake()

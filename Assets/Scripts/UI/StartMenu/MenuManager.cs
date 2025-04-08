@@ -10,6 +10,7 @@ public class MenuManager : MonoBehaviour
     [Header("Panels")]
     [SerializeField] private CanvasGroup launchPanel;
     [SerializeField] private CanvasGroup mainMenuPanel;
+    [SerializeField] private CanvasGroup loadPanel;
     [SerializeField] private CanvasGroup optionsPanel;
     [SerializeField] private CanvasGroup creditsPanel;
     [SerializeField] private CanvasGroup[] optionsSubPanels;
@@ -67,6 +68,12 @@ public class MenuManager : MonoBehaviour
     {
         if (isTransitioning) return;
         StartCoroutine(LoadGameAfterTransition(mainMenuPanel));
+    }
+    
+    public void OnLoadClicked()
+    {
+        if (isTransitioning) return;
+        StartCoroutine(Transition(mainMenuPanel, loadPanel));
     }
 
     public void OnOptionsClicked()
