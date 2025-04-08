@@ -2,6 +2,8 @@
   "dependencies": {
     "com.dgreenheck.openfracture": "https://github.com/dgreenheck/OpenFracture.git",
     "com.inspiaaa.unityhfsm": "https://github.com/Inspiaaa/UnityHFSM.git",
+    "com.unity.2d.tilemap": "1.0.0",
+    "com.unity.2d.tilemap.extras": "4.1.0",
     "com.unity.ai.navigation": "2.0.6",
     "com.unity.formats.fbx": "5.1.3",
     "com.unity.ide.rider": "3.0.35",
