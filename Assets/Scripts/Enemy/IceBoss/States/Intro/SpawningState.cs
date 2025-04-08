@@ -28,6 +28,7 @@ namespace Enemy.IceBoss.States.Intro
                         _isSpawning = false;
                         // Transition to the next state after spawning
                         fsm.StateCanExit();
+                        _ctx.movementController.enableIdleFloat = true;
                     });
             }
             else

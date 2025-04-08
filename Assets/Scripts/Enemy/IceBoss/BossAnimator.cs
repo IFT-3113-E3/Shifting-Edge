@@ -9,6 +9,13 @@ namespace Enemy.IceBoss
     {
         private Animator animator;
         private FractureEffect fractureEffect;
+        
+        private Coroutine currentCoroutine;
+        
+        private AudioSource _audioSource;
+
+        public AudioClip tpInAudioClip;
+        public AudioClip tpOutAudioClip;
 
         private void Start()
         {
@@ -23,12 +30,22 @@ namespace Enemy.IceBoss
             {
                 Debug.LogError("[BossAnimator] FractureEffect component not found!");
             }
+            
+            _audioSource = GetComponent<AudioSource>();
+            if (_audioSource == null)
+            {
+                Debug.LogError("[BossController] AudioSource component not found!");
+            }
         }
 
 
         public void AssembleAndSpawn(Vector3 targetPos, Quaternion targetRotation,
             Action onComplete = null)
         {
+            if (currentCoroutine != null)
+            {
+                StopCoroutine(currentCoroutine);
+            }
             StartCoroutine(AssembleAndSpawnRoutine(targetPos, targetRotation, onComplete));
         }
 
@@ -66,9 +83,9 @@ namespace Enemy.IceBoss
 
             // Reset fragments position and rotation
             fractureEffect.SetGravityEnabled(false);
-            fractureEffect.SetFragmentGroupPositionAndOrientation(
-                transform.position, transform.rotation);
+            fractureEffect.ResetFragmentsAtSource();
 
+            yield return new WaitForFixedUpdate();
             yield return new WaitForFixedUpdate();
 
             // Set original object invisible
@@ -77,6 +94,13 @@ namespace Enemy.IceBoss
             // yield return new WaitForFixedUpdate();
             yield return StartCoroutine(
                 fractureEffect.BreakAndPauseFragmentsSmooth(explosionForce: 0.05f, slowdownTime: 0.75f));
+            
+            // Play teleport sound
+            if (_audioSource != null && tpOutAudioClip != null)
+            {
+                _audioSource.PlayOneShot(tpOutAudioClip);
+            }
+            
             yield return new WaitForSeconds(0.5f);
 
             fractureEffect.DissolveFragments();
@@ -94,13 +118,22 @@ namespace Enemy.IceBoss
             transform.position = targetPos;
             transform.rotation = targetRotation;
 
+            if (_audioSource != null && tpInAudioClip != null)
+            {
+                _audioSource.PlayOneShot(tpInAudioClip);
+            }
             yield return StartCoroutine(fractureEffect.ReassembleSmooth(0.5f, 0.05f));
+
+            
             yield return new WaitUntil(fractureEffect.AreAllFragmentsFinishedDissolving);
 
             // Set original object visible
             fractureEffect.SwapVisibility(true);
 
+            fractureEffect.ResetFragmentsAtSource();
+
             fractureEffect.SetFragmentsEnabled(false);
+
 
             onComplete?.Invoke();
         }

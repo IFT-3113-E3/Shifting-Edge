@@ -22,7 +22,8 @@ namespace Enemy.IceBoss
         public int phase = 0;
         public float attackCooldown = 2f;
         public float timeSinceLastAttack = 0f;
-        
+        public float dashSpeed = 10f;
+        public float dashDuration = 0.5f;
 
         public bool shouldActivate = false;
         public bool hasSpawned = false;

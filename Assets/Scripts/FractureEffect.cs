@@ -52,8 +52,6 @@ public class MeshFragment
     
     public Vector3 GetCenter()
     {
-        Vector3 localCenterOfMass = _rb.worldCenterOfMass;
-        Vector3 worldCenterOfMass = _transform.TransformPoint(localCenterOfMass);
         return _rb.worldCenterOfMass;
     }
 
@@ -272,6 +270,16 @@ public class MeshFractureClone
         foreach (var frag in GetFragments())
         {
             frag.SetVisible(visible);
+            if (visible)
+            {
+                frag.Rigidbody.isKinematic = false;
+                // frag.Rigidbody.detectCollisions = true;
+            }
+            else
+            {
+                frag.Rigidbody.isKinematic = true;
+                // frag.Rigidbody.detectCollisions = false;
+            }
         }
     }
     
@@ -303,6 +311,17 @@ public class MeshFractureClone
             var rb = frag.Rigidbody;
             rb.MovePosition(position);
             rb.MoveRotation(orientation);
+        }
+    }
+    
+    public void ResetFragmentsAtSource()
+    {
+        foreach (var frag in GetFragments())
+        {
+            var rb = frag.Rigidbody;
+
+            rb.MovePosition(Source.position);
+            rb.MoveRotation(Source.rotation);
         }
     }
     
@@ -374,11 +393,12 @@ public class FractureEffect : MonoBehaviour
         }
     }
     
-    public IEnumerator BreakAndPauseFragmentsSmooth(float explosionForce = 1f,
+    public IEnumerator BreakAndPauseFragmentsSmooth(float explosionForce,
         float slowdownTime = 1.5f)
     {
         foreach (var clone in _clones)
         {
+            var center = clone.GetCenter();
             foreach (var frag in clone.GetFragments())
             {
                 var rb = frag.Rigidbody;
@@ -387,7 +407,7 @@ public class FractureEffect : MonoBehaviour
                 rb.useGravity = false;
                 rb.detectCollisions = true;
 
-                Vector3 dir = (frag.GetCenter() - clone.GetCenter()).normalized +
+                Vector3 dir = (frag.GetCenter() - center).normalized +
                               Random.insideUnitSphere * 0.2f;
                 rb.AddForce(dir * explosionForce, ForceMode.Impulse);
                 frag.SmoothStop(slowdownTime);
@@ -520,6 +540,14 @@ public class FractureEffect : MonoBehaviour
         foreach (var clone in _clones)
         {
             clone.ResetFragmentsAtPositionAndOrientation(position, orientation);
+        }
+    }
+    
+    public void ResetFragmentsAtSource()
+    {
+        foreach (var clone in _clones)
+        {
+            clone.ResetFragmentsAtSource();
         }
     }
     

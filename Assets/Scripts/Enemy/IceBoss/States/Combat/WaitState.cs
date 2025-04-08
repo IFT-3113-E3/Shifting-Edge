@@ -20,14 +20,14 @@ namespace Enemy.IceBoss.States.Combat
 
         public override void OnLogic()
         {
-            // Logic for waiting
-            _waitTime += Time.deltaTime;
+            _ctx.movementController.LookAt(
+                _ctx.player.transform.position); // Look at the player when entering the wait state
+        }
 
-            if (_waitTime >= _ctx.attackCooldown)
-            {
-                // Transition to the next state (e.g., attack state)
-                fsm.StateCanExit();
-            }
+        public override void OnExit()
+        {
+            Debug.Log("WaitState: Exit");
+            _ctx.movementController.StopMovement();
         }
     }
 }
