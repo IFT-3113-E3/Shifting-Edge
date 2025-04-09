@@ -2,16 +2,18 @@ using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
 using System.Collections.Generic;
+using Status;
 
 [System.Serializable]
 public class EnemySpawnData
 {
+    public string enemyID;
     public GameObject enemyPrefab;
     public int minSpawnCount = 2;
     public int maxSpawnCount = 5;
     public float spawnHeight = 0.5f;
     [Range(0, 100)]
-    public int spawnChance = 30; // Pourcentage de chance qu'un chunk génère des ennemis
+    public int spawnChance = 30;
 }
 
 public class EnemySpawn : MonoBehaviour
@@ -98,35 +100,49 @@ public class EnemySpawn : MonoBehaviour
     
     private void TrySpawnEnemiesInChunk(Vector2Int chunkPos)
     {
+        List<GameObject> chunkEnemies = new List<GameObject>();
+        
         foreach (var enemyType in enemyTypes)
         {
             if (Random.Range(0, 100) >= enemyType.spawnChance) continue;
-            
+
             int spawnCount = Random.Range(enemyType.minSpawnCount, enemyType.maxSpawnCount + 1);
-            List<GameObject> enemies = new List<GameObject>();
             
             for (int i = 0; i < spawnCount; i++)
             {
-                Vector3 spawnPosition = FindValidSpawnPoint(chunkPos);
-                
-                if (spawnPosition != Vector3.zero)
+                Vector3 spawnPos = FindValidSpawnPoint(chunkPos);
+                if (spawnPos != Vector3.zero)
                 {
-                    GameObject enemy = Instantiate(enemyType.enemyPrefab, spawnPosition, Quaternion.identity);
-                    enemies.Add(enemy);
+                    GameObject enemy = Instantiate(enemyType.enemyPrefab, spawnPos, Quaternion.identity);
                     
-                    EnemyAI enemyAI = enemy.GetComponent<EnemyAI>();
-                    if (enemyAI != null)
+                    // Configuration des HP via EnemyManager
+                    if (EnemyManager.Instance != null)
                     {
-                        enemyAI.Initialize(player);
+                        float maxHealth = EnemyManager.Instance.GetHealthForEnemy(enemyType.enemyID);
+                        EntityStatus status = enemy.GetComponent<EntityStatus>();
+                        if (status != null)
+                        {
+                            status.maxHealth = maxHealth;
+                            status.Revive();
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"Enemy {enemyType.enemyID} doesn't have EntityStatus component!");
+                        }
                     }
+                    else
+                    {
+                        Debug.LogError("EnemyManager.Instance is null. Make sure it's properly initialized.");
+                    }
+
+                    chunkEnemies.Add(enemy);
                 }
             }
-            
-            if (enemies.Count > 0)
-            {
-                spawnedEnemies[chunkPos] = enemies;
-                Debug.Log($"Spawned {enemies.Count} enemies in chunk {chunkPos}");
-            }
+        }
+
+        if (chunkEnemies.Count > 0)
+        {
+            spawnedEnemies[chunkPos] = chunkEnemies;
         }
     }
     
