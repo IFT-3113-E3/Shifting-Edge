@@ -2,18 +2,17 @@ using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
 using System.Collections.Generic;
-using Status;
 
 [System.Serializable]
 public class EnemySpawnData
 {
-    public string enemyID;
     public GameObject enemyPrefab;
+    public string enemyId; // Nouvel identifiant qui sera utilisé pour récupérer les données
     public int minSpawnCount = 2;
     public int maxSpawnCount = 5;
     public float spawnHeight = 0.5f;
     [Range(0, 100)]
-    public int spawnChance = 30;
+    public int spawnChance = 30; // Pourcentage de chance qu'un chunk génère des ennemis
 }
 
 public class EnemySpawn : MonoBehaviour
@@ -98,56 +97,80 @@ public class EnemySpawn : MonoBehaviour
         return results;
     }
     
+    // Dans la méthode TrySpawnEnemiesInChunk, ajouter cette partie lorsque vous instanciez un ennemi:
+
     private void TrySpawnEnemiesInChunk(Vector2Int chunkPos)
     {
-        List<GameObject> chunkEnemies = new List<GameObject>();
-        
         foreach (var enemyType in enemyTypes)
         {
             if (Random.Range(0, 100) >= enemyType.spawnChance) continue;
-
+            
             int spawnCount = Random.Range(enemyType.minSpawnCount, enemyType.maxSpawnCount + 1);
+            List<GameObject> enemies = new List<GameObject>();
+            
+            // Récupérer les données de l'ennemi depuis l'EnemyManager
+            EnemyData enemyData = null;
+            if (!string.IsNullOrEmpty(enemyType.enemyId))
+            {
+                enemyData = EnemyManager.Instance.GetEnemyData(enemyType.enemyId);
+            }
             
             for (int i = 0; i < spawnCount; i++)
             {
-                Vector3 spawnPos = FindValidSpawnPoint(chunkPos);
-                if (spawnPos != Vector3.zero)
+                Vector3 spawnPosition = FindValidSpawnPoint(chunkPos);
+                
+                if (spawnPosition != Vector3.zero)
                 {
-                    GameObject enemy = Instantiate(enemyType.enemyPrefab, spawnPos, Quaternion.identity);
+                    GameObject enemy = Instantiate(enemyType.enemyPrefab, spawnPosition, Quaternion.identity);
                     
-                    // Configuration des HP via EnemyManager
-                    if (EnemyManager.Instance != null)
+                    // Appliquer les données de l'ennemi si disponibles
+                    if (enemyData != null)
                     {
-                        float maxHealth = EnemyManager.Instance.GetHealthForEnemy(enemyType.enemyID);
-                        EntityStatus status = enemy.GetComponent<EntityStatus>();
-                        if (status != null)
+                        Status.EntityStatus entityStatus = enemy.GetComponent<Status.EntityStatus>();
+                        if (entityStatus != null)
                         {
-                            status.maxHealth = maxHealth;
-                            status.Revive();
+                            entityStatus.maxHealth = enemyData.maxHealth;
+                            entityStatus.Revive(); // Reset health to new max value
                         }
-                        else
+                        
+                        // Possibilité d'attacher un composant pour afficher le nom
+                        EnemyIdentity identity = enemy.GetComponent<EnemyIdentity>();
+                        if (identity == null)
                         {
-                            Debug.LogWarning($"Enemy {enemyType.enemyID} doesn't have EntityStatus component!");
+                            identity = enemy.AddComponent<EnemyIdentity>();
                         }
+                        identity.SetEnemyData(enemyData);
+                        
+                        // Initialiser le composant XP
+                        EnemyXP enemyXP = enemy.GetComponent<EnemyXP>();
+                        if (enemyXP == null)
+                        {
+                            enemyXP = enemy.AddComponent<EnemyXP>();
+                        }
+                        // La valeur d'XP sera initialisée dans le Start() de EnemyXP
                     }
-                    else
+                    
+                    enemies.Add(enemy);
+                    
+                    EnemyAI enemyAI = enemy.GetComponent<EnemyAI>();
+                    if (enemyAI != null)
                     {
-                        Debug.LogError("EnemyManager.Instance is null. Make sure it's properly initialized.");
+                        enemyAI.Initialize(player);
                     }
-
-                    chunkEnemies.Add(enemy);
                 }
             }
-        }
-
-        if (chunkEnemies.Count > 0)
-        {
-            spawnedEnemies[chunkPos] = chunkEnemies;
+            
+            if (enemies.Count > 0)
+            {
+                spawnedEnemies[chunkPos] = enemies;
+                Debug.Log($"Spawned {enemies.Count} enemies in chunk {chunkPos}");
+            }
         }
     }
     
     private Vector3 FindValidSpawnPoint(Vector2Int chunkPos)
     {
+        // Code inchangé
         int maxAttempts = 10;
         int chunkSize = chunkManager.chunkSize;
         
@@ -181,6 +204,7 @@ public class EnemySpawn : MonoBehaviour
     
     private void CheckForDespawn()
     {
+        // Code inchangé
         List<Vector2Int> chunksToRemove = new List<Vector2Int>();
         
         foreach (var kvp in spawnedEnemies)
