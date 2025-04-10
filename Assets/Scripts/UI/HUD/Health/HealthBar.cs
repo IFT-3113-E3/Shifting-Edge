@@ -34,7 +34,7 @@ public class HealthBar : MonoBehaviour
     {
         if (_status == null)
         {
-            GameObject owner = transform.root.gameObject;
+            GameObject owner = GameObject.FindGameObjectWithTag("Player");
             _status = owner.GetComponent<EntityStatus>();
 
             if (_status != null)
