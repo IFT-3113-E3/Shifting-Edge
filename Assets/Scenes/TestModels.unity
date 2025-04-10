@@ -425,6 +425,52 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 5034017991072382570, guid: d528d30ad43d61946a3a0f8fd95e56e3, type: 3}
   m_PrefabInstance: {fileID: 236109048}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &365602177
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 365602179}
+  - component: {fileID: 365602178}
+  m_Layer: 0
+  m_Name: Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &365602178
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 365602177}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0368fa9cc0a6b2942a2d3ff1aa5ec1fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelProgressionData: []
+  maxLevel: 100
+--- !u!4 &365602179
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 365602177}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &409720465
 GameObject:
   m_ObjectHideFlags: 0
@@ -788,7 +834,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 822711366}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 424118a3c8d24f9cb88ec2957390c6d7, type: 3}
   m_Name: 
@@ -1441,29 +1487,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 8307088986790173767, guid: ecab670166caaab44bba2017b8e31e6c, type: 3}
   m_PrefabInstance: {fileID: 1730368702}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1724069222
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1724069220}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 424118a3c8d24f9cb88ec2957390c6d7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  fractureOptions:
-    fragmentCount: 10
-    xAxis: 1
-    yAxis: 1
-    zAxis: 1
-    detectFloatingFragments: 0
-    asynchronous: 0
-    insideMaterial: {fileID: 2100000, guid: f153ba7327bcd944b8ddbbcdb094374b, type: 2}
-    textureScale: {x: 1, y: 1}
-    textureOffset: {x: 0, y: 0}
-  fragmentTemplatePrefab: {fileID: 0}
 --- !u!54 &1724069223
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1652,9 +1675,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8307088986790173767, guid: ecab670166caaab44bba2017b8e31e6c, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1724069223}
-    - targetCorrespondingSourceObject: {fileID: 8307088986790173767, guid: ecab670166caaab44bba2017b8e31e6c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1724069222}
     - targetCorrespondingSourceObject: {fileID: 8307088986790173767, guid: ecab670166caaab44bba2017b8e31e6c, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1724069229}
@@ -1858,3 +1878,4 @@ SceneRoots:
   - {fileID: 409720467}
   - {fileID: 1125812394}
   - {fileID: 1317159240}
+  - {fileID: 365602179}
