@@ -5,9 +5,9 @@ using Status;
 public class HealthBar : MonoBehaviour 
 {
     [Header("UI References")]
-    [SerializeField] private Image healthFillImage; // Doit être en mode Filled/Horizontal/Left
+    [SerializeField] private Image healthFillImage;
     [SerializeField] private Image borderImage;
-    
+
     [Header("Settings")]
     [SerializeField] private float smoothSpeed = 5f;
     [SerializeField] private bool hideWhenFull = true;
@@ -15,9 +15,9 @@ public class HealthBar : MonoBehaviour
     {
         colorKeys = new GradientColorKey[]
         {
-            new GradientColorKey(Color.green, 0f),  // Vert quand la vie est pleine
+            new GradientColorKey(Color.green, 0f),
             new GradientColorKey(Color.yellow, 0.5f),
-            new GradientColorKey(Color.red, 1f)     // Rouge quand la vie est vide
+            new GradientColorKey(Color.red, 1f)
         },
         alphaKeys = new GradientAlphaKey[]
         {
@@ -26,45 +26,32 @@ public class HealthBar : MonoBehaviour
         }
     };
 
-    private EntityStatus _playerStatus;
+    private EntityStatus _status;
     private float _targetFillAmount;
     private bool _isInitialized;
 
     private void Start()
     {
-        InitializeHealthBar();
-    }
-
-    private void InitializeHealthBar()
-    {
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player == null)
+        if (_status == null)
         {
-            Debug.LogError("Player non trouvé - vérifiez le tag 'Player'");
-            return;
+            GameObject owner = GameObject.FindGameObjectWithTag("Player");
+            _status = owner.GetComponent<EntityStatus>();
+
+            if (_status != null)
+            {
+                SetupFromStatus(_status);
+            }
+            else
+            {
+                Debug.LogError("HealthBar : Aucun EntityStatus trouvé.");
+            }
         }
-
-        _playerStatus = player.GetComponent<EntityStatus>();
-        if (_playerStatus == null)
-        {
-            Debug.LogError("EntityStatus non trouvé sur le Player");
-            return;
-        }
-
-        // Initialisation synchrone
-        _targetFillAmount = _playerStatus.CurrentHealth / _playerStatus.maxHealth;
-        healthFillImage.fillAmount = _targetFillAmount;
-        healthFillImage.color = healthGradient.Evaluate(_targetFillAmount); // Pas d'inversion ici
-
-        _playerStatus.OnDamageTaken += UpdateHealth;
-        _isInitialized = true;
     }
 
     private void Update()
     {
         if (!_isInitialized) return;
 
-        // Animation fluide
         if (Mathf.Abs(healthFillImage.fillAmount - _targetFillAmount) > 0.001f)
         {
             healthFillImage.fillAmount = Mathf.Lerp(
@@ -72,8 +59,6 @@ public class HealthBar : MonoBehaviour
                 _targetFillAmount, 
                 smoothSpeed * Time.deltaTime
             );
-            
-            // Application directe du gradient
             healthFillImage.color = healthGradient.Evaluate(healthFillImage.fillAmount);
         }
     }
@@ -81,27 +66,42 @@ public class HealthBar : MonoBehaviour
     private void UpdateHealth(DamageRequest damageRequest)
     {
         if (!_isInitialized) return;
-        
-        _targetFillAmount = _playerStatus.CurrentHealth / _playerStatus.maxHealth;
-        
+
+        _targetFillAmount = _status.CurrentHealth / _status.maxHealth;
+
         if (hideWhenFull)
         {
             gameObject.SetActive(!Mathf.Approximately(_targetFillAmount, 1f));
         }
     }
 
-    private void OnDestroy()
+    public void Initialize(EntityStatus status)
     {
-        if (_playerStatus != null)
-            _playerStatus.OnDamageTaken -= UpdateHealth;
+        _status = status;
+        SetupFromStatus(status);
     }
 
-    // Méthode pour forcer une mise à jour (utile si maxHealth change)
+    private void SetupFromStatus(EntityStatus status)
+    {
+        _targetFillAmount = status.CurrentHealth / status.maxHealth;
+        healthFillImage.fillAmount = _targetFillAmount;
+        healthFillImage.color = healthGradient.Evaluate(_targetFillAmount);
+
+        status.OnDamageTaken += UpdateHealth;
+        _isInitialized = true;
+    }
+
+    private void OnDestroy()
+    {
+        if (_status != null)
+            _status.OnDamageTaken -= UpdateHealth;
+    }
+
     public void RefreshHealthBar()
     {
         if (_isInitialized)
         {
-            _targetFillAmount = _playerStatus.CurrentHealth / _playerStatus.maxHealth;
+            _targetFillAmount = _status.CurrentHealth / _status.maxHealth;
             healthFillImage.fillAmount = _targetFillAmount;
             healthFillImage.color = healthGradient.Evaluate(_targetFillAmount);
         }

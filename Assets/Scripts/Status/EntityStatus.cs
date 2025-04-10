@@ -21,6 +21,7 @@ namespace Status
     
     public class EntityStatus : MonoBehaviour
     {
+        [SerializeField] // Modifié pour être accessible dans l'inspecteur et depuis d'autres scripts
         public float maxHealth = 100f;
         public float CurrentHealth { get; private set; }
         public bool IsDead { get; private set; }
@@ -91,7 +92,6 @@ namespace Status
             }
         }
 
-
         public void Heal(float amount)
         {
             if (IsDead) return;
@@ -110,7 +110,7 @@ namespace Status
         public void Revive()
         {
             IsDead = false;
-            CurrentHealth = maxHealth;
+            CurrentHealth = maxHealth; // Utilisera la valeur actuelle de maxHealth
         }
     }
 }

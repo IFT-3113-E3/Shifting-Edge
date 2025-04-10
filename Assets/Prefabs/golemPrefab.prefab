@@ -687,9 +687,6 @@ PrefabInstance:
       addedObject: {fileID: 826504426796185357}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1f2eb66fe9f85d34d9ee3716e3a7b12f, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 4260822095874830949}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1f2eb66fe9f85d34d9ee3716e3a7b12f, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 6547000230804282188}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1f2eb66fe9f85d34d9ee3716e3a7b12f, type: 3}
       insertIndex: -1
@@ -760,43 +757,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &4260822095874830949
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2950870847865681845}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f0038c16c34866b4f9e25c9c0dc0f7e6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Graph: {fileID: 7306317061837443768, guid: 71c97a88a6b58664aa3900040d74b787, type: 2}
-  m_BlackboardVariableOverridesList:
-  - rid: 6905989717731835968
-  - rid: 6905989717731835969
-  m_IsInitialised: 0
-  m_IsStarted: 0
-  references:
-    version: 2
-    RefIds:
-    - rid: 6905989717731835968
-      type: {class: 'BlackboardVariable`1[[UnityEngine.GameObject, UnityEngine.CoreModule]]', ns: Unity.Behavior, asm: Unity.Behavior}
-      data:
-        GUID:
-          m_Value0: 1
-          m_Value1: 0
-        Name: Self
-        m_Value: {fileID: 2950870847865681845}
-    - rid: 6905989717731835969
-      type: {class: 'BlackboardVariable`1[[UnityEngine.Transform, UnityEngine.CoreModule]]', ns: Unity.Behavior, asm: Unity.Behavior}
-      data:
-        GUID:
-          m_Value0: 10552778141990290280
-          m_Value1: 334915301053849164
-        Name: Target
-        m_Value: {fileID: 0}
 --- !u!136 &6547000230804282188
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -881,7 +841,9 @@ MonoBehaviour:
     maxHealth: 100
     phase: 0
     attackCooldown: 2
+    throwCooldown: 5
     timeSinceLastAttack: 0
+    timeSinceLastThrow: 0
     dashSpeed: 10
     dashDuration: 0.5
     shouldActivate: 0
