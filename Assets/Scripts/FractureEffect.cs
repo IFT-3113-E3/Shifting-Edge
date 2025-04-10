@@ -556,8 +556,8 @@ public class FractureEffect : MonoBehaviour
     {
         foreach (var clone in _clones)
         {
-            clone.SetGroupPosition(position);
             clone.SetGroupOrientation(orientation);
+            clone.SetGroupPosition(position);
         }
     }
     

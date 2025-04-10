@@ -336,7 +336,7 @@ public class PlayerController : MonoBehaviour
         float hitCalc = _cc.height / 2f * headHitDistance;
 
         if (Physics.Raycast(ccCenter, Vector3.up, hitCalc))
-        {
+        {   
             _jumpElapsedTime = 0;
             _isJumping = false;
         }

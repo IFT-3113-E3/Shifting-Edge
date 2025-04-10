@@ -174,7 +174,7 @@ namespace Enemy.IceBoss
             _idleDriftOffset = Vector3.Lerp(_idleDriftOffset, driftTarget, Time.deltaTime * idleDriftSpeed);
 
             // Combine movement + float
-            // transform.position = _idleDriftOffset + Vector3.up * yOffset;
+            transform.position = _idleDriftOffset + Vector3.up * yOffset;
         }
 
 

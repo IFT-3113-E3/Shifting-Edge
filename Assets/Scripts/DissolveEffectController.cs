@@ -1,7 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.VFX;
+using Object = UnityEngine.Object;
 
 public abstract class DissolveCloneBase
 {
@@ -133,6 +135,8 @@ public class DissolveEffectController : MonoBehaviour, IVisibilityTransitionEffe
 
     public bool IsDissolved => _isDissolved;
     public bool IsDissolving => _isDissolving;
+    
+    public event Action OnTransitionComplete;
 
     // buttons to trigger the effect
     [ContextMenu("Materialize")]
@@ -530,6 +534,7 @@ public class DissolveEffectController : MonoBehaviour, IVisibilityTransitionEffe
 
         _isDissolved = (mode == EffectMode.Dematerialize);
         _isDissolving = false;
+        OnTransitionComplete?.Invoke();
     }
 
     // A dissolve effect that fades to the transition color and then dissolves by fading back out
@@ -660,6 +665,7 @@ public class DissolveEffectController : MonoBehaviour, IVisibilityTransitionEffe
 
         _isDissolved = (mode == EffectMode.Dematerialize);
         _isDissolving = false;
+        OnTransitionComplete?.Invoke();
     }
 
     private void LateUpdate()
@@ -761,7 +767,7 @@ public class DissolveEffectController : MonoBehaviour, IVisibilityTransitionEffe
 #endif
     
     public bool IsTransitioning => _isDissolving;
-    public bool IsVisible => _isDissolved;
+    public bool IsVisible => !_isDissolved;
     public void Show()
     {
         if (_isDissolving) return;

@@ -1,7 +1,6 @@
-﻿using System;
-using Enemy.IceBoss.States;
-using Enemy.IceBoss.States.Combat;
+﻿using Enemy.IceBoss.States.Combat;
 using Enemy.IceBoss.States.Intro;
+using Projectiles;
 using Status;
 using UI;
 using UnityEngine;
@@ -10,18 +9,21 @@ using UnityHFSM;
 namespace Enemy.IceBoss
 {
     [RequireComponent(typeof(BossAnimator), typeof(BossMovementController),
-        typeof(StatusEffectManager))]
+        typeof(EntityStatus))]
     public class BossController : MonoBehaviour
     {
         [Header("Context initialization")] public GameObject player;
         public Transform spawnPoint;
+        
+        public ProjectileData projectileData;
 
         [SerializeField] private BossContext _context;
         private StateMachine _rootSm;
 
         private BossAnimator _animator;
         private BossMovementController _movementController;
-        private StatusEffectManager _statusEffectManager;
+        private EntityStatus _entityStatus;
+        
 
         // Used mainly for debugging
         public StateMachine RootSm => _rootSm;
@@ -41,19 +43,23 @@ namespace Enemy.IceBoss
                 Debug.LogError("[BossController] MovementController component not found!");
             }
 
-            _statusEffectManager = GetComponent<StatusEffectManager>();
-            if (_statusEffectManager == null)
+            _entityStatus = GetComponent<EntityStatus>();
+            if (_entityStatus == null)
             {
                 Debug.LogError("[BossController] StatusEffectManager component not found!");
             }
+            
+            // Pre-init stuff
+            _animator.OnThrowEvent += OnThrowSpike;
 
+            // Init stuff
             _context = new BossContext
             {
                 self = gameObject,
                 player = player,
                 animator = _animator,
                 movementController = _movementController,
-                statusEffectManager = _statusEffectManager,
+                entityStatus = _entityStatus,
                 speechBubbleSpawner = FindFirstObjectByType<SpeechBubbleSpawner>(),
                 spawnPoint = spawnPoint,
             };
@@ -77,6 +83,21 @@ namespace Enemy.IceBoss
             }
         }
 
+        void OnThrowSpike(Transform hand)
+        {
+            if (hand != null)
+            {
+                var firePos = hand.position;
+                var direction = (_context.player.transform.position - firePos).normalized;
+                direction.Normalize();
+                SpawnProjectile(firePos, direction);
+            }
+            else
+            {
+                Debug.LogError("Hand transform is null.");
+            }
+        }
+
         void BuildStateMachine()
         {
             _rootSm = new StateMachine();
@@ -97,7 +118,11 @@ namespace Enemy.IceBoss
             _rootSm.AddState("Intro", introFsm);
 
             var combatFsm = new HybridStateMachine(
-                afterOnLogic: _ => { _context.timeSinceLastAttack += Time.deltaTime; },
+                afterOnLogic: _ =>
+                {
+                    _context.timeSinceLastAttack += Time.deltaTime;
+                    _context.timeSinceLastThrow += Time.deltaTime;
+                },
                 needsExitTime: true
             );
             {
@@ -109,18 +134,27 @@ namespace Enemy.IceBoss
                         _context.movementController.enableIdleFloat = false;
                         var behindPlayerPos = _context.player.transform.position +
                                               _context.player.transform.forward * -2f;
+
                         _context.animator.TeleportWithExplosion(
                             behindPlayerPos,
                             _context.player.transform.rotation,
                             () => { combatFsm.StateCanExit(); });
                     },
+                    onLogic: _ =>
+                    {
+                        var behindPlayerPos = _context.player.transform.position +
+                                              _context.player.transform.forward * -2f;
+                        _context.animator.UpdateTarget(
+                            behindPlayerPos,
+                            _context.player.transform.rotation);
+                    },
                     onExit: _ =>
                     {
                         _context.movementController.StopMovement();
-                        _context.movementController.enableIdleFloat = true;
                     }
                 ));
                 combatFsm.AddState("Charge", new ChargeState(_context));
+                combatFsm.AddState("RangedAttack", new RangedAttackState(_context));
 
                 combatFsm.AddExitTransition("Wait");
                 combatFsm.AddTransition("Wait", "Charge",
@@ -128,16 +162,23 @@ namespace Enemy.IceBoss
                     {
                         var test = _context.timeSinceLastAttack >= _context.attackCooldown;
                         // not facing player
-                        var facingPlayer = isPointInView(_context.player.transform.position);
+                        var facingPlayer = IsPointInView(_context.player.transform.position);
                         return test && facingPlayer;
+                    });
+
+                combatFsm.AddTransition("Wait", "RangedAttack",
+                    _ =>
+                    {
+                        return _context.timeSinceLastThrow >= _context.throwCooldown 
+                               && !DistanceToPlayer(6f);
                     });
                 combatFsm.AddTransition("Charge", "Wait");
                 combatFsm.AddTransition("Wait", "Teleport",
-                    _ => _context.timeSinceLastAttack >= 0.8f && Vector3.Distance(
-                        _context.self.transform.position,
-                        _context.player.transform.position) > 10f);
+                    _ => _context.timeSinceLastAttack >= 0.8f && !DistanceToPlayer(10f));
                 
                 combatFsm.AddTransition("Teleport", "Wait");
+
+                combatFsm.AddTransition("RangedAttack", "Wait");
 
                 combatFsm.SetStartState("Wait");
             }
@@ -192,7 +233,7 @@ namespace Enemy.IceBoss
             }
         }
 
-        private bool isPointInView(Vector3 position)
+        private bool IsPointInView(Vector3 position)
         {
             var maxViewAngle = 45f / 2f;
             var viewDistance = 10f;
@@ -206,6 +247,30 @@ namespace Enemy.IceBoss
             var distanceToTarget = Vector3.Distance(_context.self.transform.position, position);
 
             return angleToTarget <= maxViewAngle && distanceToTarget <= viewDistance;
+        }
+        
+        private bool DistanceToPlayer(float distance)
+        {
+            return Vector3.Distance(_context.self.transform.position,
+                _context.player.transform.position) <= distance;
+        }
+
+        private void SpawnProjectile(Vector3 position, Vector3 direction)
+        {
+            if (projectileData != null)
+            {
+                var projectile = Instantiate(projectileData.projectilePrefab, position,
+                    Quaternion.identity);
+                var projectileComponent = projectile.AddComponent<Projectiles.Projectile>();
+                if (projectileComponent != null)
+                {
+                    projectileComponent.Initialize(direction, projectileData);
+                }
+            }
+            else
+            {
+                Debug.LogError("Projectile data is not assigned.");
+            }
         }
     }
 }

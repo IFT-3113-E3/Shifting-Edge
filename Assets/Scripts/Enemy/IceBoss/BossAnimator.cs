@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using Projectiles;
 using UnityEngine;
 
 namespace Enemy.IceBoss
@@ -7,65 +8,92 @@ namespace Enemy.IceBoss
     [RequireComponent(typeof(Animator), typeof(FractureEffect))]
     public class BossAnimator : MonoBehaviour
     {
-        private Animator animator;
-        private FractureEffect fractureEffect;
-        
-        private Coroutine currentCoroutine;
-        
+        private Animator _animator;
+        private FractureEffect _fractureEffect;
+
+        private Coroutine _currentCoroutine;
+        private Coroutine _animCoroutine;
+
         private AudioSource _audioSource;
 
         public AudioClip tpInAudioClip;
         public AudioClip tpOutAudioClip;
 
+        private Vector3 _targetPos;
+        private Quaternion _targetRotation;
+        
+        public GameObject fakeSpikePrefab;
+        private FakeSpikeController _fakeSpikeController;
+
+        public Transform handTransform;
+
+        public event Action<Transform> OnThrowEvent;
+        
         private void Start()
         {
-            animator = GetComponent<Animator>();
-            if (animator == null)
+            _animator = GetComponent<Animator>();
+            if (_animator == null)
             {
                 Debug.LogError("[BossAnimator] Animator component not found!");
             }
 
-            fractureEffect = GetComponent<FractureEffect>();
-            if (fractureEffect == null)
+            _fractureEffect = GetComponent<FractureEffect>();
+            if (_fractureEffect == null)
             {
                 Debug.LogError("[BossAnimator] FractureEffect component not found!");
             }
-            
+
             _audioSource = GetComponent<AudioSource>();
             if (_audioSource == null)
             {
                 Debug.LogError("[BossController] AudioSource component not found!");
             }
+            
+            if (fakeSpikePrefab == null)
+            {
+                Debug.LogError("[BossAnimator] Fake spike prefab is not assigned.");
+            }
+            else
+            {
+                _fakeSpikeController = new FakeSpikeController(fakeSpikePrefab, handTransform);
+            }
+            
         }
 
+        public void UpdateTarget(Vector3 targetPos, Quaternion targetRotation)
+        {
+            _targetPos = targetPos;
+            _targetRotation = targetRotation;
+        }
 
         public void AssembleAndSpawn(Vector3 targetPos, Quaternion targetRotation,
             Action onComplete = null)
         {
-            if (currentCoroutine != null)
+            if (_currentCoroutine != null)
             {
-                StopCoroutine(currentCoroutine);
+                StopCoroutine(_currentCoroutine);
             }
+
             StartCoroutine(AssembleAndSpawnRoutine(targetPos, targetRotation, onComplete));
         }
 
         private IEnumerator AssembleAndSpawnRoutine(Vector3 targetPos,
             Quaternion targetRotation, Action onComplete = null)
         {
-            fractureEffect.SetFragmentsEnabled(true);
+            _fractureEffect.SetFragmentsEnabled(true);
 
             // Set original object invisible
-            fractureEffect.SwapVisibility(false);
+            _fractureEffect.SwapVisibility(false);
 
             yield return null;
 
             transform.position = targetPos;
             transform.rotation = targetRotation;
 
-            yield return StartCoroutine(fractureEffect.ReassembleSmooth(1f, 0.2f));
+            yield return StartCoroutine(_fractureEffect.ReassembleSmooth(1f, 0.2f));
 
-            fractureEffect.SwapVisibility(true);
-            fractureEffect.SetFragmentsEnabled(false);
+            _fractureEffect.SwapVisibility(true);
+            _fractureEffect.SetFragmentsEnabled(false);
 
             onComplete?.Invoke();
         }
@@ -73,66 +101,75 @@ namespace Enemy.IceBoss
         public void TeleportWithExplosion(Vector3 targetPos, Quaternion targetRotation,
             Action onComplete = null)
         {
-            StartCoroutine(TeleportSequence(targetPos, targetRotation, onComplete));
+            if (_currentCoroutine != null)
+            {
+                StopCoroutine(_currentCoroutine);
+            }
+
+            _targetPos = targetPos;
+            _targetRotation = targetRotation;
+            StartCoroutine(TeleportSequence(onComplete));
         }
 
-        private IEnumerator TeleportSequence(Vector3 targetPos, Quaternion targetRotation,
-            Action onComplete)
+        private IEnumerator TeleportSequence(Action onComplete)
         {
-            fractureEffect.SetFragmentsEnabled(true);
+            _fractureEffect.SetFragmentsEnabled(true);
 
             // Reset fragments position and rotation
-            fractureEffect.SetGravityEnabled(false);
-            fractureEffect.ResetFragmentsAtSource();
+            _fractureEffect.SetGravityEnabled(false);
+            _fractureEffect.ResetFragmentsAtSource();
 
             yield return new WaitForFixedUpdate();
             yield return new WaitForFixedUpdate();
 
             // Set original object invisible
-            fractureEffect.SwapVisibility(false);
+            _fractureEffect.SwapVisibility(false);
 
             // yield return new WaitForFixedUpdate();
             yield return StartCoroutine(
-                fractureEffect.BreakAndPauseFragmentsSmooth(explosionForce: 0.05f, slowdownTime: 0.75f));
-            
+                _fractureEffect.BreakAndPauseFragmentsSmooth(explosionForce: 0.05f,
+                    slowdownTime: 0.75f));
+
             // Play teleport sound
             if (_audioSource != null && tpOutAudioClip != null)
             {
                 _audioSource.PlayOneShot(tpOutAudioClip);
             }
-            
-            yield return new WaitForSeconds(0.5f);
 
-            fractureEffect.DissolveFragments();
+            yield return new WaitForSeconds(0.1f);
+
+            _fractureEffect.DissolveFragments();
 
             // yield return StartCoroutine(BreakAndPauseFragmentsSmooth(explosionForce: 0.5f, slowdownTime: 0.75f));
-
-            yield return new WaitUntil(fractureEffect.AreAllFragmentsFinishedDissolving);
-            fractureEffect.SetFragmentGroupPositionAndOrientation(
-                targetPos, targetRotation);
+            yield return new WaitUntil(_fractureEffect.AreAllFragmentsFinishedDissolving);
+            var pos = _targetPos;
+            var rot = _targetRotation;
+            _fractureEffect.SetFragmentGroupPositionAndOrientation(
+                pos, rot);
 
             yield return null;
 
-            fractureEffect.AppearFragments();
+            _fractureEffect.AppearFragments();
 
-            transform.position = targetPos;
-            transform.rotation = targetRotation;
+            transform.position = pos;
+            transform.rotation = rot;
 
             if (_audioSource != null && tpInAudioClip != null)
             {
                 _audioSource.PlayOneShot(tpInAudioClip);
             }
-            yield return StartCoroutine(fractureEffect.ReassembleSmooth(0.5f, 0.05f));
 
-            
-            yield return new WaitUntil(fractureEffect.AreAllFragmentsFinishedDissolving);
+            yield return StartCoroutine(_fractureEffect.ReassembleSmooth(0.5f, 0.05f));
+
+
+            yield return new WaitUntil(_fractureEffect.AreAllFragmentsFinishedDissolving);
 
             // Set original object visible
-            fractureEffect.SwapVisibility(true);
+            _fractureEffect.SwapVisibility(true);
 
-            fractureEffect.ResetFragmentsAtSource();
+            _fractureEffect.ResetFragmentsAtSource();
 
-            fractureEffect.SetFragmentsEnabled(false);
+            _fractureEffect.SetFragmentsEnabled(false);
 
 
             onComplete?.Invoke();
@@ -140,13 +177,13 @@ namespace Enemy.IceBoss
 
         public void EnsureBossIsVisibleAndFragmentsAreDisabled()
         {
-            if (fractureEffect != null)
+            if (_fractureEffect != null)
             {
-                fractureEffect.SwapVisibility(true);
-                fractureEffect.SetFragmentsEnabled(false);
+                _fractureEffect.SwapVisibility(true);
+                _fractureEffect.SetFragmentsEnabled(false);
             }
         }
-        
+
         private Vector3 tpAim;
         private Vector3 tpAimDirection;
 
@@ -190,6 +227,60 @@ namespace Enemy.IceBoss
             else if (Input.GetKeyUp(KeyCode.T))
             {
                 TeleportWithExplosion(tpAim, Quaternion.LookRotation(tpAimDirection - tpAim));
+            }
+        }
+
+        public void ThrowSpike(Action onComplete = null)
+        {
+            if (_animCoroutine != null)
+            {
+                StopCoroutine(_animCoroutine);
+            }
+            _fakeSpikeController.Form();
+            _animCoroutine = StartCoroutine(PlayAnimAndCallback("Throw", onComplete));
+        }
+        
+        private IEnumerator PlayAnimAndCallback(string stateName, Action onComplete)
+        {
+            _animator.Play(stateName);
+            
+            yield return new WaitUntil(() => _fakeSpikeController.IsFormed());
+            _animator.speed = 1;
+            yield return null;
+            AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
+            yield return new WaitForSeconds(stateInfo.normalizedTime * stateInfo.length);
+
+            // Invoke the callback
+            onComplete?.Invoke();
+        }
+
+
+        private void OnGolemThrowEvent()
+        {
+            _fakeSpikeController.Hide();
+
+            if (handTransform != null)
+            {
+                OnThrowEvent?.Invoke(handTransform);
+            }
+            else
+            {
+                Debug.LogError("[BossAnimator] Hand transform is not assigned.");
+            }
+        }
+        
+        private void OnGolemPrepareThrowEvent()
+        {
+            if (_animator != null)
+            {
+                if (!_fakeSpikeController.IsFormed())
+                {
+                    _animator.speed = 0;
+                }
+            }
+            else
+            {
+                Debug.LogError("[BossAnimator] Animator component not found!");
             }
         }
     }
