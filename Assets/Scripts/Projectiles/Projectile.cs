@@ -14,7 +14,7 @@ namespace Projectiles
         private bool _hasCollided;
         private bool _isHitboxEnabled = true;
         private float _lifeTime;
-        
+
         private bool _isPenetrating = false;
         private float _penetratedDistance = 0f;
         private Vector3 _penetrationPoint;
@@ -25,7 +25,9 @@ namespace Projectiles
         private Vector3 _lastVelocity;
         private Vector3 _lastAngularVelocity;
         private Vector3 _tipIntersectionPoint;
-        
+
+        private AudioSource _audioSource;
+
         public event Action OnCollision;
 
         public event Action<Collider> OnHitEntity;
@@ -33,10 +35,8 @@ namespace Projectiles
         private void Awake()
         {
             _rb = GetComponent<Rigidbody>();
-            _collisionCollider =
-                GetComponent<Collider>(); // Assuming the main collision is on the same GameObject
+            _collisionCollider = GetComponent<Collider>();
 
-            // Find the hitbox collider (assuming it's a child with a Collider set to trigger)
             Collider[] colliders = GetComponentsInChildren<Collider>();
             foreach (Collider col in colliders)
             {
@@ -45,6 +45,20 @@ namespace Projectiles
                     _hitboxCollider = col;
                     break;
                 }
+            }
+            
+            _audioSource = GetComponent<AudioSource>();
+            if (_audioSource == null)
+            {
+                _audioSource = gameObject.AddComponent<AudioSource>();
+                _audioSource.playOnAwake = false;
+                _audioSource.spatialBlend = 1f; 
+                _audioSource.dopplerLevel = 0f;
+                _audioSource.rolloffMode = AudioRolloffMode.Linear;
+                _audioSource.minDistance = 1f;
+                _audioSource.maxDistance = 100f;
+                _audioSource.volume = 1f;
+                _audioSource.pitch = 1f;
             }
 
             if (_rb == null)
@@ -74,9 +88,9 @@ namespace Projectiles
             _bounceCount = 0;
             _hasCollided = false;
             _lifeTime = 0f;
-            _rb.isKinematic = false; // Ensure the Rigidbody is not kinematic
+            _rb.isKinematic = false;
             _rb.useGravity = projectileData.physicsConfig.gravityMultiplier > 0;
-            transform.SetParent(null); // Detach from any parent to avoid unwanted transformation
+            transform.SetParent(null);
 
             transform.rotation = Quaternion.LookRotation(direction);
 
@@ -87,22 +101,19 @@ namespace Projectiles
                 return;
             }
 
-            // Apply physics properties
             _rb.mass = projectileData.physicsConfig.mass;
             _rb.linearDamping = projectileData.physicsConfig.drag;
             _rb.angularDamping = projectileData.physicsConfig.angularDrag;
             _rb.linearVelocity = direction.normalized * projectileData.speed;
-            
+
             _lastPosition = transform.position;
             _lastRotation = transform.rotation;
             _lastVelocity = direction.normalized * projectileData.speed;
             _lastAngularVelocity = Vector3.zero;
 
-            // Set the collision layer
             gameObject.layer = LayerMask.NameToLayer(LayerMask.LayerToName(
                 Mathf.RoundToInt(Mathf.Log(projectileData.physicsConfig.collisionLayer.value, 2))));
 
-            // Set the hitbox layer if a hitbox collider is found
             if (_hitboxCollider)
             {
                 _hitboxCollider.gameObject.layer = LayerMask.NameToLayer(
@@ -110,16 +121,16 @@ namespace Projectiles
                         Mathf.RoundToInt(Mathf.Log(projectileData.hitboxLayerMask.value, 2))));
             }
 
-            // Instantiate and attach custom behavior if provided
             if (projectileData.script)
             {
                 MonoBehaviour behavior =
                     Instantiate(projectileData.script, transform);
-                // You might want to add an interface to your custom behavior scripts for better communication
             }
 
             _hasCollided = false;
             _bounceCount = 0;
+            
+            PlaySpawnSound();
         }
 
         private void Update()
@@ -134,8 +145,10 @@ namespace Projectiles
         private void OnCollisionEnter(Collision collision)
         {
             if (_hasCollided) return; // Only process the first collision
-            
+
             OnCollision?.Invoke();
+            
+            PlayHitSound();
 
             if ((projectileData.physicsConfig.collisionWhitelist &
                  (1 << collision.gameObject.layer)) != 0)
@@ -164,9 +177,10 @@ namespace Projectiles
 
                     _rb.useGravity = false;
                     _isHitboxEnabled = false;
-                    
-                    Debug.Log($"Projectile has collided with {collision.gameObject.name} and is now penetrating.");
-                    
+
+                    Debug.Log(
+                        $"Projectile has collided with {collision.gameObject.name} and is now penetrating.");
+
                     // freeze the projectile's rotation
                     _rb.constraints = RigidbodyConstraints.FreezeRotation;
                 }
@@ -215,20 +229,23 @@ namespace Projectiles
                 Debug.Log($"Projectile is penetrating: {_rb.linearVelocity.magnitude}");
 
                 // Stop when we reach the penetration depth or velocity is very small
-                if (_penetratedDistance >= projectileData.physicsConfig.stickDepth || _rb.linearVelocity.magnitude < 0.01f)
+                if (_penetratedDistance >= projectileData.physicsConfig.stickDepth ||
+                    _rb.linearVelocity.magnitude < 0.01f)
                 {
                     _rb.linearVelocity = Vector3.zero;
                     _rb.isKinematic = true;
                     _isPenetrating = false;
-                    
+
                     // ensure the projectile is at the penetration point + the penetration direction * penetration depth
-                    transform.position = _penetrationPoint + _penetrationDirection * projectileData.physicsConfig.stickDepth;
+                    transform.position = _penetrationPoint +
+                                         _penetrationDirection *
+                                         projectileData.physicsConfig.stickDepth;
                     transform.rotation = Quaternion.LookRotation(_penetrationDirection);
                 }
 
                 return; // Skip gravity while penetrating
             }
-                
+
             // simulate multiplied gravity by applying constant force for gravity factor
             var gravityFactor = projectileData.physicsConfig.gravityMultiplier;
             if (gravityFactor > 0)
@@ -244,21 +261,40 @@ namespace Projectiles
             _lastAngularVelocity = _rb.angularVelocity;
         }
 
-        private void OnDrawGizmos()
+        private void PlaySpawnSound()
         {
-            if (_isPenetrating)
+            if (projectileData.spawnSound != null && projectileData.spawnSound.Length > 0 && _audioSource != null)
             {
-                Gizmos.color = Color.red;
-                Gizmos.DrawLine(_penetrationPoint, _penetrationPoint + _penetrationDirection * projectileData.physicsConfig.stickDepth);
+                var spawnSoundClips = projectileData.spawnSound;
+                _audioSource.PlayOneShot(spawnSoundClips[UnityEngine.Random.Range(0, spawnSoundClips.Length)]);
             }
-            
-            // draw the penetration point
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawSphere(_penetrationPoint, 0.1f);
         }
-
+        
+        private void PlayHitSound()
+        {
+            if (projectileData.hitSound != null && projectileData.hitSound.Length > 0 && _audioSource != null)
+            {
+                var hitSoundClips = projectileData.hitSound;
+                _audioSource.PlayOneShot(hitSoundClips[UnityEngine.Random.Range(0, hitSoundClips.Length)]);
+            }
+        }
+        
+        private void PlayDestroySound()
+        {
+            if (projectileData.destroySound != null && projectileData.destroySound.Length > 0 && _audioSource != null)
+            {
+                var destroySoundClips = projectileData.destroySound;
+                _audioSource.PlayOneShot(destroySoundClips[UnityEngine.Random.Range(0, destroySoundClips.Length)]);
+            }
+        }
+        
         private void DestroySelf()
         {
+            if (_audioSource != null)
+            {
+                PlayDestroySound();
+            }
+
             Destroy(gameObject);
         }
     }

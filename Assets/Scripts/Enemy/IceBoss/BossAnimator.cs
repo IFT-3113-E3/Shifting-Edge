@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using Projectiles;
 using UnityEngine;
 
 namespace Enemy.IceBoss
@@ -18,6 +17,9 @@ namespace Enemy.IceBoss
 
         public AudioClip tpInAudioClip;
         public AudioClip tpOutAudioClip;
+        public AudioClip[] throwAudioClip;
+        public AudioClip[] throwPrepareAudioClip;
+        public AudioClip[] moveAudioClips;
 
         private Vector3 _targetPos;
         private Quaternion _targetRotation;
@@ -237,6 +239,7 @@ namespace Enemy.IceBoss
                 StopCoroutine(_animCoroutine);
             }
             _fakeSpikeController.Form();
+            PlayThrowPrepareAudio();
             _animCoroutine = StartCoroutine(PlayAnimAndCallback("Throw", onComplete));
         }
         
@@ -258,6 +261,7 @@ namespace Enemy.IceBoss
         private void OnGolemThrowEvent()
         {
             _fakeSpikeController.Hide();
+            PlayThrowAudio();
 
             if (handTransform != null)
             {
@@ -281,6 +285,45 @@ namespace Enemy.IceBoss
             else
             {
                 Debug.LogError("[BossAnimator] Animator component not found!");
+            }
+        }
+        
+        private void PlayThrowAudio()
+        {
+            if (_audioSource != null && throwAudioClip.Length > 0)
+            {
+                int randomIndex = UnityEngine.Random.Range(0, throwAudioClip.Length);
+                _audioSource.PlayOneShot(throwAudioClip[randomIndex]);
+            }
+            else
+            {
+                Debug.LogWarning("[BossAnimator] AudioSource component not found or no audio clips assigned!");
+            }
+        }
+        
+        private void PlayThrowPrepareAudio()
+        {
+            if (_audioSource != null && throwPrepareAudioClip.Length > 0)
+            {
+                int randomIndex = UnityEngine.Random.Range(0, throwPrepareAudioClip.Length);
+                _audioSource.PlayOneShot(throwPrepareAudioClip[randomIndex]);
+            }
+            else
+            {
+                Debug.LogWarning("[BossAnimator] AudioSource component not found or no audio clips assigned!");
+            }
+        }
+        
+        private void PlayMoveAudio()
+        {
+            if (_audioSource != null && moveAudioClips.Length > 0)
+            {
+                int randomIndex = UnityEngine.Random.Range(0, moveAudioClips.Length);
+                _audioSource.PlayOneShot(moveAudioClips[randomIndex]);
+            }
+            else
+            {
+                Debug.LogWarning("[BossAnimator] AudioSource component not found or no audio clips assigned!");
             }
         }
     }

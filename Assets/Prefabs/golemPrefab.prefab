@@ -828,6 +828,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 0}
   spawnPoint: {fileID: 0}
+  cameraEffects: {fileID: 0}
   projectileData: {fileID: 11400000, guid: 4a03eefeb7c8a764ba444f7f5ddbd18b, type: 2}
   _context:
     self: {fileID: 0}
@@ -873,8 +874,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 590dcb2d02084d53bc9b470d451d3e7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tpInAudioClip: {fileID: 8300000, guid: 5b8c9b7fe2d76794e8b74317e671615f, type: 3}
-  tpOutAudioClip: {fileID: 8300000, guid: 1d053c4d984fad648976a0f55c91fb66, type: 3}
+  tpInAudioClip: {fileID: 8300000, guid: 889d9998513beca45bcaa449779fd5de, type: 3}
+  tpOutAudioClip: {fileID: 8300000, guid: 957e61f63ecf1db48a0d02565fd57d7b, type: 3}
+  throwAudioClip: []
+  throwPrepareAudioClip:
+  - {fileID: 8300000, guid: 1743a88cc53dddc4c8db674e4e99c7d2, type: 3}
+  - {fileID: 8300000, guid: f937b64760476bb4fa31c591151c836b, type: 3}
+  moveAudioClips:
+  - {fileID: 8300000, guid: 1743a88cc53dddc4c8db674e4e99c7d2, type: 3}
+  - {fileID: 8300000, guid: f937b64760476bb4fa31c591151c836b, type: 3}
   fakeSpikePrefab: {fileID: 3373389292934017494, guid: 758048f88b436a84a8936cea78482546, type: 3}
   handTransform: {fileID: 4765443127548182253}
 --- !u!114 &1071508632392875407

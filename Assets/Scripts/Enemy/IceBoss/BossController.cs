@@ -15,6 +15,8 @@ namespace Enemy.IceBoss
         [Header("Context initialization")] public GameObject player;
         public Transform spawnPoint;
         
+        public CameraEffects cameraEffects;
+        
         public ProjectileData projectileData;
 
         [SerializeField] private BossContext _context;
@@ -31,6 +33,15 @@ namespace Enemy.IceBoss
 
         void Start()
         {
+            if (!cameraEffects)
+            {
+                cameraEffects = FindFirstObjectByType<CameraEffects>();
+                if (cameraEffects == null)
+                {
+                    Debug.LogWarning("[BossController] CameraEffects component not found!");
+                }
+            }
+            
             _animator = GetComponent<BossAnimator>();
             if (_animator == null)
             {
@@ -138,7 +149,11 @@ namespace Enemy.IceBoss
                         _context.animator.TeleportWithExplosion(
                             behindPlayerPos,
                             _context.player.transform.rotation,
-                            () => { combatFsm.StateCanExit(); });
+                            () =>
+                            {
+                                // SpawnCircleAttack();
+                                combatFsm.StateCanExit();
+                            });
                     },
                     onLogic: _ =>
                     {
@@ -262,9 +277,48 @@ namespace Enemy.IceBoss
                 var projectile = Instantiate(projectileData.projectilePrefab, position,
                     Quaternion.identity);
                 var projectileComponent = projectile.AddComponent<Projectiles.Projectile>();
+                // screen shake with higher intensity when closer to the player
+                projectileComponent.OnCollision += () =>
+                {
+                    var distance = Vector3.Distance(projectile.transform.position,
+                        _context.player.transform.position);
+                    var intensity = Mathf.Clamp01(1f - distance / 12f) / 2.5f;
+                    cameraEffects?.Shake(1f, intensity);
+                };
                 if (projectileComponent != null)
                 {
                     projectileComponent.Initialize(direction, projectileData);
+                }
+            }
+            else
+            {
+                Debug.LogError("Projectile data is not assigned.");
+            }
+        }
+
+        // Spawns a circle arrangement of projectiles from under the ground around the boss
+        private void SpawnCircleAttack()
+        {
+            Vector3 position = _context.self.transform.position;
+            if (projectileData != null)
+            {
+                var projectileCount = 8;
+                var radius = 0.25f;
+                var angleStep = 360f / projectileCount;
+
+                for (int i = 0; i < projectileCount; i++)
+                {
+                    float angle = i * angleStep;
+                    Vector3 spawnPos = new Vector3(
+                        position.x + radius * Mathf.Cos(angle * Mathf.Deg2Rad),
+                        position.y - 20f,
+                        position.z + radius * Mathf.Sin(angle * Mathf.Deg2Rad)
+                    );
+
+                    // outer tilt direction from the boss
+                    var tiltAngleFromVertical = 10f;
+                    var tiltDirection = Quaternion.Euler(tiltAngleFromVertical, angle, 0f) * Vector3.up;
+                    SpawnProjectile(spawnPos, tiltDirection);
                 }
             }
             else

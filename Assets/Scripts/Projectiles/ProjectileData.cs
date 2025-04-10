@@ -27,6 +27,11 @@ namespace Projectiles
         [Header("Physics")]
         public ProjectilePhysicsConfig physicsConfig;
 
+        [Header("Sounds")]
+        public AudioClip[] spawnSound;
+        public AudioClip[] hitSound;
+        public AudioClip[] destroySound;
+        
         [Header("Optional Scripted Behavior")]
         public MonoBehaviour script;
     }
