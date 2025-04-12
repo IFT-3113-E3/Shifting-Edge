@@ -118,6 +118,16 @@ namespace Enemy.IceBoss
             }
         }
         
+        public void PreparePunch()
+        {
+            _animator.Play("PreparePunch");
+        }
+        
+        public void ReturnToIdle()
+        {
+            _animator.CrossFade("Idle", 0.1f);
+        }
+        
         public void SetFlashEnabled(bool enabled, float flashTime = 0.5f)
         {
             if (enabled)

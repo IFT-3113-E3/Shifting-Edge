@@ -7,6 +7,12 @@ namespace Enemy.IceBoss.States.Combat
     {
         private readonly BossContext _ctx;
      
+        private float _prepareTime = 1.5f;
+        private float _prepareTimeElapsed = 0f;
+        private bool _hasStartedPreparing = false;
+        private bool _preparingPunch = false;
+        private bool _punching = false;
+        
         private bool _reachedTarget = false;
         
         private Vector3 _startPosition;
@@ -20,6 +26,16 @@ namespace Enemy.IceBoss.States.Combat
 
         public override void OnEnter()
         {
+
+            _hasStartedPreparing = false;
+            _preparingPunch = true;
+            _punching = false;
+            _prepareTimeElapsed = 0f;
+        }
+
+        private void ChargeInit()
+        {
+                                
             _ctx.movementController.LookAt(
                 _ctx.player.transform.position, 100000f);
             
@@ -33,6 +49,38 @@ namespace Enemy.IceBoss.States.Combat
         }
 
         public override void OnLogic()
+        {
+            if (_preparingPunch)
+            {
+                if (!_hasStartedPreparing)
+                {
+                    Debug.Log("Preparing punch");
+                    _ctx.animator.PreparePunch();
+                    _ctx.animator.SetFlashEnabled(true);
+                    _hasStartedPreparing = true;
+                }
+                _ctx.movementController.LookAt(
+                    _ctx.player.transform.position);
+                _prepareTimeElapsed += _ctx.dt;
+                if (_prepareTimeElapsed >= _prepareTime)
+                {
+                    Debug.Log("Punching");
+                    _punching = true;
+                    _preparingPunch = false;
+                    _ctx.animator.SetFlashEnabled(false);
+                    ChargeInit();
+                }
+                
+                return;
+            }
+            
+            if (_punching)
+            {
+                DashAndPunch();
+            }
+        }
+
+        private void DashAndPunch()
         {
             if (_reachedTarget)
             {
@@ -48,7 +96,7 @@ namespace Enemy.IceBoss.States.Combat
                 Debug.Log("Player is in range");
                 _reachedTarget = true;
                 _ctx.movementController.Mc.MoveTo(GetNearestPointAroundPlayer(
-                    _ctx.player.transform.position, reachDistance - 1f), 1f, 20f, 1000f,
+                        _ctx.player.transform.position, reachDistance - 1f), 1f, 20f, 1000f,
                     () =>
                     {
                         _ctx.movementController.LookAt(_ctx.player.transform.position, 100000f);
@@ -63,6 +111,7 @@ namespace Enemy.IceBoss.States.Combat
             if (dstFromStart >= _maxDistance - reachDistance)
             {
                 Debug.Log("Reached max distance");
+                _ctx.animator.ReturnToIdle();
                 _reachedTarget = true;
                 fsm.StateCanExit();
                 return;
