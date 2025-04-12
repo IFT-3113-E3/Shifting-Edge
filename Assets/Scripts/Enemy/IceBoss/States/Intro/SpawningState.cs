@@ -19,6 +19,10 @@ namespace Enemy.IceBoss.States.Intro
             _isSpawning = true;
 
             Debug.Log("SpawningState: Enter");
+            
+            // Setup the camera for the fight
+            _ctx.orbitCamera.AddAdditionalTarget(_ctx.self.transform);
+            
             // Start the fracture effect
             if (_ctx.animator)
             {
@@ -28,7 +32,6 @@ namespace Enemy.IceBoss.States.Intro
                         _isSpawning = false;
                         // Transition to the next state after spawning
                         fsm.StateCanExit();
-                        _ctx.movementController.enableIdleFloat = true;
                     });
             }
             else

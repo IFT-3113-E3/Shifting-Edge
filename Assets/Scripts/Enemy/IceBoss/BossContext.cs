@@ -13,6 +13,8 @@ namespace Enemy.IceBoss
         public BossAnimator animator;
         public BossMovementController movementController;
         public EntityStatus entityStatus;
+        public CameraEffects cameraEffects;
+        public OrbitCamera orbitCamera;
         
         public Transform spawnPoint;
         public SpeechBubbleSpawner speechBubbleSpawner;
@@ -24,10 +26,12 @@ namespace Enemy.IceBoss
         public float throwCooldown = 5f;
         public float timeSinceLastAttack = 0f;
         public float timeSinceLastThrow = 0f;
-        public float dashSpeed = 10f;
-        public float dashDuration = 0.5f;
+        public float dashSpeed = 200f;
+        public float dashDuration = 1.0f;
 
         public bool shouldActivate = false;
         public bool hasSpawned = false;
+        
+        public float dt = 0f;
     }
 }

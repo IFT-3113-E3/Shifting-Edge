@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using MeshVFX;
+using UnityEngine;
 using UnityEngine.VFX;
 
 namespace Projectiles

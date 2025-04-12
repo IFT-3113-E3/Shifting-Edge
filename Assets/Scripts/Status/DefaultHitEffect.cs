@@ -12,18 +12,18 @@ namespace Status
         private Coroutine _flashRoutine;
         
         private Renderer[] _renderers;
-        private Color[] _originalColors;
+        // private Color[] _originalColors;
         
         public ParticleSystem hitParticles;
         
         private void Awake()
         {
             _renderers = GetComponentsInChildren<Renderer>().Except(GetComponentsInChildren<ParticleSystemRenderer>()).ToArray();
-            _originalColors = new Color[_renderers.Length];
-            for (int i = 0; i < _renderers.Length; i++)
-            {
-                _originalColors[i] = _renderers[i].material.color;
-            }
+            // _originalColors = new Color[_renderers.Length];
+            // for (int i = 0; i < _renderers.Length; i++)
+            // {
+            //     _originalColors[i] = _renderers[i].material.color;
+            // }
             hitParticles = GetComponentInChildren<ParticleSystem>();
             if (hitParticles != null)
             {
@@ -35,9 +35,9 @@ namespace Status
         {
             var hitPoint = damageRequest.hitPoint;
             
-            if (_flashRoutine != null)
-                StopCoroutine(_flashRoutine);
-            _flashRoutine = StartCoroutine(FlashRoutine());
+            // if (_flashRoutine != null)
+            //     StopCoroutine(_flashRoutine);
+            // _flashRoutine = StartCoroutine(FlashRoutine());
             if (hitParticles != null)
             {
                 hitParticles.transform.position = hitPoint;
@@ -60,7 +60,7 @@ namespace Status
             {
                 var material = _renderers[i].material;
                 if (!material) continue;
-                material.color = _originalColors[i];
+                // material.color = _originalColors[i];
             }
         }
     }

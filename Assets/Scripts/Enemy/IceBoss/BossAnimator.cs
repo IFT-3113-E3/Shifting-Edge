@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
+using MeshVFX;
 using UnityEngine;
+using UnityEngine.VFX;
 
 namespace Enemy.IceBoss
 {
@@ -9,6 +11,8 @@ namespace Enemy.IceBoss
     {
         private Animator _animator;
         private FractureEffect _fractureEffect;
+        private MeshTrailEffect _meshTrailEffect;
+        private MeshFlashEffect _meshFlashEffect;
 
         private Coroutine _currentCoroutine;
         private Coroutine _animCoroutine;
@@ -26,8 +30,12 @@ namespace Enemy.IceBoss
         
         public GameObject fakeSpikePrefab;
         private FakeSpikeController _fakeSpikeController;
+        
+        private VisualEffect[] _visualEffects;
 
         public Transform handTransform;
+
+        private EntityMovementController _mc;
 
         public event Action<Transform> OnThrowEvent;
         
@@ -43,6 +51,18 @@ namespace Enemy.IceBoss
             if (_fractureEffect == null)
             {
                 Debug.LogError("[BossAnimator] FractureEffect component not found!");
+            }
+            
+            _meshTrailEffect = GetComponent<MeshTrailEffect>();
+            if (_meshTrailEffect == null)
+            {
+                Debug.LogError("[BossAnimator] MeshTrailEffect component not found!");
+            }
+            
+            _meshFlashEffect = GetComponent<MeshFlashEffect>();
+            if (_meshFlashEffect == null)
+            {
+                Debug.LogError("[BossAnimator] MeshFlashEffect component not found!");
             }
 
             _audioSource = GetComponent<AudioSource>();
@@ -60,12 +80,54 @@ namespace Enemy.IceBoss
                 _fakeSpikeController = new FakeSpikeController(fakeSpikePrefab, handTransform);
             }
             
+            _mc = GetComponent<EntityMovementController>();
+            if (_mc == null)
+            {
+                Debug.LogError("[BossAnimator] EntityMovementController component not found!");
+            }
+            
+            _visualEffects = GetComponentsInChildren<VisualEffect>();
+            
         }
 
         public void UpdateTarget(Vector3 targetPos, Quaternion targetRotation)
         {
             _targetPos = targetPos;
             _targetRotation = targetRotation;
+        }
+        
+        public void SetVisible(bool isVisible)
+        {
+            if (_fractureEffect != null)
+            {
+                _fractureEffect.SwapVisibility(isVisible);
+            }
+            foreach (var vfx in _visualEffects)
+            {
+                if (vfx != null)
+                {
+                    if (isVisible)
+                    {
+                        vfx.Play();
+                    }
+                    else
+                    {
+                        vfx.Stop();
+                    }
+                }
+            }
+        }
+        
+        public void SetFlashEnabled(bool enabled, float flashTime = 0.5f)
+        {
+            if (enabled)
+            {
+                _meshFlashEffect.SetFlashing(true);
+            }
+            else
+            {
+                _meshFlashEffect.SetFlashing(false);
+            }
         }
 
         public void AssembleAndSpawn(Vector3 targetPos, Quaternion targetRotation,
@@ -85,16 +147,16 @@ namespace Enemy.IceBoss
             _fractureEffect.SetFragmentsEnabled(true);
 
             // Set original object invisible
-            _fractureEffect.SwapVisibility(false);
+            SetVisible(false);
 
             yield return null;
 
-            transform.position = targetPos;
-            transform.rotation = targetRotation;
+            _mc.SetPosition(targetPos);
+            _mc.SetRotation(targetRotation);
 
             yield return StartCoroutine(_fractureEffect.ReassembleSmooth(1f, 0.2f));
 
-            _fractureEffect.SwapVisibility(true);
+            SetVisible(true);
             _fractureEffect.SetFragmentsEnabled(false);
 
             onComplete?.Invoke();
@@ -125,7 +187,7 @@ namespace Enemy.IceBoss
             yield return new WaitForFixedUpdate();
 
             // Set original object invisible
-            _fractureEffect.SwapVisibility(false);
+            SetVisible(false);
 
             // yield return new WaitForFixedUpdate();
             yield return StartCoroutine(
@@ -153,8 +215,8 @@ namespace Enemy.IceBoss
 
             _fractureEffect.AppearFragments();
 
-            transform.position = pos;
-            transform.rotation = rot;
+            _mc.SetPosition(pos);
+            _mc.SetRotation(rot);
 
             if (_audioSource != null && tpInAudioClip != null)
             {
@@ -167,7 +229,7 @@ namespace Enemy.IceBoss
             yield return new WaitUntil(_fractureEffect.AreAllFragmentsFinishedDissolving);
 
             // Set original object visible
-            _fractureEffect.SwapVisibility(true);
+            SetVisible(true);
 
             _fractureEffect.ResetFragmentsAtSource();
 
@@ -181,7 +243,7 @@ namespace Enemy.IceBoss
         {
             if (_fractureEffect != null)
             {
-                _fractureEffect.SwapVisibility(true);
+                SetVisible(true);
                 _fractureEffect.SetFragmentsEnabled(false);
             }
         }
@@ -230,6 +292,11 @@ namespace Enemy.IceBoss
             {
                 TeleportWithExplosion(tpAim, Quaternion.LookRotation(tpAimDirection - tpAim));
             }
+
+            if (_meshTrailEffect)
+            {
+                _meshTrailEffect.UpdateVelocity(_mc.Motor.Velocity);
+            }
         }
 
         public void ThrowSpike(Action onComplete = null)
@@ -240,21 +307,45 @@ namespace Enemy.IceBoss
             }
             _fakeSpikeController.Form();
             PlayThrowPrepareAudio();
-            _animCoroutine = StartCoroutine(PlayAnimAndCallback("Throw", onComplete));
+            _animCoroutine = StartCoroutine(PlayThrowAnimAndCallback("Throw", onComplete));
         }
         
-        private IEnumerator PlayAnimAndCallback(string stateName, Action onComplete)
+        private IEnumerator PlayThrowAnimAndCallback(string stateName, Action onComplete)
         {
             _animator.Play(stateName);
             
+            SetFlashEnabled(true, 0.1f);
             yield return new WaitUntil(() => _fakeSpikeController.IsFormed());
             _animator.speed = 1;
+            SetFlashEnabled(false);
             yield return null;
             AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
             yield return new WaitForSeconds(stateInfo.normalizedTime * stateInfo.length);
 
             // Invoke the callback
             onComplete?.Invoke();
+        }
+        
+        
+        private IEnumerator PlayAnimAndCallback(string stateName, Action onComplete)
+        {
+            _animator.Play(stateName);
+            
+            AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
+            yield return new WaitForSeconds(stateInfo.length);
+
+            // Invoke the callback
+            onComplete?.Invoke();
+        }
+        
+        
+        public void Punch(Action onComplete = null)
+        {
+            if (_animCoroutine != null)
+            {
+                StopCoroutine(_animCoroutine);
+            }
+            _animCoroutine = StartCoroutine(PlayAnimAndCallback("Punch", onComplete));
         }
 
 

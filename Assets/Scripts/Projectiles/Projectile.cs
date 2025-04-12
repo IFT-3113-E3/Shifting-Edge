@@ -89,6 +89,10 @@ namespace Projectiles
             _hasCollided = false;
             _lifeTime = 0f;
             _rb.isKinematic = false;
+            if (projectileData.physicsConfig.isKinematic)
+            {
+                _rb.constraints = RigidbodyConstraints.FreezeAll;
+            }
             _rb.useGravity = projectileData.physicsConfig.gravityMultiplier > 0;
             transform.SetParent(null);
 
@@ -104,7 +108,10 @@ namespace Projectiles
             _rb.mass = projectileData.physicsConfig.mass;
             _rb.linearDamping = projectileData.physicsConfig.drag;
             _rb.angularDamping = projectileData.physicsConfig.angularDrag;
-            _rb.linearVelocity = direction.normalized * projectileData.speed;
+            if (!projectileData.physicsConfig.isKinematic)
+            {
+                _rb.linearVelocity = direction.normalized * projectileData.speed;
+            }
 
             _lastPosition = transform.position;
             _lastRotation = transform.rotation;
@@ -160,6 +167,7 @@ namespace Projectiles
                     _hitboxCollider.enabled = false;
                 }
 
+                if (projectileData.physicsConfig.isKinematic) return;
                 if (projectileData.physicsConfig.sticky)
                 {
                     _isPenetrating = true;

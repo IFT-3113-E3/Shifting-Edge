@@ -1,5 +1,6 @@
 ﻿using Enemy.IceBoss.States.Combat;
 using Enemy.IceBoss.States.Intro;
+using MeshVFX;
 using Projectiles;
 using Status;
 using UI;
@@ -16,8 +17,9 @@ namespace Enemy.IceBoss
         public Transform spawnPoint;
         
         public CameraEffects cameraEffects;
-        
-        public ProjectileData projectileData;
+        public OrbitCamera orbitCamera;
+
+        public ProjectileDatabase projectileDatabase;
 
         [SerializeField] private BossContext _context;
         private StateMachine _rootSm;
@@ -39,6 +41,14 @@ namespace Enemy.IceBoss
                 if (cameraEffects == null)
                 {
                     Debug.LogWarning("[BossController] CameraEffects component not found!");
+                }
+            }
+            if (!orbitCamera)
+            {
+                orbitCamera = FindFirstObjectByType<OrbitCamera>();
+                if (orbitCamera == null)
+                {
+                    Debug.LogWarning("[BossController] OrbitCamera component not found!");
                 }
             }
             
@@ -71,6 +81,8 @@ namespace Enemy.IceBoss
                 animator = _animator,
                 movementController = _movementController,
                 entityStatus = _entityStatus,
+                orbitCamera = orbitCamera,
+                cameraEffects = cameraEffects,
                 speechBubbleSpawner = FindFirstObjectByType<SpeechBubbleSpawner>(),
                 spawnPoint = spawnPoint,
             };
@@ -101,7 +113,7 @@ namespace Enemy.IceBoss
                 var firePos = hand.position;
                 var direction = (_context.player.transform.position - firePos).normalized;
                 direction.Normalize();
-                SpawnProjectile(firePos, direction);
+                SpawnProjectile("icespike", firePos, direction);
             }
             else
             {
@@ -142,7 +154,6 @@ namespace Enemy.IceBoss
                     onEnter: _ =>
                     {
                         _context.movementController.StopMovement();
-                        _context.movementController.enableIdleFloat = false;
                         var behindPlayerPos = _context.player.transform.position +
                                               _context.player.transform.forward * -2f;
 
@@ -176,7 +187,6 @@ namespace Enemy.IceBoss
                     _ =>
                     {
                         var test = _context.timeSinceLastAttack >= _context.attackCooldown;
-                        // not facing player
                         var facingPlayer = IsPointInView(_context.player.transform.position);
                         return test && facingPlayer;
                     });
@@ -185,11 +195,11 @@ namespace Enemy.IceBoss
                     _ =>
                     {
                         return _context.timeSinceLastThrow >= _context.throwCooldown 
-                               && !DistanceToPlayer(6f);
+                               && !DistanceToPlayer(15f);
                     });
                 combatFsm.AddTransition("Charge", "Wait");
                 combatFsm.AddTransition("Wait", "Teleport",
-                    _ => _context.timeSinceLastAttack >= 0.8f && !DistanceToPlayer(10f));
+                    _ => _context.timeSinceLastAttack >= 0.8f && !DistanceToPlayer(20f));
                 
                 combatFsm.AddTransition("Teleport", "Wait");
 
@@ -214,8 +224,15 @@ namespace Enemy.IceBoss
 
         void Update()
         {
+            _context.dt = Time.deltaTime;
             _rootSm.OnLogic();
+            
+            if (Input.GetKeyDown(KeyCode.Y))
+            {
+                SpawnCircleAttack();
+            }
         }
+        
 
         private void OnDrawGizmos()
         {
@@ -225,13 +242,13 @@ namespace Enemy.IceBoss
             }
             // draw boss view range cone with lines
             var maxViewAngle = 45f/2f;
-            var viewDistance = 10f;
+            var viewDistance = 15f;
             var viewAngle = maxViewAngle * 2f;
             var angleStep = viewAngle / 10f;
             var startAngle = -maxViewAngle;
             var endAngle = maxViewAngle;
             var startPos = _context.self.transform.position;
-            var forward = _context.self.transform.forward;
+            var forward = _context.movementController.TransientForward;
             var right = Quaternion.Euler(0f, startAngle, 0f) * forward;
             
             var endPos = Quaternion.Euler(0f, endAngle, 0f) * forward;
@@ -251,10 +268,10 @@ namespace Enemy.IceBoss
         private bool IsPointInView(Vector3 position)
         {
             var maxViewAngle = 45f / 2f;
-            var viewDistance = 10f;
+            var viewDistance = 15f;
             var viewAngle = maxViewAngle * 2f;
 
-            var forward = _context.self.transform.forward;
+            var forward = _context.movementController.TransientForward;
             var right = Quaternion.Euler(0f, -maxViewAngle, 0f) * forward;
             var left = Quaternion.Euler(0f, maxViewAngle, 0f) * forward;
 
@@ -270,10 +287,11 @@ namespace Enemy.IceBoss
                 _context.player.transform.position) <= distance;
         }
 
-        private void SpawnProjectile(Vector3 position, Vector3 direction)
+        private void SpawnProjectile(string name, Vector3 position, Vector3 direction)
         {
-            if (projectileData != null)
+            if (projectileDatabase != null)
             {
+                var projectileData = projectileDatabase.Get(name);
                 var projectile = Instantiate(projectileData.projectilePrefab, position,
                     Quaternion.identity);
                 var projectileComponent = projectile.AddComponent<Projectiles.Projectile>();
@@ -300,30 +318,23 @@ namespace Enemy.IceBoss
         private void SpawnCircleAttack()
         {
             Vector3 position = _context.self.transform.position;
-            if (projectileData != null)
-            {
-                var projectileCount = 8;
-                var radius = 0.25f;
-                var angleStep = 360f / projectileCount;
+            var projectileCount = 8;
+            var radius = 4f;
+            var angleStep = 360f / projectileCount;
 
-                for (int i = 0; i < projectileCount; i++)
-                {
-                    float angle = i * angleStep;
-                    Vector3 spawnPos = new Vector3(
-                        position.x + radius * Mathf.Cos(angle * Mathf.Deg2Rad),
-                        position.y - 20f,
-                        position.z + radius * Mathf.Sin(angle * Mathf.Deg2Rad)
-                    );
-
-                    // outer tilt direction from the boss
-                    var tiltAngleFromVertical = 10f;
-                    var tiltDirection = Quaternion.Euler(tiltAngleFromVertical, angle, 0f) * Vector3.up;
-                    SpawnProjectile(spawnPos, tiltDirection);
-                }
-            }
-            else
+            for (int i = 0; i < projectileCount; i++)
             {
-                Debug.LogError("Projectile data is not assigned.");
+                float angle = i * angleStep;
+                Vector3 spawnPos = new Vector3(
+                    position.x + radius * Mathf.Cos(angle * Mathf.Deg2Rad),
+                    position.y,
+                    position.z + radius * Mathf.Sin(angle * Mathf.Deg2Rad)
+                );
+
+                // outer tilt direction from the boss
+                var tiltAngleFromVertical = 10f;
+                var tiltDirection = Quaternion.Euler(tiltAngleFromVertical, angle, 0f) * Vector3.up;
+                SpawnProjectile("groundspike", spawnPos, tiltDirection);
             }
         }
     }

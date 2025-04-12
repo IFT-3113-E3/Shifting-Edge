@@ -12,6 +12,7 @@ namespace Projectiles
         public float drag = 0.1f;
         public float angularDrag = 0.05f;
         public float maxSpeed = 20f;
+        public bool isKinematic = false;
         
         [Header("Collision Settings")]
         public Vector3 colliderSize = new Vector3(0.5f, 0.5f, 0.5f);

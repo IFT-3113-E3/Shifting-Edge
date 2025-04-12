@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using MeshVFX;
+using UnityEngine;
 
 namespace Enemy.IceBoss
 {

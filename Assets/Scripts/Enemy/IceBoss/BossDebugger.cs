@@ -68,6 +68,7 @@ namespace Enemy.IceBoss
             GUILayout.Label($"Phase: {ctx.phase}", _labelStyle);
             GUILayout.Label($"Cooldown: {ctx.timeSinceLastAttack:0.00} / {ctx.attackCooldown}", _labelStyle);
             GUILayout.Label($"Activated: {ctx.shouldActivate}", _labelStyle);
+            GUILayout.Label($"Velocity: {ctx.movementController.gameObject.GetComponent<EntityMovementController>()?.Motor.Velocity}", _labelStyle);
             // EditorGUILayout.PropertyField(new SerializedObject(ctx).FindProperty("shouldActivate"), new GUIContent("Should Activate"));
 
             var stateBranch = sm.GetActiveHierarchyPath();
