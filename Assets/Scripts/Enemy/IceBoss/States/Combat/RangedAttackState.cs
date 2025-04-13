@@ -28,8 +28,9 @@ namespace Enemy.IceBoss.States.Combat
         public override void OnExit()
         {
             // Logic for exiting the ranged attack state
-            _ctx.timeSinceLastAttack = 0f;
+            _ctx.waitTimer = 0f;
             _ctx.timeSinceLastThrow = 0f;
+            _ctx.attackHistory.Add(AttackType.Ranged);
             _ctx.movementController.StopMovement();
         }
     }

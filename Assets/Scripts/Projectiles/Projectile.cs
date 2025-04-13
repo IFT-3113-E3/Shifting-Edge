@@ -1,4 +1,5 @@
 ﻿using System;
+using Status;
 using UnityEngine;
 
 namespace Projectiles
@@ -28,6 +29,10 @@ namespace Projectiles
 
         private AudioSource _audioSource;
 
+        private EntityStatus _owner;
+        
+        public EntityStatus Owner => _owner;
+        
         public event Action OnCollision;
 
         public event Action<Collider> OnHitEntity;
@@ -67,23 +72,25 @@ namespace Projectiles
                 enabled = false;
             }
 
-            if (_collisionCollider == null)
-            {
-                Debug.LogError("Projectile prefab needs a Collider component for collision.");
-                enabled = false;
-            }
+            // if (_collisionCollider == null)
+            // {
+            //     Debug.LogError("Projectile prefab needs a Collider component for collision.");
+            //     enabled = false;
+            // }
 
-            if (_hitboxCollider == null)
-            {
-                Debug.LogWarning(
-                    "Projectile prefab should have a child Collider set to 'Is Trigger' for the hitbox.");
-            }
+            // if (_hitboxCollider == null)
+            // {
+            //     Debug.LogWarning(
+            //         "Projectile prefab should have a child Collider set to 'Is Trigger' for the hitbox.");
+            // }
         }
 
-        public void Initialize(Vector3 direction, ProjectileData data)
+        public void Initialize(Vector3 direction, ProjectileData data, EntityStatus owner)
         {
             projectileData = data;
 
+            _owner = owner;            
+            
             _isHitboxEnabled = true;
             _bounceCount = 0;
             _hasCollided = false;
@@ -232,9 +239,9 @@ namespace Projectiles
                 _penetratedDistance += moveDistance;
 
                 // Dampen the velocity (exponential damping)
-                float damping = projectileData.physicsConfig.stickDamping;
+                // float damping = projectileData.physicsConfig.stickDamping;
                 // _rb.linearVelocity = Vector3.Lerp(_rb.linearVelocity, Vector3.zero, damping * dt);
-                Debug.Log($"Projectile is penetrating: {_rb.linearVelocity.magnitude}");
+                // Debug.Log($"Projectile is penetrating: {_rb.linearVelocity.magnitude}");
 
                 // Stop when we reach the penetration depth or velocity is very small
                 if (_penetratedDistance >= projectileData.physicsConfig.stickDepth ||

@@ -38,6 +38,7 @@ namespace Enemy.IceBoss
         private EntityMovementController _mc;
 
         public event Action<Transform> OnThrowEvent;
+        public event Action OnGroundAttackEvent;
         
         private void Start()
         {
@@ -128,15 +129,11 @@ namespace Enemy.IceBoss
             _animator.CrossFade("Idle", 0.1f);
         }
         
-        public void SetFlashEnabled(bool enabled, float flashTime = 0.5f)
+        public void SetFlashEnabled(bool enabled)
         {
-            if (enabled)
+            if (_meshFlashEffect != null)
             {
-                _meshFlashEffect.SetFlashing(true);
-            }
-            else
-            {
-                _meshFlashEffect.SetFlashing(false);
+                _meshFlashEffect.SetFlashing(enabled);
             }
         }
 
@@ -324,7 +321,7 @@ namespace Enemy.IceBoss
         {
             _animator.Play(stateName);
             
-            SetFlashEnabled(true, 0.1f);
+            SetFlashEnabled(true);
             yield return new WaitUntil(() => _fakeSpikeController.IsFormed());
             _animator.speed = 1;
             SetFlashEnabled(false);
@@ -334,6 +331,16 @@ namespace Enemy.IceBoss
 
             // Invoke the callback
             onComplete?.Invoke();
+        }
+        
+        public void GroundAttack(Action onComplete = null)
+        {
+            if (_animCoroutine != null)
+            {
+                StopCoroutine(_animCoroutine);
+            }
+            _animCoroutine = StartCoroutine(PlayAnimAndCallback("GroundAttack", onComplete));
+            OnGroundAttackEvent?.Invoke();
         }
         
         
@@ -376,17 +383,15 @@ namespace Enemy.IceBoss
         
         private void OnGolemPrepareThrowEvent()
         {
-            if (_animator != null)
+            if (!_fakeSpikeController.IsFormed())
             {
-                if (!_fakeSpikeController.IsFormed())
-                {
-                    _animator.speed = 0;
-                }
+                _animator.speed = 0;
             }
-            else
-            {
-                Debug.LogError("[BossAnimator] Animator component not found!");
-            }
+        }
+        
+        private void OnGolemGroundAttackEvent()
+        {
+            OnGroundAttackEvent?.Invoke();
         }
         
         private void PlayThrowAudio()

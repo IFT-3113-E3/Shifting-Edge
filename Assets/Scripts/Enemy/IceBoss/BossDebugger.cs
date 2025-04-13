@@ -66,7 +66,10 @@ namespace Enemy.IceBoss
             GUILayout.Label($"Boss Debug Info", _titleStyle, GUILayout.Height(30));
             GUILayout.Label($"Health: {ctx.health} / {ctx.maxHealth}", _labelStyle);
             GUILayout.Label($"Phase: {ctx.phase}", _labelStyle);
-            GUILayout.Label($"Cooldown: {ctx.timeSinceLastAttack:0.00} / {ctx.attackCooldown}", _labelStyle);
+            GUILayout.Label($"Wait: {ctx.waitTimer:0.00} / {ctx.attackWaitCooldown}", _labelStyle);
+            GUILayout.Label($"Melee: {ctx.timeSinceLastMeleeAttack:0.00} / {ctx.meleeAttackCooldown}", _labelStyle);
+            GUILayout.Label($"Ranged: {ctx.timeSinceLastThrow:0.00} / {ctx.throwCooldown}", _labelStyle);
+            GUILayout.Label($"Ground: {ctx.timeSinceLastGroundAttack:0.00} / {ctx.groundAttackCooldown}", _labelStyle);
             GUILayout.Label($"Activated: {ctx.shouldActivate}", _labelStyle);
             GUILayout.Label($"Velocity: {ctx.movementController.gameObject.GetComponent<EntityMovementController>()?.Motor.Velocity}", _labelStyle);
             // EditorGUILayout.PropertyField(new SerializedObject(ctx).FindProperty("shouldActivate"), new GUIContent("Should Activate"));

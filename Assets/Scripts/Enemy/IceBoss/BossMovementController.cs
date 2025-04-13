@@ -57,6 +57,12 @@ namespace Enemy.IceBoss
             _mc.AddVelocity(dir * force);
         }
         
+        public void WalkTowards(Vector3 target)
+        {
+            var dir = (target - transform.position).normalized;
+            _movement = dir;
+        }
+        
         public void LookAt(Vector3 target, float speed = 100f)
         {
             _targetDir = target - transform.position;

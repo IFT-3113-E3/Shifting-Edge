@@ -95,15 +95,16 @@ namespace Enemy.IceBoss.States.Combat
             {
                 Debug.Log("Player is in range");
                 _reachedTarget = true;
+                _ctx.movementController.LookAt(_ctx.player.transform.position, 100000f);
+                _ctx.animator.Punch(() =>
+                {
+                    fsm.StateCanExit();
+                });
                 _ctx.movementController.Mc.MoveTo(GetNearestPointAroundPlayer(
                         _ctx.player.transform.position, reachDistance - 1f), 1f, 20f, 1000f,
                     () =>
                     {
                         _ctx.movementController.LookAt(_ctx.player.transform.position, 100000f);
-                        _ctx.animator.Punch(() =>
-                        {
-                            fsm.StateCanExit();
-                        });
                     });
                 return;
             }
@@ -136,12 +137,10 @@ namespace Enemy.IceBoss.States.Combat
             return angleToTarget <= maxViewAngle && distanceToTarget <= viewDistance;
         }
         
-        // Finds the nearest point of the boss that is in a 45 degree angle snapped to the player
-        // so one of 8 directions around the player in world space
         public Vector3 GetNearestPointAroundPlayer(Vector3 playerPosition, float distance)
         {
             Vector3 toBoss = (_ctx.self.transform.position - playerPosition);
-            toBoss.y = 0f; // Ignore vertical
+            toBoss.y = 0f;
 
             if (toBoss == Vector3.zero)
             {
@@ -164,7 +163,9 @@ namespace Enemy.IceBoss.States.Combat
 
         public override void OnExit()
         {
-            _ctx.timeSinceLastAttack = 0f;
+            _ctx.timeSinceLastMeleeAttack = 0f;
+            _ctx.attackHistory.Add(AttackType.Melee);
+
             _ctx.movementController.StopMovement();
         }
     }
