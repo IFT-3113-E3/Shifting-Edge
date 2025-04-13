@@ -11,10 +11,10 @@ GameObject:
   - component: {fileID: 4393641807755094874}
   - component: {fileID: 4470574098600940514}
   - component: {fileID: 1687496348091879344}
-  - component: {fileID: -4261096972098585519}
   - component: {fileID: 5344146763143580361}
   - component: {fileID: 1745069471774714517}
   - component: {fileID: -8168614940917084763}
+  - component: {fileID: -6023017264056565103}
   m_Layer: 0
   m_Name: GroundSpikeProjectile
   m_TagString: Enemy
@@ -87,27 +87,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 2
---- !u!114 &-4261096972098585519
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3373389292934017494}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c1336d29f45e46d88501f94ef1a441c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dissolveMaterialTemplate: {fileID: 2100000, guid: 0d0dd39e19d511943bfd393ba993e193, type: 2}
-  materializeColor: {r: 1, g: 1, b: 1, a: 1}
-  edgeWidth: 1.74
-  edgeColor: {r: 0, g: 0.3617783, b: 0.6150943, a: 1}
-  dissolveDuration: 1
-  fadeOutDuration: 1
-  dissolveVFXPrefab: {fileID: 5270317495781631130, guid: 1a59244b7802e164da9b037751c1d1af, type: 3}
-  dissolveVFXPrefab2: {fileID: 1387463173110678090, guid: 716c4acf6324af24894e39f07f2b9965, type: 3}
-  renderersToCopy: []
 --- !u!2083052967 &5344146763143580361
 VisualEffect:
   m_ObjectHideFlags: 0
@@ -206,6 +185,21 @@ MonoBehaviour:
   riseTime: 0.1
   holdTime: 2
   retractTime: 0.6
+  eruptionVFX: {fileID: 258663550402303163, guid: 711f98b1c77e5594ea647186748b7c4a, type: 3}
+--- !u!114 &-6023017264056565103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3373389292934017494}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28d061e51e3b4591af40c97e34029522, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  overrideMaterial: {fileID: 2100000, guid: 9c91326d2e9ceea43abeaa52a125cd8a, type: 2}
+  baseColorPropertyName: _Color
 --- !u!1 &8067647269458573025
 GameObject:
   m_ObjectHideFlags: 0

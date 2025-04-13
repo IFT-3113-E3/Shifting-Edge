@@ -5,14 +5,14 @@ namespace Projectiles
 {
     public class GroundSpikeChainProjectile : MonoBehaviour
     {
-        public float steeringSpeed = 5f;
+        public float steeringSpeed = 60f;
         public float spawnInterval = 0.25f;
         public ProjectileData spikeProjectileData;
 
         private Transform _target;
         private Projectile _self;
 
-        private float _timeSinceLastSpawn = 0f;
+        private float _timeSinceLastSpawn;
 
         
         public event Action<Projectile> OnSpawnProjectile;
@@ -97,6 +97,14 @@ namespace Projectiles
             }
 
             return projectileComponent;
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(transform.position, transform.position + transform.forward * 5f);
+            Gizmos.DrawWireSphere(transform.position, 0.5f);
+            Gizmos.DrawWireSphere(transform.position + transform.forward * 5f, 0.5f);
         }
     }
 }

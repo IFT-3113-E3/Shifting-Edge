@@ -15,7 +15,7 @@ namespace Enemy.IceBoss
     {
         [Header("Context initialization")] public GameObject player;
         public Transform spawnPoint;
-        
+
         public CameraEffects cameraEffects;
         public OrbitCamera orbitCamera;
 
@@ -27,7 +27,7 @@ namespace Enemy.IceBoss
         private BossAnimator _animator;
         private BossMovementController _movementController;
         private EntityStatus _entityStatus;
-        
+
 
         // Used mainly for debugging
         public StateMachine RootSm => _rootSm;
@@ -43,6 +43,7 @@ namespace Enemy.IceBoss
                     Debug.LogWarning("[BossController] CameraEffects component not found!");
                 }
             }
+
             if (!orbitCamera)
             {
                 orbitCamera = FindFirstObjectByType<OrbitCamera>();
@@ -51,7 +52,7 @@ namespace Enemy.IceBoss
                     Debug.LogWarning("[BossController] OrbitCamera component not found!");
                 }
             }
-            
+
             _animator = GetComponent<BossAnimator>();
             if (_animator == null)
             {
@@ -69,7 +70,7 @@ namespace Enemy.IceBoss
             {
                 Debug.LogError("[BossController] StatusEffectManager component not found!");
             }
-            
+
             // Pre-init stuff
             _animator.OnThrowEvent += OnThrowSpike;
             _animator.OnGroundAttackEvent += OnGroundAttack;
@@ -121,11 +122,18 @@ namespace Enemy.IceBoss
                 Debug.LogError("Hand transform is null.");
             }
         }
-        
+
         void OnGroundAttack()
         {
             var direction = _context.movementController.TransientForward;
             var firePos = _context.self.transform.position + direction * 2f;
+
+            var groundAttackShockwave = SpawnProjectile("golemgroundattack", firePos, direction);
+            var distance = Vector3.Distance(firePos,
+                _context.player.transform.position);
+            var intensity = Mathf.Clamp01(1f - distance / 12f) / 2.5f;
+            cameraEffects?.Shake(1f, intensity);
+
             var projectile = SpawnProjectile("groundspikechain", firePos, direction);
             var chainProjectile = projectile.GetComponent<GroundSpikeChainProjectile>();
             chainProjectile.OnSpawnProjectile += p => p.OnCollision += () =>
@@ -178,9 +186,11 @@ namespace Enemy.IceBoss
                         _context.animator.TeleportWithExplosion(
                             behindPlayerPos,
                             _context.player.transform.rotation,
+                            1f,
                             () =>
                             {
                                 // SpawnCircleAttack();
+                                _context.movementController.SyncTransform();
                                 combatFsm.StateCanExit();
                             });
                     },
@@ -191,15 +201,21 @@ namespace Enemy.IceBoss
                         _context.animator.UpdateTarget(
                             behindPlayerPos,
                             _context.player.transform.rotation);
-                    },
-                    onExit: _ =>
-                    {
-                        // _context.movementController.StopMovement();
                     }
                 ));
-                combatFsm.AddState("Charge", new ChargeState(_context));
+
+                var chargeFsm = new StateMachine(needsExitTime: true);
+                {
+                    chargeFsm.AddState("MoveIntoPosition", new MoveIntoPositionState(_context, _context.chargeDistance));
+
+                    chargeFsm.AddState("Charge", new ChargeState(_context));
+                    chargeFsm.AddExitTransition("Charge");
+
+                    chargeFsm.AddTransition("MoveIntoPosition", "Charge");
+                }
+                combatFsm.AddState("Charge", chargeFsm);
                 combatFsm.AddState("RangedAttack", new RangedAttackState(_context));
-                
+
                 var groundAttackFsm = new StateMachine(needsExitTime: true);
                 {
                     // approach the player, then when close enough begin the attack
@@ -207,33 +223,36 @@ namespace Enemy.IceBoss
                     groundAttackFsm.AddState("Attack", new GroundAttackState(_context));
                     groundAttackFsm.AddState("Finish", new State(isGhostState: true));
                     groundAttackFsm.AddExitTransition("Finish");
-                    
+
                     groundAttackFsm.AddTransition("Approach", "Attack",
                         _ => DistanceToPlayer(5f));
                     groundAttackFsm.AddTransition("Attack", "Finish");
                 }
                 combatFsm.AddState("GroundAttack", groundAttackFsm);
-                
+
                 combatFsm.AddExitTransition("Wait");
+                combatFsm.AddTransition("Wait", "Teleport",
+                    _ => _context.waitTimer >= 0.8f && !DistanceToPlayer(20f));
                 combatFsm.AddTransition("Wait", "Charge",
                     _ =>
                     {
-                        var test = _context.timeSinceLastMeleeAttack >= _context.meleeAttackCooldown;
+                        var test = _context.timeSinceLastMeleeAttack >=
+                                   _context.meleeAttackCooldown;
                         var facingPlayer = IsPointInView(_context.player.transform.position);
                         return test && facingPlayer;
                     });
 
                 combatFsm.AddTransition("Wait", "RangedAttack",
-                    _ => _context.timeSinceLastThrow >= _context.throwCooldown 
+                    _ => _context.timeSinceLastThrow >= _context.throwCooldown
                          && !DistanceToPlayer(15f));
                 combatFsm.AddTransition("Wait", "GroundAttack",
                     _ => _context.timeSinceLastGroundAttack >= _context.groundAttackCooldown);
                 
                 combatFsm.AddTransition("Charge", "Wait");
-                combatFsm.AddTransition("Wait", "Teleport",
-                    _ => _context.waitTimer >= 0.8f && !DistanceToPlayer(20f));
+
                 combatFsm.AddTransition("Teleport", "Wait");
                 combatFsm.AddTransition("RangedAttack", "Wait");
+                combatFsm.AddTransition("GroundAttack", "Wait");
 
                 combatFsm.SetStartState("Wait");
             }
@@ -276,8 +295,9 @@ namespace Enemy.IceBoss
             {
                 return;
             }
+
             // draw boss view range cone with lines
-            var maxViewAngle = 45f/2f;
+            var maxViewAngle = 45f / 2f;
             var viewDistance = 15f;
             var viewAngle = maxViewAngle * 2f;
             var angleStep = viewAngle / 10f;
@@ -286,7 +306,7 @@ namespace Enemy.IceBoss
             var startPos = _context.self.transform.position;
             var forward = _context.movementController.TransientForward;
             var right = Quaternion.Euler(0f, startAngle, 0f) * forward;
-            
+
             var endPos = Quaternion.Euler(0f, endAngle, 0f) * forward;
             Gizmos.color = Color.red;
             {
@@ -297,7 +317,6 @@ namespace Enemy.IceBoss
                     var direction = Quaternion.Euler(0f, angle, 0f) * forward;
                     Gizmos.DrawLine(startPos, startPos + direction * viewDistance);
                 }
-                
             }
         }
 
@@ -308,19 +327,29 @@ namespace Enemy.IceBoss
 
             var forward = _context.movementController.TransientForward;
 
-            var angleToTarget = Vector3.Angle(forward, (position - _context.self.transform.position).normalized);
+            var angleToTarget = Vector3.Angle(forward,
+                (position - _context.self.transform.position).normalized);
             var distanceToTarget = Vector3.Distance(_context.self.transform.position, position);
 
             return angleToTarget <= maxViewAngle && distanceToTarget <= viewDistance;
         }
-        
+
+        private bool IsFacingPoint(Vector3 position, float angleTolerance)
+        {
+            var forward = _context.movementController.TransientForward;
+            var angleToTarget = Vector3.Angle(forward,
+                (position - _context.self.transform.position).normalized);
+            return angleToTarget <= angleTolerance;
+        }
+
         private bool DistanceToPlayer(float distance)
         {
             return Vector3.Distance(_context.self.transform.position,
                 _context.player.transform.position) <= distance;
         }
 
-        private Projectiles.Projectile SpawnProjectile(string projectileName, Vector3 position, Vector3 direction)
+        private Projectiles.Projectile SpawnProjectile(string projectileName, Vector3 position,
+            Vector3 direction)
         {
             if (projectileDatabase != null)
             {
@@ -341,6 +370,7 @@ namespace Enemy.IceBoss
                     projectileComponent.Initialize(direction, projectileData,
                         _context.entityStatus);
                 }
+
                 return projectileComponent;
             }
 

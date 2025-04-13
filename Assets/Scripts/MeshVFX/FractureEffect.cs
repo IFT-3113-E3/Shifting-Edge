@@ -453,6 +453,18 @@ namespace MeshVFX
         }
 #endif
 
+        public void SetDissolveSpeedFactor(float factor)
+        {
+            foreach (var clone in _clones)
+            {
+                foreach (var frag in clone.GetFragments())
+                {
+                    var dissolver = frag.Transform.GetComponent<IVisibilityTransitionEffect>();
+                    dissolver?.SetSpeedFactor(factor);
+                }
+            }
+        }
+        
         public void DissolveFragments()
         {
             foreach (var clone in _clones)

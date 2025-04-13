@@ -45,8 +45,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65a593ec53424f6298075116a3d5fb9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  steeringSpeed: 5
-  spawnInterval: 0.5
+  steeringSpeed: 60
+  spawnInterval: 0.25
   spikeProjectileData: {fileID: 11400000, guid: 05f402a4462cace45a555ed2ec05ec63, type: 2}
 --- !u!54 &1567102800178456748
 Rigidbody:

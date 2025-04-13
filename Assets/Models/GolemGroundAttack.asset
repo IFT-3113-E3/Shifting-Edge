@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bdafe7b587c44a8bfb5c6e6e3119aac, type: 3}
+  m_Name: GolemGroundAttack
+  m_EditorClassIdentifier: 
+  projectileName: golemgroundattack
+  projectilePrefab: {fileID: 7196419431995474124, guid: 2ae98075495d92a49ac2d8bad0ecb77a, type: 3}
+  speed: 0
+  lifetime: 0.5
+  damage: 30
+  knockback: 0
+  piercing: 0
+  hitboxLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  canBounce: 1
+  maxBounces: 50
+  disableHitboxOnCollision: 0
+  physicsConfig: {fileID: 11400000, guid: 5c19fb4dd5ca50c43a6fadef5f6fa2f4, type: 2}
+  spawnSound:
+  - {fileID: 0}
+  - {fileID: 0}
+  hitSound: []
+  destroySound: []
+  script: {fileID: 0}

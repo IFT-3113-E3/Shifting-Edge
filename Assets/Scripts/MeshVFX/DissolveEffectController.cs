@@ -25,6 +25,7 @@ namespace MeshVFX
         public float fadeOutDuration = 0.5f;
 
         private Coroutine _dissolveCoroutine;
+        private float _speedFactor = 1f;
 
         public bool IsDissolved => _isDissolved;
         public bool IsDissolving => _isDissolving;
@@ -371,19 +372,19 @@ namespace MeshVFX
             {
                 SetOriginalVisible(true);
                 yield return FadeDissolveCopies(from: startAlpha, to: endAlpha,
-                    duration: fadeOutDuration);
+                    duration: fadeOutDuration * _speedFactor);
                 SetOriginalVisible(false);
-                yield return AnimateDissolveHeight(startHeight, endHeight, dissolveDuration);
+                yield return AnimateDissolveHeight(startHeight, endHeight, dissolveDuration * _speedFactor);
                 yield return new WaitUntil(() =>
                     (_dissolveVFX && _dissolveVFX.aliveParticleCount == 0) || !_dissolveVFX);
             }
             else
             {
                 SetOriginalVisible(false);
-                yield return AnimateDissolveHeight(startHeight, endHeight, dissolveDuration);
+                yield return AnimateDissolveHeight(startHeight, endHeight, dissolveDuration * _speedFactor);
                 SetOriginalVisible(true);
                 yield return FadeDissolveCopies(from: startAlpha, to: endAlpha,
-                    duration: fadeOutDuration);
+                    duration: fadeOutDuration * _speedFactor);
             }
 
 
@@ -571,6 +572,11 @@ namespace MeshVFX
 
         public bool IsTransitioning => _isDissolving;
         public bool IsVisible => !_isDissolved;
+
+        public void SetSpeedFactor(float speedFactor)
+        {
+            _speedFactor = speedFactor;
+        }
 
         public void Show()
         {

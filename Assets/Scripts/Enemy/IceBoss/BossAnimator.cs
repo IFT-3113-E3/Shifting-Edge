@@ -66,6 +66,13 @@ namespace Enemy.IceBoss
                 Debug.LogError("[BossAnimator] MeshFlashEffect component not found!");
             }
 
+            _meshFlashEffect.SetOptions(new FlashOptions
+            {
+                UseFade = false,
+                BaseAlpha = 0.5f,
+                Interval = 0.1f,
+            });
+
             _audioSource = GetComponent<AudioSource>();
             if (_audioSource == null)
             {
@@ -129,11 +136,18 @@ namespace Enemy.IceBoss
             _animator.CrossFade("Idle", 0.1f);
         }
         
-        public void SetFlashEnabled(bool enabled)
+        public void SetFlashEnabled(bool flashEnabled)
         {
-            if (_meshFlashEffect != null)
+            if (_meshFlashEffect)
             {
-                _meshFlashEffect.SetFlashing(enabled);
+                if (flashEnabled)
+                {
+                    _meshFlashEffect.StartFlashing();
+                }
+                else
+                {
+                    _meshFlashEffect.StopFlashing();
+                }
             }
         }
 
@@ -170,7 +184,7 @@ namespace Enemy.IceBoss
         }
 
         public void TeleportWithExplosion(Vector3 targetPos, Quaternion targetRotation,
-            Action onComplete = null)
+            float speedFactor = 1f, Action onComplete = null)
         {
             if (_currentCoroutine != null)
             {
@@ -179,12 +193,13 @@ namespace Enemy.IceBoss
 
             _targetPos = targetPos;
             _targetRotation = targetRotation;
-            StartCoroutine(TeleportSequence(onComplete));
+            StartCoroutine(TeleportSequence(speedFactor, onComplete));
         }
 
-        private IEnumerator TeleportSequence(Action onComplete)
+        private IEnumerator TeleportSequence(float speedFactor, Action onComplete)
         {
             _fractureEffect.SetFragmentsEnabled(true);
+            _fractureEffect.SetDissolveSpeedFactor(speedFactor);
 
             // Reset fragments position and rotation
             _fractureEffect.SetGravityEnabled(false);
@@ -198,8 +213,8 @@ namespace Enemy.IceBoss
 
             // yield return new WaitForFixedUpdate();
             yield return StartCoroutine(
-                _fractureEffect.BreakAndPauseFragmentsSmooth(explosionForce: 0.05f,
-                    slowdownTime: 0.75f));
+                _fractureEffect.BreakAndPauseFragmentsSmooth(explosionForce: 0.05f / speedFactor,
+                    slowdownTime: 0.75f * speedFactor));
 
             // Play teleport sound
             if (_audioSource != null && tpOutAudioClip != null)
@@ -207,7 +222,7 @@ namespace Enemy.IceBoss
                 _audioSource.PlayOneShot(tpOutAudioClip);
             }
 
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.1f * speedFactor);
 
             _fractureEffect.DissolveFragments();
 
@@ -230,7 +245,7 @@ namespace Enemy.IceBoss
                 _audioSource.PlayOneShot(tpInAudioClip);
             }
 
-            yield return StartCoroutine(_fractureEffect.ReassembleSmooth(0.5f, 0.05f));
+            yield return StartCoroutine(_fractureEffect.ReassembleSmooth(0.5f * speedFactor, 0.05f * speedFactor));
 
 
             yield return new WaitUntil(_fractureEffect.AreAllFragmentsFinishedDissolving);
@@ -241,8 +256,7 @@ namespace Enemy.IceBoss
             _fractureEffect.ResetFragmentsAtSource();
 
             _fractureEffect.SetFragmentsEnabled(false);
-
-
+            
             onComplete?.Invoke();
         }
 
@@ -340,7 +354,6 @@ namespace Enemy.IceBoss
                 StopCoroutine(_animCoroutine);
             }
             _animCoroutine = StartCoroutine(PlayAnimAndCallback("GroundAttack", onComplete));
-            OnGroundAttackEvent?.Invoke();
         }
         
         
@@ -351,7 +364,6 @@ namespace Enemy.IceBoss
             AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
             yield return new WaitForSeconds(stateInfo.length);
 
-            // Invoke the callback
             onComplete?.Invoke();
         }
         

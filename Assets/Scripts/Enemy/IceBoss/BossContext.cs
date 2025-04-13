@@ -41,6 +41,8 @@ namespace Enemy.IceBoss
         public float timeSinceLastThrow = 0f;
         public float timeSinceLastGroundAttack = 0f;
         public float dashSpeed = 320f;
+        public float chargeDistance = 8f;
+        public float lookAtSpeed = 100f;
         public float dashDuration = 1.0f;
         
         public RecentSet<AttackType> attackHistory = new();
