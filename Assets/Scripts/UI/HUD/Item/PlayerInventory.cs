@@ -2,9 +2,36 @@ using UnityEngine;
 
 public class PlayerInventory : MonoBehaviour
 {
-    // Ce script devient optionnel si vous n'utilisez pas d'UI
-    private void Start()
+    public static PlayerInventory Instance { get; private set; }
+    
+    [SerializeField] private int initialMana = 5; // Valeur configurable dans l'inspecteur
+    public int SkillTreeMana { get; private set; }
+
+    private void Awake()
     {
-        Debug.Log("Inventaire prêt (mode sans UI)");
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            Instance = this;
+            SkillTreeMana = initialMana; // Initialisation du mana ici
+        }
+    }
+
+    public bool TrySpendMana(int amount)
+    {
+        if (SkillTreeMana >= amount)
+        {
+            SkillTreeMana -= amount;
+            return true;
+        }
+        return false;
+    }
+
+    public void AddMana(int amount)
+    {
+        SkillTreeMana += amount;
     }
 }

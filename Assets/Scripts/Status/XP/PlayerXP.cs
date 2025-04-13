@@ -79,12 +79,9 @@ public class PlayerXP : MonoBehaviour
         ItemData reward = RewardSystem.Instance.GetRewardForLevel(currentLevel, out int quantity);
         if (reward != null)
         {
-            // Ajoute la récompense
-            InventoryManager.Instance.AddItem(reward, quantity);
-            
-            // Affiche l'inventaire complet dans la console
-            Debug.Log($"--- Inventaire (Niveau {currentLevel}) ---");
-            InventoryManager.Instance.PrintInventory();
+            // Ajoute le mana au PlayerInventory plutôt qu'à un compteur local
+            PlayerInventory.Instance.AddMana(quantity);
+            Debug.Log($"Reçu {quantity} SkillTreeMana (Total: {PlayerInventory.Instance.SkillTreeMana})");
         }
     }
 }

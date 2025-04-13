@@ -87,7 +87,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &2444840545749664524
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -117,10 +117,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6c30125c4f2f934da63019162cc0219, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stackFills:
-  - {fileID: 8550457153879230617}
-  - {fileID: 5078935704726663127}
-  - {fileID: 2871448291136814514}
+  stackImages: []
+  fillSpeed: 5
 --- !u!114 &5510337689006967721
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -134,10 +132,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxStacks: 3
-  attacksPerStack: 4
-  skill1Cost: 1
-  skill2Cost: 2
+  skillCosts: 000000000000000000000000
   hudController: {fileID: 7418924571802271567}
+  characterAnimator: {fileID: 0}
 --- !u!1 &768892184244802046
 GameObject:
   m_ObjectHideFlags: 0
