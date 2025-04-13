@@ -76,20 +76,15 @@ public class PlayerXP : MonoBehaviour
     
     private void PlayLevelUpEffect()
     {
-        // Effet visuel de montée de niveau (facultatif)
-        if (levelUpEffectPrefab != null)
+        ItemData reward = RewardSystem.Instance.GetRewardForLevel(currentLevel, out int quantity);
+        if (reward != null)
         {
-            Instantiate(levelUpEffectPrefab, transform.position, Quaternion.identity);
+            // Ajoute la récompense
+            InventoryManager.Instance.AddItem(reward, quantity);
+            
+            // Affiche l'inventaire complet dans la console
+            Debug.Log($"--- Inventaire (Niveau {currentLevel}) ---");
+            InventoryManager.Instance.PrintInventory();
         }
-        
-        Debug.Log($"Joueur monté au niveau {currentLevel}!");
-        
-        // Vous pourriez ajouter ici une logique pour les récompenses de niveau
-    }
-    
-    // Obtenir le pourcentage de progression dans le niveau actuel
-    public float GetLevelProgressPercentage()
-    {
-        return XPManager.Instance.GetLevelProgressPercentage(currentLevel, currentXP);
     }
 }
