@@ -59,6 +59,8 @@ namespace Enemy.IceBoss
         public void MoveTowards(Vector3 target, float force)
         {
             var dir = (target - transform.position).normalized;
+            dir.y = 0;
+            dir.Normalize();
             // _movement = dir * force;
             _mc.AddVelocity(dir * force);
         }
@@ -66,7 +68,16 @@ namespace Enemy.IceBoss
         public void WalkTowards(Vector3 target)
         {
             var dir = (target - transform.position).normalized;
+            dir.y = 0;
+            dir.Normalize();
             _movement = dir;
+        }
+        
+        public float DistanceTo(Vector3 target)
+        {
+            return Vector3.Distance(
+                Vector3.ProjectOnPlane(transform.position, Vector3.up),
+                Vector3.ProjectOnPlane(target, Vector3.up));
         }
 
         public void LookAt(Vector3 target, float speed = 100f)

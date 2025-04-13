@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class CameraEffects : MonoBehaviour
 {
+    public float shakeMultiplier = 1f;
+    
     private Vector3 _originalLocalPosition;
     private Coroutine _shakeRoutine;
 
@@ -25,7 +27,7 @@ public class CameraEffects : MonoBehaviour
         while (elapsed < duration)
         {
             float t = Mathf.Clamp01(elapsed / duration);
-            Vector3 shakeOffset = Random.insideUnitSphere * (magnitude * (1 - t));
+            Vector3 shakeOffset = Random.insideUnitSphere * (magnitude * shakeMultiplier * (1 - t));
             transform.localPosition = _originalLocalPosition + shakeOffset;
 
             elapsed += Time.deltaTime;

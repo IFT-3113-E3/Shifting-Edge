@@ -39,7 +39,8 @@ public class EntityMovementController : MonoBehaviour, ICharacterController
     public float MaxStableMoveSpeed = 10f;
     public float StableMovementSharpness = 15f;
     public float OrientationSharpness = 10f;
-
+    public bool SmoothOrientation = true;
+    
     [Header("Air Movement")]
     public float MaxAirMoveSpeed = 15f;
     public float AirAccelerationSpeed = 15f;
@@ -84,6 +85,15 @@ public class EntityMovementController : MonoBehaviour, ICharacterController
     private float _moveToMaxSpeed = 10f;
     private float _moveToAccel = 20f;
     private Action _onReachedTarget = null;
+    
+    private bool _velocityCancelled = false;
+    
+    public bool IsGrounded => Motor.GroundingStatus.IsStableOnGround;
+    public bool IsJumping => _jumpedThisFrame;
+    
+    public Vector3 Velocity => Motor.Velocity;
+    public Vector3 Position => Motor.TransientPosition;
+    public Quaternion Rotation => Motor.TransientRotation;
 
     
     private void Awake()
@@ -226,10 +236,14 @@ public class EntityMovementController : MonoBehaviour, ICharacterController
                 if (_lookInputVector.sqrMagnitude > 0f && OrientationSharpness > 0f)
                 {
                     // Smoothly interpolate from current to target look direction
-                    Vector3 smoothedLookInputDirection = Vector3.Slerp(Motor.CharacterForward, _lookInputVector, 1 - Mathf.Exp(-OrientationSharpness * deltaTime)).normalized;
+                    Vector3 lookInputDirection = _lookInputVector.normalized;
+                    if (SmoothOrientation)
+                    {
+                        lookInputDirection = Vector3.Slerp(Motor.CharacterForward, _lookInputVector, 1 - Mathf.Exp(-OrientationSharpness * deltaTime)).normalized;
+                    }
 
                     // Set the current rotation (which will be used by the KinematicCharacterMotor)
-                    Quaternion targetRotation = Quaternion.LookRotation(smoothedLookInputDirection, Motor.CharacterUp);
+                    Quaternion targetRotation = Quaternion.LookRotation(lookInputDirection, Motor.CharacterUp);
                     currentRotation = targetRotation;
                 }
 
@@ -279,7 +293,11 @@ public class EntityMovementController : MonoBehaviour, ICharacterController
         {
             case CharacterState.Default:
             {
-                
+                if (_velocityCancelled)
+                {
+                    currentVelocity = Vector3.zero;
+                    _velocityCancelled = false;
+                }
                 
                 // Ground movement
                 if (Motor.GroundingStatus.IsStableOnGround)
@@ -300,7 +318,7 @@ public class EntityMovementController : MonoBehaviour, ICharacterController
                     {
                         Vector3 toTarget = _moveToTarget.Value - Motor.TransientPosition;
                         toTarget.y = 0f; // Ignore vertical unless needed
-
+                        
                         float distance = toTarget.magnitude;
 
                         if (distance < _moveToStoppingDistance)
@@ -529,10 +547,34 @@ public class EntityMovementController : MonoBehaviour, ICharacterController
         {
             case CharacterState.Default:
             {
+                _internalVelocityAdd = velocity;
                 break;
             }
         }
     }
+    
+    public void AddKnockback(Vector3 direction, float force, float verticalBoost = 0.0f)
+    {
+        if (direction.sqrMagnitude < 0.001f)
+            return;
+
+        direction = direction.normalized;
+
+        Motor.ForceUnground();
+
+        Vector3 knockbackVelocity = direction * force;
+        if (verticalBoost > 0f)
+        {
+            knockbackVelocity += Motor.CharacterUp * verticalBoost;
+        }
+        _internalVelocityAdd += knockbackVelocity;
+    }
+    
+    public void CancelVelocity()
+    {
+        _velocityCancelled = true;
+    }
+
     
     public void MoveTo(Vector3 targetPosition, float stoppingDistance = 0.1f, float maxSpeed = 10f, float acceleration = 20f, Action onReachedTarget = null)
     {

@@ -36,7 +36,25 @@ namespace Enemy.IceBoss
         public Transform handTransform;
 
         private EntityMovementController _mc;
+        
+        public VisualEffect damageVFX;
 
+        private FlashOptions _chargingFlashOptions = new FlashOptions
+        {
+            UseFade = false,
+            BaseAlpha = 0.5f,
+            Interval = 0.1f,
+        };
+        
+        private FlashOptions _hurtFlashOptions = new FlashOptions
+        {
+            UseFade = true,
+            FadeTime = 0.25f,
+            BaseAlpha = 0.5f,
+            Interval = 0.1f,
+            ColorOverride = Color.red,
+        };
+        
         public event Action<Transform> OnThrowEvent;
         public event Action OnGroundAttackEvent;
         
@@ -66,12 +84,7 @@ namespace Enemy.IceBoss
                 Debug.LogError("[BossAnimator] MeshFlashEffect component not found!");
             }
 
-            _meshFlashEffect.SetOptions(new FlashOptions
-            {
-                UseFade = false,
-                BaseAlpha = 0.5f,
-                Interval = 0.1f,
-            });
+            _meshFlashEffect.SetOptions(_chargingFlashOptions);
 
             _audioSource = GetComponent<AudioSource>();
             if (_audioSource == null)
@@ -106,22 +119,23 @@ namespace Enemy.IceBoss
         
         public void SetVisible(bool isVisible)
         {
-            if (_fractureEffect != null)
+            if (_fractureEffect)
             {
                 _fractureEffect.SwapVisibility(isVisible);
             }
             foreach (var vfx in _visualEffects)
             {
-                if (vfx != null)
+                if (!vfx) continue;
+                // if (!vfx.enabled) continue;
+                if (isVisible)
                 {
-                    if (isVisible)
-                    {
-                        vfx.Play();
-                    }
-                    else
-                    {
-                        vfx.Stop();
-                    }
+                    // vfx.Play();
+                    vfx.enabled = true;
+                }
+                else
+                {
+                    vfx.enabled = false;
+                    // vfx.Stop();
                 }
             }
         }
@@ -136,18 +150,33 @@ namespace Enemy.IceBoss
             _animator.CrossFade("Idle", 0.1f);
         }
         
-        public void SetFlashEnabled(bool flashEnabled)
+        public void SetChargingFlashEnabled(bool flashEnabled)
         {
             if (_meshFlashEffect)
             {
                 if (flashEnabled)
                 {
+                    _meshFlashEffect.SetOptions(_chargingFlashOptions);
                     _meshFlashEffect.StartFlashing();
                 }
                 else
                 {
                     _meshFlashEffect.StopFlashing();
                 }
+            }
+        }
+        
+        public void HurtEffect()
+        {
+            if (_meshFlashEffect)
+            {
+                _meshFlashEffect.SetOptions(_hurtFlashOptions);
+                _meshFlashEffect.FlashOnce(0.2f);
+            }
+            if (damageVFX)
+            {
+                damageVFX.enabled = true;
+                damageVFX.Play();
             }
         }
 
@@ -335,10 +364,10 @@ namespace Enemy.IceBoss
         {
             _animator.Play(stateName);
             
-            SetFlashEnabled(true);
+            SetChargingFlashEnabled(true);
             yield return new WaitUntil(() => _fakeSpikeController.IsFormed());
             _animator.speed = 1;
-            SetFlashEnabled(false);
+            SetChargingFlashEnabled(false);
             yield return null;
             AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
             yield return new WaitForSeconds(stateInfo.normalizedTime * stateInfo.length);

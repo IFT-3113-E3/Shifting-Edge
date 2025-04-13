@@ -39,7 +39,7 @@ namespace Enemy.IceBoss.States.Combat
             _ctx.movementController.LookAt(_targetPosition, 300f);
             _ctx.movementController.WalkTowards(_targetPosition);
             
-            if (Vector3.Distance(_ctx.self.transform.position, _targetPosition) < 0.5f)
+            if (_ctx.movementController.DistanceTo(_targetPosition) < 0.5f)
             {
                 fsm.StateCanExit();
             }

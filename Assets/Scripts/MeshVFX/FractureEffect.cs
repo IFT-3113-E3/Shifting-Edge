@@ -371,6 +371,10 @@ namespace MeshVFX
             _cloneRoot = new GameObject("FractureClones").transform;
             foreach (var rend in GetComponentsInChildren<Renderer>())
             {
+                if (rend.CompareTag("MeshVFX"))
+                {
+                    continue;
+                }
                 MeshFractureClone clone = null;
                 if (rend is SkinnedMeshRenderer or MeshRenderer)
                 {

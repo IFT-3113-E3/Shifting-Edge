@@ -54,6 +54,7 @@ namespace MeshVFX
                     clone.transform.localRotation = Quaternion.identity;
                     clone.transform.localScale = Vector3.one;
                     clone.name = rend.name + "_FlashClone";
+                    clone.tag = "MeshVFX";
                     clone.gameObject.SetActive(true);
                     clone.material = new Material(overrideMaterial);
                     _flashRenderers.Add(clone);

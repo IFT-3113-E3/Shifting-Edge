@@ -14,7 +14,7 @@ namespace Projectiles
         private int _bounceCount;
         private bool _hasCollided;
         private bool _isHitboxEnabled = true;
-        private float _lifeTime;
+        private float _timeToLive;
 
         private bool _isPenetrating = false;
         private float _penetratedDistance = 0f;
@@ -32,6 +32,7 @@ namespace Projectiles
         private EntityStatus _owner;
         
         public EntityStatus Owner => _owner;
+        public float TimeToLive => _timeToLive;
         
         public event Action OnCollision;
 
@@ -94,7 +95,7 @@ namespace Projectiles
             _isHitboxEnabled = true;
             _bounceCount = 0;
             _hasCollided = false;
-            _lifeTime = 0f;
+            _timeToLive = projectileData.lifetime;
             _rb.isKinematic = false;
             if (projectileData.physicsConfig.isKinematic)
             {
@@ -149,8 +150,8 @@ namespace Projectiles
 
         private void Update()
         {
-            _lifeTime += Time.deltaTime;
-            if (_lifeTime >= projectileData.lifetime)
+            _timeToLive -= Time.deltaTime;
+            if (_timeToLive <= 0f)
             {
                 DestroySelf();
             }
@@ -216,14 +217,39 @@ namespace Projectiles
 
         private void OnTriggerEnter(Collider other)
         {
-            if (!_isHitboxEnabled) return; // Don't trigger hitbox after main collision
+            if (!_isHitboxEnabled) return;
 
-            if (_hitboxCollider != null && other == _hitboxCollider) return; // Ignore self-trigger
-
-            if ((projectileData.hitboxLayerMask & (1 << other.gameObject.layer)) != 0)
+            if (_hitboxCollider != null && other == _hitboxCollider) return;
+            
+            // if ((projectileData.hitboxLayerMask & (1 << other.gameObject.layer)) != 0)
             {
+                EntityStatus entityStatus = other.GetComponent<EntityStatus>();
+                
+                if (_owner != null && entityStatus != null)
+                {
+                    if (entityStatus == _owner)
+                    {
+                        return; // Ignore self-hits
+                    }
+                }
+                
                 OnHitEntity?.Invoke(other);
-                Debug.Log($"{name} projectile has hit entity: {other.name}");
+                
+                if (entityStatus)
+                {
+
+                    var damageRequest = new DamageRequest
+                    {
+                        damage = projectileData.damage,
+                        source = _owner.gameObject,
+                        hitPoint = other.transform.position,
+                        knockbackForce = projectileData.knockback,
+                        knockbackDirection = (other.transform.position - transform.position).normalized,
+                    };
+                    entityStatus.ApplyDamage(damageRequest);
+                    Debug.Log($"{name} projectile has hit entity: {other.name}, {entityStatus.CurrentHealth}");
+
+                }
             }
         }
 

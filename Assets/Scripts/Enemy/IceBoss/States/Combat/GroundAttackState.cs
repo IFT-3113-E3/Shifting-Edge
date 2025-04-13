@@ -30,7 +30,7 @@ namespace Enemy.IceBoss.States.Combat
             _prepareTimeElapsed = 0f;
             _preparingGroundAttack = true;
             _groundAttacking = false;
-            _ctx.animator.SetFlashEnabled(true);
+            _ctx.animator.SetChargingFlashEnabled(true);
         }
 
         public override void OnLogic()
@@ -44,7 +44,7 @@ namespace Enemy.IceBoss.States.Combat
                 {
                     _preparingGroundAttack = false;
                     _groundAttacking = true;
-                    _ctx.animator.SetFlashEnabled(false);
+                    _ctx.animator.SetChargingFlashEnabled(false);
 
                     _ctx.animator.GroundAttack(() =>
                     {

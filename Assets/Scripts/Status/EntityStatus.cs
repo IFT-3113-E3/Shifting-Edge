@@ -10,9 +10,13 @@ namespace Status
         public float damage;
         public GameObject source;
         public Vector3 hitPoint;
+        public float knockbackForce;
+        public Vector3 knockbackDirection;
 
-        public DamageRequest(float damage, GameObject source, Vector3 hitPoint)
+        public DamageRequest(float damage, GameObject source, Vector3 hitPoint, float knockbackForce = 0f, Vector3 knockbackDirection = default)
         {
+            this.knockbackDirection = knockbackDirection;
+            this.knockbackForce = knockbackForce;
             this.damage = damage;
             this.source = source;
             this.hitPoint = hitPoint;
@@ -78,6 +82,9 @@ namespace Status
         {
             if (IsDead) return;
 
+            Debug.Log($"Damage taken: {damageRequest.damage} from {damageRequest.source.name} at {damageRequest.hitPoint}");
+            
+            
             var amount = damageRequest.damage;
             
             CurrentHealth = Mathf.Max(CurrentHealth - amount, 0);

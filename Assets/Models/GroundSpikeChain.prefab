@@ -48,6 +48,7 @@ MonoBehaviour:
   steeringSpeed: 60
   spawnInterval: 0.25
   spikeProjectileData: {fileID: 11400000, guid: 05f402a4462cace45a555ed2ec05ec63, type: 2}
+  finalSpikeProjectileData: {fileID: 11400000, guid: 1e602fc954d5eb041af7c8594cc5c7f9, type: 2}
 --- !u!54 &1567102800178456748
 Rigidbody:
   m_ObjectHideFlags: 0

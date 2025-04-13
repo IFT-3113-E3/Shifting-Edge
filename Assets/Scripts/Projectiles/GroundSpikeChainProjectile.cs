@@ -8,13 +8,13 @@ namespace Projectiles
         public float steeringSpeed = 60f;
         public float spawnInterval = 0.25f;
         public ProjectileData spikeProjectileData;
+        public ProjectileData finalSpikeProjectileData;
 
         private Transform _target;
         private Projectile _self;
 
         private float _timeSinceLastSpawn;
 
-        
         public event Action<Projectile> OnSpawnProjectile;
         
         public void SetTarget(Transform target)
@@ -48,7 +48,7 @@ namespace Projectiles
                     steeringSpeed * Time.deltaTime);
 
                 // Move the projectile forward
-                transform.position += transform.forward * _self.projectileData.speed * Time.deltaTime;
+                transform.position += transform.forward * (_self.projectileData.speed * Time.deltaTime);
             }
             else
             {
@@ -60,17 +60,20 @@ namespace Projectiles
             _timeSinceLastSpawn += Time.deltaTime;
             if (_timeSinceLastSpawn >= spawnInterval)
             {
-                SpawnSpike();
+                // check if this is the last spike
+                bool isFinalSpike = _self.TimeToLive - Time.deltaTime - spawnInterval <= 0f;
+                Debug.Log($"Is final spike: {isFinalSpike}");
+                SpawnSpike(isFinalSpike);
                 _timeSinceLastSpawn = 0f;
             }
         }
 
-        private void SpawnSpike()
+        private void SpawnSpike(bool final)
         {
             Vector3 groundPos = FindGroundPosition(transform.position);
             Vector3 spawnPosition = groundPos + Vector3.up * 0.5f;
             Vector3 direction = Vector3.up;
-            var projectile = SpawnProjectile(spawnPosition, direction);
+            var projectile = SpawnProjectile(spawnPosition, direction, final);
             OnSpawnProjectile?.Invoke(projectile);
         }
         
@@ -85,18 +88,20 @@ namespace Projectiles
             return position; // Return original position if no ground is found
         }
 
-        private Projectile SpawnProjectile(Vector3 position, Vector3 direction)
+        private Projectile SpawnProjectile(Vector3 position, Vector3 direction, bool final)
         {
-            var projectile = Instantiate(spikeProjectileData.projectilePrefab, position,
+            var projectileData = final ? finalSpikeProjectileData : spikeProjectileData;
+            var projectile = Instantiate(projectileData.projectilePrefab, position,
                 Quaternion.identity);
             var projectileComponent = projectile.AddComponent<Projectile>();
 
             if (projectileComponent != null)
             {
-                projectileComponent.Initialize(direction, spikeProjectileData, _self.Owner);
+                projectileComponent.Initialize(direction, projectileData, _self.Owner);
             }
 
             return projectileComponent;
+            
         }
 
         private void OnDrawGizmos()

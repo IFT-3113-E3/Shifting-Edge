@@ -43,7 +43,7 @@ namespace Enemy.IceBoss.States.Combat
             _elapsedPrepareTime = 0f;
 
             _ctx.animator.PreparePunch();
-            _ctx.animator.SetFlashEnabled(true);
+            _ctx.animator.SetChargingFlashEnabled(true);
         }
 
         public void UpdateTPTarget()
@@ -116,7 +116,7 @@ namespace Enemy.IceBoss.States.Combat
 
         private void BeginPunch()
         {
-            _ctx.animator.SetFlashEnabled(false);
+            _ctx.animator.SetChargingFlashEnabled(false);
             _startPosition = _ctx.self.transform.position;
             var direction = (_ctx.player.transform.position - _startPosition).normalized;
             _targetPosition = _startPosition + direction * MaxChargeDistance;

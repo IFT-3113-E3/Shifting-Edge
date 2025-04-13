@@ -49,7 +49,7 @@ namespace Projectiles
                 _meshFlashEffect.FlashOnce(1f);
             }
             Vector3 groundPos = FindGroundPosition(_endPos);
-            // Spawn the eruption VFX at the ground position
+
             SpawnEruptionVFX(groundPos);
             
             yield return MoveSpike(_startPos, _endPos, riseTime);

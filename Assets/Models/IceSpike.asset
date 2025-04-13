@@ -17,7 +17,7 @@ MonoBehaviour:
   speed: 70
   lifetime: 5
   damage: 10
-  knockback: 0
+  knockback: 15
   piercing: 0
   hitboxLayerMask:
     serializedVersion: 2
