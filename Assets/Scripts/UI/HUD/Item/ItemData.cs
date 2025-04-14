@@ -9,4 +9,7 @@ public class ItemData : ScriptableObject
     public string description;
     public int stats;
 
+    [Header("Stacking")]
+    public bool stackable = true;
+    public int maxStack = 1;
 }
