@@ -372,7 +372,7 @@ RectTransform:
   m_GameObject: {fileID: 70390652}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 737389909}
@@ -380,7 +380,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 25.871887, y: -37.917908}
-  m_SizeDelta: {x: 250, y: 250}
+  m_SizeDelta: {x: 116, y: 123}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &70390654
 MonoBehaviour:
@@ -719,11 +719,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1658067423894538824, guid: 003af499a5394db4f952cdc04b87c5dd, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 225
+      value: 217.0847
       objectReference: {fileID: 0}
     - target: {fileID: 1658067423894538824, guid: 003af499a5394db4f952cdc04b87c5dd, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 225
+      value: 209.6968
       objectReference: {fileID: 0}
     - target: {fileID: 1658067423894538824, guid: 003af499a5394db4f952cdc04b87c5dd, type: 3}
       propertyPath: m_LocalPosition.z
@@ -731,11 +731,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1658067423894538824, guid: 003af499a5394db4f952cdc04b87c5dd, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 26.275696
+      value: 26.5396
       objectReference: {fileID: 0}
     - target: {fileID: 1658067423894538824, guid: 003af499a5394db4f952cdc04b87c5dd, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -36.569214
+      value: -38.416195
       objectReference: {fileID: 0}
     - target: {fileID: 2054705704410243327, guid: 003af499a5394db4f952cdc04b87c5dd, type: 3}
       propertyPath: gameCamera
@@ -2394,8 +2394,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ffc2ef88355777499983c9e4f5c09ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pauseCanvas: {fileID: 1752954934}
-  settingsPanelPrefab: {fileID: 1851658804}
+  pauseUI: {fileID: 1752954934}
+  pauseBlurImage: {fileID: 0}
+  orbitCamera: {fileID: 0}
+  cameraPauseOffset: {fileID: 0}
 --- !u!1 &1752954934
 GameObject:
   m_ObjectHideFlags: 0
@@ -2753,11 +2755,6 @@ PrefabInstance:
 --- !u!224 &1851658803 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2247974746543542300, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}
-  m_PrefabInstance: {fileID: 1851658802}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &1851658804 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8985895611094252820, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}
   m_PrefabInstance: {fileID: 1851658802}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1892216899
@@ -3284,11 +3281,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 237317625404452477, guid: e449c248750ed0b4e846a64d481c4594, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 845
+      value: 1920
       objectReference: {fileID: 0}
     - target: {fileID: 237317625404452477, guid: e449c248750ed0b4e846a64d481c4594, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 476
+      value: 1080
       objectReference: {fileID: 0}
     - target: {fileID: 883777343307218551, guid: e449c248750ed0b4e846a64d481c4594, type: 3}
       propertyPath: m_LocalPosition.x

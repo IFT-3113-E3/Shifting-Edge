@@ -4387,6 +4387,10 @@ PrefabInstance:
       propertyPath: virtualScreen
       value: 
       objectReference: {fileID: 1368222692}
+    - target: {fileID: 6968850409684561436, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}
+      propertyPath: clickSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 195f3ccb128bdf6419e31ca26b15b3bd, type: 3}
     - target: {fileID: 7495252809710866725, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}
       propertyPath: m_fontAsset
       value: 
@@ -4402,6 +4406,10 @@ PrefabInstance:
     - target: {fileID: 8985895611094252820, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}
       propertyPath: m_Name
       value: Options
+      objectReference: {fileID: 0}
+    - target: {fileID: 8985895611094252820, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
