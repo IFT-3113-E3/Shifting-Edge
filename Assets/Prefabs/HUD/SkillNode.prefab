@@ -148,7 +148,7 @@ GameObject:
   - component: {fileID: 2080107010405998000}
   - component: {fileID: 1136700508299709238}
   - component: {fileID: 1276012556903424051}
-  - component: {fileID: 5920382136440217895}
+  - component: {fileID: 2638577528330619713}
   m_Layer: 5
   m_Name: SkillNode
   m_TagString: Untagged
@@ -257,20 +257,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1136700508299709238}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 5920382136440217895}
-        m_TargetAssemblyTypeName: SkillNode, Assembly-CSharp
-        m_MethodName: OnClick
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
---- !u!114 &5920382136440217895
+      m_Calls: []
+--- !u!114 &2638577528330619713
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -279,12 +267,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 4852148477233271993}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1416990bad9ab3e40b969f53129e5a7a, type: 3}
+  m_Script: {fileID: 11500000, guid: e7e153c92a322184ab6d6d66e2232463, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isUnlocked: 0
-  requiredNodes: []
+  skillData: {fileID: 0}
   iconImage: {fileID: 0}
+  button: {fileID: 1276012556903424051}
   lockedColor: {r: 1, g: 0, b: 0, a: 1}
   unlockedColor: {r: 0, g: 1, b: 0, a: 1}
-  selectableColor: {r: 0, g: 0, b: 1, a: 1}
