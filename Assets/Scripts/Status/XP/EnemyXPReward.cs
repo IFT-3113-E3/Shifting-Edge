@@ -39,9 +39,10 @@ public class EnemyXP : MonoBehaviour
         }
     }
     
-    private void HandleEnemyDeath(GameObject killer)
+    private void HandleEnemyDeath(DamageRequest damageRequest)
     {
         if (xpAwarded) return; // Éviter de donner l'XP plusieurs fois
+        GameObject killer = damageRequest.source; // Le joueur qui a tué l'ennemi
         
         // Vérifier si c'est le joueur qui a tué l'ennemi
         if (killer != null && killer.CompareTag("Player"))

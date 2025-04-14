@@ -87,3 +87,5 @@ crashlytics-build.properties
 *.vsix
 
 .idea/
+
+out/
