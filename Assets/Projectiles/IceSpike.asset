@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bdafe7b587c44a8bfb5c6e6e3119aac, type: 3}
+  m_Name: IceSpike
+  m_EditorClassIdentifier: 
+  projectileName: icespike
+  projectilePrefab: {fileID: 3373389292934017494, guid: b76f7df1953e8ee498a0ed73f316f577, type: 3}
+  speed: 70
+  lifetime: 5
+  damage: 10
+  knockback: 15
+  piercing: 0
+  hitboxLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  canBounce: 0
+  maxBounces: 3
+  disableHitboxOnCollision: 0
+  physicsConfig: {fileID: 11400000, guid: 50bb2a0fddbc3024a846d7d3ab377849, type: 2}
+  spawnSound: []
+  hitSound:
+  - {fileID: 8300000, guid: 5f46db1d65236cb41b7f8ade4d001f79, type: 3}
+  - {fileID: 8300000, guid: fd6af5552be668245aa2d85764a0a415, type: 3}
+  destroySound: []
+  script: {fileID: 0}
