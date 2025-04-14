@@ -2,22 +2,57 @@ using UnityEngine;
 
 public class SkillTreeManager : MonoBehaviour
 {
-    public SkillNode[] allNodes;
+    public static SkillTreeManager Instance { get; private set; }
+
+    public SkillData[] allSkills;
+    private PlayerInventory playerInventory;
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+        
+        ResetAllSkills();
+    }
+
+    public void ResetAllSkills()
+    {
+        foreach (var skill in allSkills)
+        {
+            skill.isUnlocked = false;
+        }
+        Debug.Log("Toutes les compétences ont été réinitialisées");
+    }
+
 
     void Start()
     {
-        foreach (SkillNode node in allNodes)
-        {
-            node.UpdateVisual();
-        }
+        playerInventory = FindObjectOfType<PlayerInventory>();
     }
 
-    public void ResetTree()
+    public bool TryUnlockSkill(SkillData skill)
     {
-        foreach (SkillNode node in allNodes)
+        if (CanUnlock(skill) && PlayerInventory.Instance.TrySpendMana(skill.manaCost))
         {
-            node.isUnlocked = false;
-            node.UpdateVisual();
+            skill.isUnlocked = true;
+            Debug.Log($"Compétence débloquée. Mana restant: {PlayerInventory.Instance.SkillTreeMana}");
+            return true;
         }
+        return false;
+    }
+
+    public bool CanUnlock(SkillData skill)
+    {
+        if (skill.isUnlocked) return false;
+        
+        foreach (var prereq in skill.prerequisites)
+        {
+            if (!prereq.isUnlocked) return false;
+        }
+        return true;
     }
 }

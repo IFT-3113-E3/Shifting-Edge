@@ -1,71 +1,63 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-public class PauseManager : MonoBehaviour
+public class PauseMenuManager : MonoBehaviour
 {
-    [Header("Références")]
-    [SerializeField] private GameObject pauseCanvas; // Assignez votre Canvas pause
-    [SerializeField] private GameObject settingsPanelPrefab; // Prefab des paramètres
+    [Header("UI Elements")]
+    public GameObject pauseUI;               // Ton Canvas de menu pause
+    public RawImage pauseBlurImage;          // RawImage floue à activer pendant la pause
 
-    private GameObject currentSettingsPanel;
+    [Header("Camera Control")]
+    public OrbitCamera orbitCamera;
+    public CameraPauseOffset cameraPauseOffset;  // Ton script d'offset sur la caméra
+
     private bool isPaused = false;
 
-    private void Update()
+    void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            Debug.Log("Touche Echap pressée !");
-            TogglePause();
+            if (isPaused)
+                ResumeGame();
+            else
+                PauseGame();
         }
     }
 
-    public void TogglePause()
+    public void PauseGame()
     {
-        isPaused = !isPaused;
-        
-        // Gestion du temps et du canvas
-        Time.timeScale = isPaused ? 0f : 1f;
-        pauseCanvas.SetActive(isPaused);
-        
-        // Optionnel : Verrouillage curseur
-        //Cursor.lockState = isPaused ? CursorLockMode.None : CursorLockMode.Locked;
-        //Cursor.visible = isPaused;
+        isPaused = true;
+        Time.timeScale = 0f;
+
+        pauseUI.SetActive(true);
+        pauseBlurImage.enabled = true;
+
+        if (orbitCamera != null)
+            orbitCamera.enabled = false;
+
+        if (cameraPauseOffset != null)
+            cameraPauseOffset.EnterPause();
     }
 
-    // Bouton "Reprendre"
     public void ResumeGame()
     {
-        TogglePause(); // Désactive le canvas et enlève la pause
+        isPaused = false;
+        Time.timeScale = 1f;
+
+        pauseUI.SetActive(false);
+        pauseBlurImage.enabled = false;
+
+        if (orbitCamera != null)
+            orbitCamera.enabled = true;
+
+        if (cameraPauseOffset != null)
+            cameraPauseOffset.ExitPause();
     }
 
-    // Bouton "Paramètres"
-    public void OpenSettings()
+    public void OnHoverDirection(string direction)
     {
-        if (currentSettingsPanel == null)
-        {
-            currentSettingsPanel = Instantiate(settingsPanelPrefab, pauseCanvas.transform);
-        }
-        else
-        {
-            currentSettingsPanel.SetActive(true);
-        }
-    }
+        if (!isPaused || cameraPauseOffset == null) return;
 
-    // Bouton "Menu Principal"
-    public void ReturnToMainMenu()
-    {
-        Time.timeScale = 1f; // Réactive le temps avant de changer de scène
-        SceneManager.LoadScene("StartMenu");
-    }
-
-    // Bouton "Quitter"
-    public void QuitGame()
-    {
-        Application.Quit();
-        
-        #if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false; // Pour le mode éditeur
-        #endif
+        cameraPauseOffset.Hover(direction);
     }
 }

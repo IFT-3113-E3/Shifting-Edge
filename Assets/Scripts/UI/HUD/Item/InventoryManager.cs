@@ -1,12 +1,12 @@
 using UnityEngine;
-using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager Instance;
 
-    [SerializeField] private InventorySlot[] slots;
-    private InventorySlot selectedSlot;
+    // Stockage des items (nom → quantité)
+    private Dictionary<string, int> inventory = new Dictionary<string, int>();
 
     private void Awake()
     {
@@ -20,33 +20,32 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
-    public void SelectSlot(InventorySlot slot)
+    // Ajoute un item à l'inventaire virtuel
+    public void AddItem(ItemData item, int quantity = 1)
     {
-        selectedSlot = slot;
-        Debug.Log("Slot sélectionné : " + slot.name);
-    }
-
-    public void AddItem(ItemData item)
-    {
-        if (selectedSlot != null)
+        if (inventory.ContainsKey(item.itemName))
         {
-            selectedSlot.UpdateSlot(item);
+            inventory[item.itemName] += quantity;
         }
         else
         {
-            Debug.Log("Aucun slot sélectionné !");
+            inventory.Add(item.itemName, quantity);
         }
+        Debug.Log($"Ajouté à l'inventaire : {quantity}x {item.itemName}");
     }
 
-    public void RemoveSelectedItem()
+    // Vérifie si un item est présent
+    public bool HasItem(string itemName, int quantity = 1)
     {
-        if (selectedSlot != null)
+        return inventory.ContainsKey(itemName) && inventory[itemName] >= quantity;
+    }
+
+    // Affiche le contenu dans la console
+    public void PrintInventory()
+    {
+        foreach (var item in inventory)
         {
-            selectedSlot.UpdateSlot(null);
-        }
-        else
-        {
-            Debug.Log("Aucun slot sélectionné !");
+            Debug.Log($"{item.Key} x{item.Value}");
         }
     }
 }

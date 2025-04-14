@@ -76,20 +76,12 @@ public class PlayerXP : MonoBehaviour
     
     private void PlayLevelUpEffect()
     {
-        // Effet visuel de montée de niveau (facultatif)
-        if (levelUpEffectPrefab != null)
+        ItemData reward = RewardSystem.Instance.GetRewardForLevel(currentLevel, out int quantity);
+        if (reward != null)
         {
-            Instantiate(levelUpEffectPrefab, transform.position, Quaternion.identity);
+            // Ajoute le mana au PlayerInventory plutôt qu'à un compteur local
+            PlayerInventory.Instance.AddMana(quantity);
+            Debug.Log($"Reçu {quantity} SkillTreeMana (Total: {PlayerInventory.Instance.SkillTreeMana})");
         }
-        
-        Debug.Log($"Joueur monté au niveau {currentLevel}!");
-        
-        // Vous pourriez ajouter ici une logique pour les récompenses de niveau
-    }
-    
-    // Obtenir le pourcentage de progression dans le niveau actuel
-    public float GetLevelProgressPercentage()
-    {
-        return XPManager.Instance.GetLevelProgressPercentage(currentLevel, currentXP);
     }
 }
