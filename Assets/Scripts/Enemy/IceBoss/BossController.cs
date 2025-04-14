@@ -265,7 +265,7 @@ namespace Enemy.IceBoss
             _rootSm.AddState("Defeated", defeatedFsm);
 
             _rootSm.AddTransition("Intro", "Combat");
-            _rootSm.AddTransition("Combat", "Defeated", _ => _context.health <= 0f,
+            _rootSm.AddTransition("Combat", "Defeated", _ => _context.entityStatus.CurrentHealth <= 0f,
                 forceInstantly: true);
 
             _rootSm.SetStartState("Intro");

@@ -29,8 +29,6 @@ namespace Enemy.IceBoss
         public Transform spawnPoint;
         public SpeechBubbleSpawner speechBubbleSpawner;
         
-        public float health = 100f;
-        public float maxHealth = 100f;
         public int phase = 0;
         public float attackWaitCooldown = 2f;
         public float meleeAttackCooldown = 3f;
@@ -43,7 +41,6 @@ namespace Enemy.IceBoss
         public float dashSpeed = 320f;
         public float chargeDistance = 8f;
         public float lookAtSpeed = 100f;
-        public float dashDuration = 1.0f;
         
         public RecentSet<AttackType> attackHistory = new();
 

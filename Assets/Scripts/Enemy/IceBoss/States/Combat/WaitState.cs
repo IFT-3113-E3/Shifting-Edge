@@ -5,10 +5,7 @@ namespace Enemy.IceBoss.States.Combat
 {
     public class WaitState : StateBase
     {
-        private float _waitTime = 0f;
-
         private readonly BossContext _ctx;
-
         public WaitState(BossContext ctx) : base(true)
         {
             _ctx = ctx;
@@ -31,8 +28,6 @@ namespace Enemy.IceBoss.States.Combat
 
         public override void OnExit()
         {
-            Debug.Log("WaitState: Exit");
-            // _ctx.movementController.StopMovement();
         }
     }
 }

@@ -64,7 +64,7 @@ namespace Enemy.IceBoss
 
             GUILayout.BeginArea(new Rect(10, 10, 300, 500), GUI.skin.box);
             GUILayout.Label($"Boss Debug Info", _titleStyle, GUILayout.Height(30));
-            GUILayout.Label($"Health: {ctx.health} / {ctx.maxHealth}", _labelStyle);
+            GUILayout.Label($"Health: {ctx.entityStatus.CurrentHealth} / {ctx.entityStatus.maxHealth}", _labelStyle);
             GUILayout.Label($"Phase: {ctx.phase}", _labelStyle);
             GUILayout.Label($"Wait: {ctx.waitTimer:0.00} / {ctx.attackWaitCooldown}", _labelStyle);
             GUILayout.Label($"Melee: {ctx.timeSinceLastMeleeAttack:0.00} / {ctx.meleeAttackCooldown}", _labelStyle);
