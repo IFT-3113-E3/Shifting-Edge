@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Status
@@ -10,13 +9,9 @@ namespace Status
         public float damage;
         public GameObject source;
         public Vector3 hitPoint;
-        public float knockbackForce;
-        public Vector3 knockbackDirection;
 
-        public DamageRequest(float damage, GameObject source, Vector3 hitPoint, float knockbackForce = 0f, Vector3 knockbackDirection = default)
+        public DamageRequest(float damage, GameObject source, Vector3 hitPoint)
         {
-            this.knockbackDirection = knockbackDirection;
-            this.knockbackForce = knockbackForce;
             this.damage = damage;
             this.source = source;
             this.hitPoint = hitPoint;
@@ -30,72 +25,30 @@ namespace Status
         public float CurrentHealth { get; private set; }
         public bool IsDead { get; private set; }
 
-        public event Action<DamageRequest> OnDamageTaken;
-        public event Action<DamageRequest> OnDeath;
-        
-        private readonly List<IStatusEffect> _activeEffects = new();
-
+        public event Action<float, GameObject> OnDamageTaken;
+        public event Action<GameObject> OnDeath;
 
         private void Awake()
         {
             CurrentHealth = maxHealth;
         }
 
-        private void Update()
-        {
-            for (int i = _activeEffects.Count - 1; i >= 0; i--)
-            {
-                var effect = _activeEffects[i];
-                effect.Tick(Time.deltaTime);
-                if (effect.IsFinished)
-                {
-                    effect.OnRemove(this);
-                    _activeEffects.RemoveAt(i);
-                }
-            }
-        }
-        
-        public void AddEffect(IStatusEffect effect)
-        {
-            if (HasEffect(effect.Id)) return;
-
-            _activeEffects.Add(effect);
-            effect.OnApply(this);
-        }
-
-        public bool HasEffect(string id)
-        {
-            return _activeEffects.Exists(e => e.Id == id);
-        }
-
-        public void RemoveEffect(string id)
-        {
-            int index = _activeEffects.FindIndex(e => e.Id == id);
-            if (index >= 0)
-            {
-                _activeEffects[index].OnRemove(this);
-                _activeEffects.RemoveAt(index);
-            }
-        }
-
         public void ApplyDamage(DamageRequest damageRequest)
         {
             if (IsDead) return;
 
-            Debug.Log($"Damage taken: {damageRequest.damage} from {damageRequest.source.name} at {damageRequest.hitPoint}");
-            
-            
             var amount = damageRequest.damage;
+            var source = damageRequest.source;
             
             CurrentHealth = Mathf.Max(CurrentHealth - amount, 0);
-            OnDamageTaken?.Invoke(damageRequest);
+            OnDamageTaken?.Invoke(amount, source);
 
             foreach (var reaction in GetComponents<IHitReaction>())
                 reaction.ReactToHit(damageRequest);
 
             if (CurrentHealth <= 0)
             {
-                Die(damageRequest);
+                Die(source);
             }
         }
 
@@ -106,12 +59,12 @@ namespace Status
             CurrentHealth = Mathf.Min(CurrentHealth + amount, maxHealth);
         }
 
-        private void Die(DamageRequest damageRequest)
+        private void Die(GameObject source)
         {
             if (IsDead) return;
             IsDead = true;
-            OnDeath?.Invoke(damageRequest);
-            // gameObject.SetActive(false);
+            OnDeath?.Invoke(source);
+            gameObject.SetActive(false);
         }
 
         public void Revive()

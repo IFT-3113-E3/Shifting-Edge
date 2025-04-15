@@ -12,9 +12,6 @@ namespace PixelPerfect
         private int _textureHeight;
         private float _pixelStep; // Smallest movement step
         private Camera _cam;
-        
-        public int RefResolutionX => _cam.pixelWidth;
-        public int RefResolutionY => _cam.pixelHeight;
     
         public Transform virtualCamera;
     

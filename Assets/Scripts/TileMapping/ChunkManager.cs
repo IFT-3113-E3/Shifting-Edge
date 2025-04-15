@@ -257,7 +257,7 @@ public class ChunkManager : MonoBehaviour
                     tile.AddComponent<BoxCollider>();
                 }
 
-                // Debug.Log($"Tuile instanciée à {position} avec type {tileType}, hauteur {height}, rotation {rotationIndex * 90}°");
+                Debug.Log($"Tuile instanciée à {position} avec type {tileType}, hauteur {height}, rotation {rotationIndex * 90}°");
             }
         }
     }

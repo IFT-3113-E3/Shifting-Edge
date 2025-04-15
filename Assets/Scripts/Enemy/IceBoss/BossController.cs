@@ -247,7 +247,7 @@ namespace Enemy.IceBoss
                          && !DistanceToPlayer(15f));
                 combatFsm.AddTransition("Wait", "GroundAttack",
                     _ => _context.timeSinceLastGroundAttack >= _context.groundAttackCooldown);
-                
+
                 combatFsm.AddTransition("Charge", "Wait");
 
                 combatFsm.AddTransition("Teleport", "Wait");

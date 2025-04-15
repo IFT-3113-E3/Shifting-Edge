@@ -9,7 +9,7 @@ namespace Enemy.IceBoss.States.Intro
     {
         private BossContext _ctx;
         private MonoBehaviour _mono;
-        
+
         public EngagedState(MonoBehaviour mono, BossContext ctx) : base(true)
         {
             _ctx = ctx;
@@ -28,14 +28,14 @@ namespace Enemy.IceBoss.States.Intro
         {
             // This state doesn't do anything in the update, it just waits for the child state to finish
         }
-        
+
         private IEnumerator InteractionSequence()
         {
             // Logic for the interaction sequence
             _ctx.speechBubbleSpawner.Speak(
                 "I am the Ice Boss! Prepare to meet your doom!",
                 2f);
-            
+
             // For example, play an animation or spawn some enemies
             yield return new WaitForSeconds(2f);
             // After the interaction sequence is done, transition to the next state

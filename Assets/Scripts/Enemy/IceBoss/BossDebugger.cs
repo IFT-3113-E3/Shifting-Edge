@@ -12,9 +12,9 @@ namespace Enemy.IceBoss
 
         private GUIStyle _titleStyle;
         private GUIStyle _labelStyle;
-        
-        bool isInitialized = false;
-        
+
+        // bool isInitialized = false;
+
         private void Start()
         {
             if (controller == null)
@@ -35,21 +35,21 @@ namespace Enemy.IceBoss
             // var overlayObserver = gameObject.AddComponent<BossStateOverlay>();
             // controller.RootSm.AddObserver(loggerObserver);
             // controller.RootSm.AddObserver(overlayObserver);
-            isInitialized = true;
+            // isInitialized = true;
         }
 
         void OnGUI()
         {
             if (!controller)
                 return;
-            
+
             if (_labelStyle == null)
             {
                 _labelStyle = new GUIStyle(GUI.skin.label);
                 _labelStyle.fontSize = 18; // ← Make this bigger!
                 _labelStyle.normal.textColor = Color.white;
             }
-            
+
             if (_titleStyle == null)
             {
                 _titleStyle = new GUIStyle(GUI.skin.label);
@@ -77,7 +77,7 @@ namespace Enemy.IceBoss
             var stateBranch = sm.GetActiveHierarchyPath();
             // split by "/"
             var states = stateBranch.Split('/');
-            
+
             if (states.Length > 0)
             {
                 GUILayout.Space(10);
@@ -87,7 +87,7 @@ namespace Enemy.IceBoss
                     GUILayout.Label($"→ {s}", _labelStyle);
                 }
             }
-            
+
             // if (stateBranch != null)
             // {
             //     GUILayout.Space(10);

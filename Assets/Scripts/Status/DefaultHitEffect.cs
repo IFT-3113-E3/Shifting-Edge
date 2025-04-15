@@ -1,4 +1,5 @@
-using MeshVFX;
+using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 namespace Status
@@ -10,46 +11,33 @@ namespace Status
 
         private Coroutine _flashRoutine;
         
-        public ParticleSystem hitParticles;
-
-        private MeshFlashEffect _meshFlashEffect;
-        private EntityMovementController _mc;
+        private Renderer[] _renderers;
+        private Color[] _originalColors;
         
-        private int _numberOfHits = 0;
+        public ParticleSystem hitParticles;
         
         private void Awake()
         {
+            _renderers = GetComponentsInChildren<Renderer>().Except(GetComponentsInChildren<ParticleSystemRenderer>()).ToArray();
+            _originalColors = new Color[_renderers.Length];
+            for (int i = 0; i < _renderers.Length; i++)
+            {
+                _originalColors[i] = _renderers[i].material.color;
+            }
             hitParticles = GetComponentInChildren<ParticleSystem>();
             if (hitParticles != null)
             {
                 hitParticles.Stop();
             }
-            
-            _meshFlashEffect = GetComponent<MeshFlashEffect>();
-            _mc = GetComponent<EntityMovementController>();
         }
 
         public void ReactToHit(DamageRequest damageRequest)
         {
-            _numberOfHits++;
             var hitPoint = damageRequest.hitPoint;
             
-            // if (_flashRoutine != null)
-            //     StopCoroutine(_flashRoutine);
-            // _flashRoutine = StartCoroutine(FlashRoutine());
-            if (_meshFlashEffect != null)
-            {
-                _meshFlashEffect.SetOptions(new FlashOptions
-                {
-                    UseFade = true,
-                    BaseAlpha = 0.6f,
-                    Interval = 0.5f,
-                    FadeTime = 0.25f,
-                    ColorOverride = flashColor
-                });
-                _meshFlashEffect.FlashOnce(flashDuration);
-            }
-            
+            if (_flashRoutine != null)
+                StopCoroutine(_flashRoutine);
+            _flashRoutine = StartCoroutine(FlashRoutine());
             if (hitParticles != null)
             {
                 hitParticles.transform.position = hitPoint;
@@ -57,35 +45,23 @@ namespace Status
                 hitParticles.Simulate(hitParticles.main.duration);
                 hitParticles.Play();
             }
-            
-            if (_mc != null)
-            {
-                _mc.CancelVelocity();
-                var knockbackDirection = damageRequest.knockbackDirection;
-                knockbackDirection.y = 0;
-                knockbackDirection.Normalize();
-                _mc.AddKnockback(knockbackDirection, damageRequest.knockbackForce,
-                    5.0f);
-            }
-            
-            Debug.Log($"[DefaultHitEffect] Hit with {damageRequest.damage} damage ({_numberOfHits})");
         }
 
-        // private IEnumerator FlashRoutine()
-        // {
-        //     if (_meshFlashEffect != null)
-        //     {
-        //         _meshFlashEffect.SetOptions(new FlashOptions
-        //         {
-        //             UseFade = true,
-        //             BaseAlpha = 0.6f,
-        //             Interval = 0.5f,
-        //             FadeTime = 0.25f,
-        //             ColorOverride = flashColor
-        //         });
-        //         _meshFlashEffect.FlashOnce(flashDuration);
-        //     }
-        //     
-        // }
+        private IEnumerator FlashRoutine()
+        {
+            for (int i = 0; i < _renderers.Length; i++)
+            {
+                var material = _renderers[i].material;
+                if (!material) continue;
+                material.color = flashColor;
+            }
+            yield return new WaitForSeconds(flashDuration);
+            for (int i = 0; i < _renderers.Length; i++)
+            {
+                var material = _renderers[i].material;
+                if (!material) continue;
+                material.color = _originalColors[i];
+            }
+        }
     }
 }

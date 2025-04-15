@@ -5,14 +5,14 @@ namespace Enemy.IceBoss.States.Combat
     public class GroundAttackState : StateBase
     {
         private readonly BossContext _ctx;
-        
+
         private float _prepareTime = 0.5f;
         private float _prepareTimeElapsed = 0f;
         private bool _preparingGroundAttack = false;
-        private bool _groundAttacking = false;
-        
+        // private bool _groundAttacking = false;
+
         private int _attackCount = 0;
-        
+
 
         public GroundAttackState(BossContext ctx) : base(true)
         {
@@ -29,7 +29,7 @@ namespace Enemy.IceBoss.States.Combat
         {
             _prepareTimeElapsed = 0f;
             _preparingGroundAttack = true;
-            _groundAttacking = false;
+            // _groundAttacking = false;
             _ctx.animator.SetChargingFlashEnabled(true);
         }
 
@@ -38,12 +38,12 @@ namespace Enemy.IceBoss.States.Combat
             if (_preparingGroundAttack)
             {
                 _ctx.movementController.LookAt(_ctx.player.transform.position, _ctx.lookAtSpeed);
-                
+
                 _prepareTimeElapsed += _ctx.dt;
                 if (_prepareTimeElapsed >= _prepareTime)
                 {
                     _preparingGroundAttack = false;
-                    _groundAttacking = true;
+                    // _groundAttacking = true;
                     _ctx.animator.SetChargingFlashEnabled(false);
 
                     _ctx.animator.GroundAttack(() =>
@@ -60,8 +60,8 @@ namespace Enemy.IceBoss.States.Combat
                     });
                 }
             }
-            
-            
+
+
         }
 
         public override void OnExit()

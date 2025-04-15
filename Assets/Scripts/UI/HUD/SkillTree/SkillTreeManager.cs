@@ -15,7 +15,7 @@ public class SkillTreeManager : MonoBehaviour
             return;
         }
         Instance = this;
-        
+
         ResetAllSkills();
     }
 
@@ -31,7 +31,7 @@ public class SkillTreeManager : MonoBehaviour
 
     void Start()
     {
-        playerInventory = FindObjectOfType<PlayerInventory>();
+        playerInventory = FindFirstObjectByType<PlayerInventory>();
     }
 
     public bool TryUnlockSkill(SkillData skill)
@@ -48,7 +48,7 @@ public class SkillTreeManager : MonoBehaviour
     public bool CanUnlock(SkillData skill)
     {
         if (skill.isUnlocked) return false;
-        
+
         foreach (var prereq in skill.prerequisites)
         {
             if (!prereq.isUnlocked) return false;
