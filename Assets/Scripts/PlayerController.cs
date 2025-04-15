@@ -9,8 +9,9 @@ public class PlayerController : MonoBehaviour
     private static readonly int Run = Animator.StringToHash("isRunning");
     // private static readonly int Sprint = Animator.StringToHash("isSprinting");
     private static readonly int Air = Animator.StringToHash("isFalling");
-    private static readonly int Attack = Animator.StringToHash("lightAttack");
-    private static readonly int BreakAttack = Animator.StringToHash("breakAttack");
+    private static readonly int AttackTrigger = Animator.StringToHash("lightAttack");
+    private static readonly int BreakAttackTrigger = Animator.StringToHash("breakAttack");
+    private static readonly int RollTrigger = Animator.StringToHash("roll");
 
     [Tooltip("Speed at which the character moves. It is not affected by gravity or jumping.")]
     public float velocity = 5f;
@@ -23,6 +24,18 @@ public class PlayerController : MonoBehaviour
     [Space]
     [Tooltip("Force that pulls the player down. Changing this value causes all movement, jumping and falling to be changed as well.")]
     public float gravity = 9.8f;
+    
+    [SerializeField] private float rollForce = 15f;
+    [SerializeField] private float rollCooldownTime = 0.5f; // short delay after 3 rolls
+    [SerializeField] private int maxConsecutiveRolls = 3;
+
+    private bool _isRolling = false;
+    private float _rollCooldownTimer = 0f;
+    private int _rollsRemaining = 3;
+    private bool _rollLockedOut = false; // New: lockout flag
+    private Vector3 _rollDirection = Vector3.zero;
+    private float _rollForceMultiplier = 1f;
+
     
     private InputSystem_Actions _playerControls;
 
@@ -41,6 +54,7 @@ public class PlayerController : MonoBehaviour
     private bool _inputAttack;
     private bool _inputCrouch;
     private bool _inputSprint;
+    private bool _inputRoll;
 
     private Animator _animator;
     // private CharacterController _cc;
@@ -55,8 +69,9 @@ public class PlayerController : MonoBehaviour
     private InputAction _moveAction;
     private InputAction _jumpAction;
     private InputAction _attackAction;
+    private InputAction _rollAction;
     
-    private void Awake()
+    private void OnEnable()
     {
         _playerControls = new InputSystem_Actions();
         
@@ -68,6 +83,9 @@ public class PlayerController : MonoBehaviour
         
         _attackAction = _playerControls.Player.Attack;
         _attackAction.Enable();
+        
+        _rollAction = _playerControls.Player.Roll;
+        _rollAction.Enable();
     }
 
     private void OnDisable()
@@ -75,6 +93,7 @@ public class PlayerController : MonoBehaviour
         _moveAction.Disable();
         _jumpAction.Disable();
         _attackAction.Disable();
+        _rollAction.Disable();
     }
 
     void Start()
@@ -101,7 +120,7 @@ public class PlayerController : MonoBehaviour
         if (_cm)
         {
             _cm.OnComboStep += PlayAttack;
-            _cm.OnComboEnd += BreakCombo;
+            _cm.OnComboEnd += OnBreakCombo;
         }
 
         if (_slashController)
@@ -137,20 +156,61 @@ public class PlayerController : MonoBehaviour
         }
         _movementLocked = true;
 
-        _animator.ResetTrigger(BreakAttack);
-        _animator.SetTrigger(Attack);
+        _animator.ResetTrigger(BreakAttackTrigger);
+        _animator.SetTrigger(AttackTrigger);
     }
     
-    void BreakCombo(bool cancelled, string debug)
+    void OnBreakCombo(bool cancelled, string debug)
     {
         _movementLocked = false;
         // Debug.LogError($"Combo broken: {debug}, cancelled: {cancelled}");
         _isInCombo = false;
         if (_animator)
         {
-            _animator.ResetTrigger(Attack);
-            _animator.SetTrigger(BreakAttack);
+            _animator.ResetTrigger(AttackTrigger);
+            _animator.SetTrigger(BreakAttackTrigger);
+            _animator.Play("Idle");
         }
+    }
+
+    private void Roll()
+    {
+        // cancel attacks if rolling
+        if (_isInCombo)
+        {
+            _cm.ResetCombo("Rolled");
+        }
+
+        _movementLocked = true;
+        _isRolling = true;
+
+        _animator.ResetTrigger(AttackTrigger);
+        _animator.ResetTrigger(BreakAttackTrigger);
+        _animator.SetTrigger(RollTrigger);
+
+        Vector3 rollDirection = new Vector3(_inputHorizontal, 0f, _inputVertical);
+        if (rollDirection.sqrMagnitude < 0.1f)
+        {
+            rollDirection = transform.forward;
+        }
+        else
+        {
+            rollDirection.Normalize();
+            _mc.SetRotation(Quaternion.LookRotation(rollDirection));
+        }
+        _rollDirection = rollDirection;
+    }
+
+    public void OnRollAnimationEnd()
+    {
+        _isRolling = false;
+        _movementLocked = false;
+        _animator.ResetTrigger(RollTrigger);
+    }
+    
+    void OnGUI()
+    {
+        GUI.Label(new Rect(10, 10, 300, 20), $"Rolls left: {_rollsRemaining}");
     }
     
     public void OnAttackAnimationEnd()
@@ -212,11 +272,12 @@ public class PlayerController : MonoBehaviour
         // _inputSprint = Mathf.Approximately(Input.GetAxis("Fire3"), 1f);
         // _inputCrouch = Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.JoystickButton1);
         _inputAttack = _attackAction.triggered;
+        _inputRoll = _rollAction.triggered;
 
         // if ( _inputCrouch )
         //     _isCrouching = !_isCrouching;
 
-        if ( _mc.IsGrounded && _animator )
+        if ( _mc.IsGrounded && _animator && !_isRolling)
         {
             // _animator.SetBool(Crouch, _isCrouching);
             
@@ -229,17 +290,12 @@ public class PlayerController : MonoBehaviour
         }
 
         // prevent air from spamming from anystate
-        if (_animator)
+        if (_animator && !_isRolling)
         {
             _animator.SetBool(Air, !_mc.IsGrounded );
         }
-
-        // if ( _inputJump && _mc.IsGrounded )
-        // {
-        //     _isJumping = true;
-        // }
         
-        if (_inputAttack && _mc.IsGrounded )
+        if (_inputAttack && _mc.IsGrounded && !_isRolling)
         {
             _cm.TryAttack();
             _isInCombo = true;
@@ -255,39 +311,53 @@ public class PlayerController : MonoBehaviour
             _cm.ResetCombo("Player is moving while attacking");
         }
         
-        // HeadHittingDetect();
-
         MovementUpdate();
+        
+        // Update cooldown
+        if (_rollLockedOut && !_isRolling)
+        {
+            _rollCooldownTimer += Time.deltaTime;
+            if (_rollCooldownTimer >= rollCooldownTime)
+            {
+                _rollsRemaining = maxConsecutiveRolls;
+                _rollLockedOut = false;
+                _rollCooldownTimer = 0f;
+                _rollForceMultiplier = 1f;
+            }
+        }
+
+        if (_inputRoll && _mc.IsGrounded && !_isRolling)
+        {
+            if (_rollsRemaining > 0)
+            {
+                Roll();
+                _rollsRemaining--;
+                if (_rollsRemaining == 0)
+                {
+                    _rollLockedOut = true;
+                    _rollCooldownTimer = 0f;
+                }
+            }
+            else if (_rollLockedOut)
+            {
+                // impair the rolling movement if the player is locked out
+                _rollForceMultiplier = 0.25f;
+                _rollCooldownTimer = 0f;
+                Roll();
+            }
+        }
+
+
     }
 
 
     private void MovementUpdate()
     {
-        // Vector3 inputVector = new Vector3(_inputHorizontal, 0, _inputVertical);
-        // inputVector = Vector3.ClampMagnitude(inputVector, 1f);
-        //
-        // if (_movementLocked)
-        // {
-        //     inputVector = Vector3.zero;
-        // }
-        //
-        // Vector3 moveDirection = Vector3.zero;
-        // if (inputVector.magnitude > 0.1)
-        // {
-        //     Vector3 camForward  = _camera.transform.forward;
-        //     camForward.y = 0;
-        //     camForward.Normalize();
-        //     Vector3 camRight = _camera.transform.right;
-        //     camRight.y = 0;
-        //     camRight.Normalize();
-        //     moveDirection = (camForward * inputVector.z + camRight * inputVector.x).normalized;
-        //     
-        //     float targetAngle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
-        //     transform.rotation = Quaternion.Euler(0, Mathf.Round(targetAngle / 45f) * 45f, 0);
-        // }
-        
-        // Apply the movement to the character controller
-
+        if (_isRolling)
+        {
+            _mc.CancelVelocity();
+            ApplyExternalForce(_rollDirection * (rollForce * _rollForceMultiplier), true);
+        }
         var inputHorizontal = _movementLocked ? 0 : _inputHorizontal;
         var inputVertical = _movementLocked ? 0 : _inputVertical;
         var inputJump = !_movementLocked && _inputJump;
@@ -299,74 +369,14 @@ public class PlayerController : MonoBehaviour
             MoveAxisRight = inputHorizontal,
         };
         _mc.SetInputs(ref inputs);
-        //
-        //
-        // float velocityAddition = velocity;
-        // if ( _isSprinting )
-        //     velocityAddition += sprintAdittion;
-        // if (_isCrouching)
-        //     velocityAddition -= (velocity * 0.50f);
-        //
-        // Vector3 horizontalVelocity = moveDirection * velocityAddition;
-        //
-        // float verticalVelocity = 0;
-        // if ( _isJumping )
-        // {
-        //
-        //     // Apply inertia and smoothness when climbing the jump
-        //     // It is not necessary when descending, as gravity itself will gradually pulls
-        //     verticalVelocity = Mathf.SmoothStep(jumpForce, jumpForce * 0.30f, _jumpElapsedTime / jumpTime);
-        //
-        //     // Jump timer
-        //     _jumpElapsedTime += Time.deltaTime;
-        //     if (_jumpElapsedTime >= jumpTime)
-        //     {
-        //         _isJumping = false;
-        //         _jumpElapsedTime = 0;
-        //     }
-        // }
-        //
-        // // Add gravity to Y axis
-        // if (!_cc.isGrounded)
-        // {
-        //     verticalVelocity -= gravity;
-        // }
-        // else
-        // {
-        //     verticalVelocity -= 1f; // to keep the character grounded
-        // }
-        //
-        // // Apply external force
-        // if (_externalForce.magnitude > 0)
-        // {
-        //     _externalForce = Vector3.Lerp(_externalForce, Vector3.zero, Time.deltaTime * 5f);
-        // }
-        //
-        // Vector3 finalVelocity = horizontalVelocity + Vector3.up * verticalVelocity + _externalForce; 
-        //
-        // // Apply the final velocity to the character controller
-        // _cc.Move(finalVelocity * Time.deltaTime);
     }
-
-    // void HeadHittingDetect()
-    // {
-    //     float headHitDistance = 1.1f;
-    //     Vector3 ccCenter = transform.TransformPoint(_cc.center);
-    //     float hitCalc = _cc.height / 2f * headHitDistance;
-    //
-    //     if (Physics.Raycast(ccCenter, Vector3.up, hitCalc))
-    //     {   
-    //         _jumpElapsedTime = 0;
-    //         _isJumping = false;
-    //     }
-    // }
 
     private void OnDestroy()
     {
         if (_cm)
         {
             _cm.OnComboStep -= PlayAttack;
-            _cm.OnComboEnd -= BreakCombo;
+            _cm.OnComboEnd -= OnBreakCombo;
         }
     }
 }

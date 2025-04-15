@@ -67,20 +67,20 @@ public class OrbitCamera : MonoBehaviour
 
     private void HandleOrbitInput()
     {
-        if (Input.GetMouseButtonDown(1))
-        {
-            _isDragging = true;
-            _lastMousePosition = Input.mousePosition;
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-        else if (Input.GetMouseButtonUp(1))
-        {
-            _isDragging = false;
-            SnapToNearestAngle();
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
+        // if (Input.GetMouseButtonDown(1))
+        // {
+        //     _isDragging = true;
+        //     _lastMousePosition = Input.mousePosition;
+        //     Cursor.lockState = CursorLockMode.Locked;
+        //     Cursor.visible = false;
+        // }
+        // else if (Input.GetMouseButtonUp(1))
+        // {
+        //     _isDragging = false;
+        //     SnapToNearestAngle();
+        //     Cursor.lockState = CursorLockMode.None;
+        //     Cursor.visible = true;
+        // }
 
         if (_isDragging)
         {
