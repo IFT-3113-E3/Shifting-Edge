@@ -15,6 +15,7 @@ namespace Enemy.IceBoss
         private MeshFlashEffect _meshFlashEffect;
         
         public GameObject coreObject;
+        private IVisibilityTransitionEffect coreDissolver;
 
         private Coroutine _currentCoroutine;
         private Coroutine _animCoroutine;
@@ -73,6 +74,7 @@ namespace Enemy.IceBoss
         
         public event Action<Transform> OnThrowEvent;
         public event Action OnGroundAttackEvent;
+        public event Action<Transform> OnPunchEvent;
         
         private void Start()
         {
@@ -123,6 +125,11 @@ namespace Enemy.IceBoss
             }
             
             _visualEffects = GetComponentsInChildren<VisualEffect>();
+
+            if (coreObject)
+            {
+                coreDissolver = coreObject.GetComponent<IVisibilityTransitionEffect>();
+            }
             
         }
 
@@ -153,6 +160,59 @@ namespace Enemy.IceBoss
                     // vfx.Stop();
                 }
             }
+        }
+
+        public void ResetAnimator()
+        {
+            _animator.Play("Dormant");
+            _animator.speed = 1;
+            SetChargingFlashEnabled(false);
+            _fakeSpikeController.Hide();
+            _fractureEffect.SetFragmentsEnabled(true);
+            _fractureEffect.ResetFragmentsAtSource();
+            _fractureEffect.SetGravityEnabled(true);
+
+            SetVisible(false);
+        }
+        
+        public void AbsorbCore(Transform target, Action onComplete = null)
+        {
+            if (_currentCoroutine != null)
+            {
+                StopCoroutine(_currentCoroutine);
+            }
+
+            _currentCoroutine = StartCoroutine(AbsorbCoreRoutine(target, onComplete));
+        }
+        
+        private IEnumerator AbsorbCoreRoutine(Transform target, Action onComplete = null)
+        {
+            SetChargingFlashEnabled(false);
+
+            var core = coreObject;
+            // ensure all subobjects are visible and enabled
+            var absorbDistance = 3f;
+            while (Vector3.Distance(core.transform.position, target.position + Vector3.up*1.5f) > absorbDistance)
+            {
+                core.transform.position = Vector3.MoveTowards(core.transform.position, target.position + Vector3.up*1.5f,
+                    Time.deltaTime * 2f);
+                yield return null;
+            }
+            SetChargingFlashEnabled(false);
+
+            if (coreDissolver != null)
+            {
+                coreDissolver.Hide();
+
+                while (coreDissolver.IsVisible)
+                {
+                    core.transform.position = Vector3.MoveTowards(core.transform.position, target.position + Vector3.up*1.5f,
+                        Time.deltaTime * 2f);
+                    yield return null;
+                }
+            }
+            
+            onComplete?.Invoke();
         }
         
         public void PreparePunch()
@@ -249,24 +309,31 @@ namespace Enemy.IceBoss
 
         private IEnumerator DespawnRoutine(Action onComplete = null)
         {
+            PlayDeathAudio();
 
+            SetChargingFlashEnabled(false);
+            
             _fractureEffect.SetFragmentsEnabled(true);
             _fractureEffect.SetDissolveSpeedFactor(1f);
             _fractureEffect.ResetFragmentsAtSource();
-            _fractureEffect.SetGravityEnabled(true);
-
+            
             yield return new WaitForFixedUpdate();
+            yield return new WaitForFixedUpdate();
+
+            _fractureEffect.SetGravityEnabled(true);
+            _fractureEffect.SetCollisionEnabled(true);
+            SetVisible(false);
+
             yield return new WaitForFixedUpdate();
 
             // Set original object invisible
-            SetVisible(false);
 
-            yield return null;
+            yield return new WaitForSeconds(1f);
+            
+            _fractureEffect.SetDissolveSpeedFactor(3f);
+            _fractureEffect.DissolveFragments();
 
-            // yield return StartCoroutine(_fractureEffect.BreakAndPauseFragmentsSmooth(explosionForce: 0.5f,
-                // slowdownTime: 0.75f));
-
-            // yield return new WaitUntil(_fractureEffect.AreAllFragmentsFinishedDissolving);
+            yield return new WaitUntil(_fractureEffect.AreAllFragmentsFinishedDissolving);
 
             // Set original object invisible
 
@@ -501,6 +568,18 @@ namespace Enemy.IceBoss
         {
             OnGroundAttackEvent?.Invoke();
             PlaySmashAudio();
+        }
+        
+        private void OnGolemPunchEvent()
+        {
+            if (handTransform != null)
+            {
+                OnPunchEvent?.Invoke(handTransform);
+            }
+            else
+            {
+                Debug.LogError("[BossAnimator] Hand transform is not assigned.");
+            }
         }
 
         private void PlayRandomSFX(AudioSource audioSource, AudioClip[] clips)

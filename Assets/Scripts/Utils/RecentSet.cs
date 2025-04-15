@@ -9,9 +9,20 @@ namespace Utils
     {
         private readonly LinkedList<T> _list = new();
         private readonly HashSet<T> _set = new();
+        private int _consecutiveCount = 0;
+        
+        public int ConsecutiveCount => _consecutiveCount;
 
         public void Add(T item)
         {
+            var lastItem = _list.First;
+            if (lastItem != null)
+            {
+                if (lastItem.Value.Equals(item))
+                    _consecutiveCount++;
+                else
+                    _consecutiveCount = 0;
+            }
             if (_set.Contains(item))
             {
                 _list.Remove(item);
@@ -22,10 +33,17 @@ namespace Utils
             }
 
             _list.AddFirst(item);
+            
+
         }
         
         public void Remove(T item)
         {
+            var lastItem = _list.First;
+            if (lastItem != null && lastItem.Value.Equals(item))
+            {
+                _consecutiveCount = 0;
+            }
             if (_set.Remove(item))
             {
                 _list.Remove(item);
@@ -36,6 +54,7 @@ namespace Utils
         {
             _list.Clear();
             _set.Clear();
+            _consecutiveCount = 0;
         }
         
         public T GetLast()
@@ -53,6 +72,20 @@ namespace Utils
         }
         
         public bool Contains(T item) => _set.Contains(item);
+        
+        public bool IsLast(T item)
+        {
+            if (_list.Count == 0)
+                return false;
+            return _list.First.Value.Equals(item);
+        }
+        
+        public bool IsFirst(T item)
+        {
+            if (_list.Count == 0)
+                return false;
+            return _list.Last.Value.Equals(item);
+        }
         
         public int Count => _set.Count;
         

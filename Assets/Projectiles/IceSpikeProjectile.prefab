@@ -101,6 +101,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   iceExplosionVFXPrefab: {fileID: 8453340893881704019, guid: b64d9771e617eb44ca78eacaf11b129c, type: 3}
+  explosionProjectile: {fileID: 11400000, guid: 8d903a4b0f73e69409523a334207dc2c, type: 2}
 --- !u!114 &-4261096972098585519
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -219,8 +220,9 @@ MonoBehaviour:
   baseAlpha: 0.4
   interval: 0.016666668
   overrideMaterial: {fileID: 2100000, guid: b1f73a7459db2144ea377096df55d5f2, type: 2}
-  velocityMagnitudeThreshold: 10
   baseColorPropertyName: _Color
+  manualVelocity: 0
+  velocityMagnitudeThreshold: 10
 --- !u!1 &8067647269458573025
 GameObject:
   m_ObjectHideFlags: 0
