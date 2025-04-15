@@ -17,7 +17,7 @@ namespace Enemy.IceBoss.States.Combat
         // Config
         private const float PrepareTime = 1.5f;
         private const float MaxChargeDistance = 15f;
-        private const float ReachDistance = 5f;
+        private const float ReachDistance = 4f;
         private const float ViewAngle = 100f;
 
         // State
@@ -117,6 +117,7 @@ namespace Enemy.IceBoss.States.Combat
         private void BeginPunch()
         {
             _ctx.animator.SetChargingFlashEnabled(false);
+            _ctx.animator.PlayDashAudio();
             _startPosition = _ctx.self.transform.position;
             var direction = (_ctx.player.transform.position - _startPosition).normalized;
             _targetPosition = _startPosition + direction * MaxChargeDistance;
@@ -143,7 +144,7 @@ namespace Enemy.IceBoss.States.Combat
                 ExitOrTryAgain();
                 return;
             }
-
+            
             _ctx.movementController.MoveTowards(_targetPosition, _ctx.dashSpeed * _ctx.dt);
         }
 
@@ -162,8 +163,9 @@ namespace Enemy.IceBoss.States.Combat
 
         public void ExitOrTryAgain()
         {
+            var maxExtraPunches = _ctx.phase == 1 ? 2 : 0;
             _punchCount++;
-            if (_punchCount > 2)
+            if (_punchCount > maxExtraPunches)
             {
                 fsm.StateCanExit();
             }
@@ -202,6 +204,7 @@ namespace Enemy.IceBoss.States.Combat
             _ctx.timeSinceLastMeleeAttack = 0f;
             _ctx.attackHistory.Add(AttackType.Melee);
             _ctx.movementController.StopMovement();
+            _ctx.animator.ReturnToIdle();
         }
     }
 }

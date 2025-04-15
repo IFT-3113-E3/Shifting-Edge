@@ -5,8 +5,8 @@ namespace Projectiles
 {
     public class GroundSpikeChainProjectile : MonoBehaviour
     {
-        public float steeringSpeed = 60f;
-        public float spawnInterval = 0.25f;
+        public float steeringSpeed = 90f;
+        public float spawnInterval = 0.05f;
         public ProjectileData spikeProjectileData;
         public ProjectileData finalSpikeProjectileData;
 

@@ -22,16 +22,15 @@ namespace Enemy.IceBoss.States.Combat
         public override void OnLogic()
         {
             _ctx.movementController.LookAt(
-                _ctx.player.transform.position);
+                _ctx.player.transform.position, 200f);
         }
 
         public override void OnExit()
         {
-            // Logic for exiting the ranged attack state
-            _ctx.waitTimer = 0f;
             _ctx.timeSinceLastThrow = 0f;
             _ctx.attackHistory.Add(AttackType.Ranged);
             _ctx.movementController.StopMovement();
+            _ctx.animator.ReturnToIdle();
         }
     }
 }

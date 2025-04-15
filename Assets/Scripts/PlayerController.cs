@@ -162,7 +162,7 @@ public class PlayerController : MonoBehaviour
     public void OnAttackDash()
     {
         // dash a little bit forward
-        float force = new Vector2(_inputHorizontal, _inputVertical).normalized.magnitude * 2.5f;
+        float force = new Vector2(_inputHorizontal, _inputVertical).normalized.magnitude * 4.5f;
         ApplyExternalForce(
             new Vector3(0, -2f, force),
             true, true);
