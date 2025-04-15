@@ -72,6 +72,15 @@ namespace Enemy.IceBoss
             GUILayout.Label($"Ground: {ctx.timeSinceLastGroundAttack:0.00} / {ctx.groundAttackCooldown}", _labelStyle);
             GUILayout.Label($"Activated: {ctx.shouldActivate}", _labelStyle);
             GUILayout.Label($"Velocity: {ctx.movementController.gameObject.GetComponent<EntityMovementController>()?.Motor.Velocity}", _labelStyle);
+            GUILayout.Label($"Distance to Player: {ctx.movementController.DistanceTo(ctx.player.transform.position):0.00}", _labelStyle);
+            if (ctx.attackHistory.Count > 0)
+            {
+                
+            GUILayout.Label($"FirstAttack: {ctx.attackHistory.GetFirst()}", _labelStyle);
+            GUILayout.Label($"LastAttack: {ctx.attackHistory.GetLast()}", _labelStyle);
+            GUILayout.Label($"IsRangedFirst: {ctx.attackHistory.IsLast(AttackType.Ranged)}", _labelStyle);
+            }
+
             // EditorGUILayout.PropertyField(new SerializedObject(ctx).FindProperty("shouldActivate"), new GUIContent("Should Activate"));
 
             var stateBranch = sm.GetActiveHierarchyPath();

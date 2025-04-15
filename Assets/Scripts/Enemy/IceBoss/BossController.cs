@@ -74,8 +74,14 @@ namespace Enemy.IceBoss
             // Pre-init stuff
             _animator.OnThrowEvent += OnThrowSpike;
             _animator.OnGroundAttackEvent += OnGroundAttack;
+            _animator.OnPunchEvent += OnPunch;
 
             // Init stuff
+            InitializeBoss();
+        }
+
+        void InitializeBoss()
+        {
             _context = new BossContext
             {
                 self = gameObject,
@@ -85,27 +91,27 @@ namespace Enemy.IceBoss
                 entityStatus = _entityStatus,
                 orbitCamera = orbitCamera,
                 cameraEffects = cameraEffects,
-                speechBubbleSpawner = FindFirstObjectByType<SpeechBubbleSpawner>(),
+                // speechBubbleSpawner = FindFirstObjectByType<SpeechBubbleSpawner>(),
                 spawnPoint = spawnPoint,
             };
 
+            _movementController.ResetAtPointAndOrientation(
+                spawnPoint.position, spawnPoint.rotation);
+            
+            _context.entityStatus.Revive();
 
-            InitializeBoss();
-
-            BuildStateMachine();
-            _rootSm.Init();
-        }
-
-        void InitializeBoss()
-        {
+            _context.timeSinceLastThrow = _context.throwCooldown;
+            _context.timeSinceLastMeleeAttack = _context.meleeAttackCooldown;
+            _context.timeSinceLastGroundAttack = _context.groundAttackCooldown;
+            _context.waitTimer = _context.attackWaitCooldown / 3f;
+            
             _context.shouldActivate = true;
             _context.hasSpawned = true;
 
-            var fractureEffect = GetComponent<FractureEffect>();
-            if (fractureEffect != null)
-            {
-                fractureEffect.SwapVisibility(false);
-            }
+            _animator.ResetAnimator();
+            
+            BuildStateMachine();
+            _rootSm.Init();
         }
 
         void OnThrowSpike(Transform hand)
@@ -113,9 +119,22 @@ namespace Enemy.IceBoss
             if (hand != null)
             {
                 var firePos = hand.position;
-                var direction = (_context.player.transform.position - firePos).normalized;
+                var direction = ((_context.player.transform.position + Vector3.up * 0.5f) - firePos).normalized;
                 direction.Normalize();
                 _ = SpawnProjectile("icespike", firePos, direction);
+            }
+            else
+            {
+                Debug.LogError("Hand transform is null.");
+            }
+        }
+
+        void OnPunch(Transform hand)
+        {
+            if (hand != null)
+            {
+                var firePos = hand.position;
+                _ = SpawnProjectile("golemgroundattack", firePos, hand.right);
             }
             else
             {
@@ -175,7 +194,7 @@ namespace Enemy.IceBoss
                     var healthPercentage = _context.entityStatus.CurrentHealth /
                         _context.entityStatus.maxHealth;
 
-                    if (healthPercentage < 0.5f)
+                    if (healthPercentage <= 0.5f)
                     {
                         if (_context.phase == 0)
                         {
@@ -219,6 +238,7 @@ namespace Enemy.IceBoss
                                 _context.movementController.SyncTransform();
                                 combatFsm.StateCanExit();
                             });
+                        _context.hasJustTeleported = true;
                     },
                     onLogic: _ =>
                     {
@@ -283,20 +303,35 @@ namespace Enemy.IceBoss
                 combatFsm.AddTriggerTransitionFromAny("PhaseChange", "Enraged", forceInstantly: true);
                 combatFsm.AddTransition("Enraged", "Wait");
                 combatFsm.AddTransition("Wait", "Teleport",
-                    _ => _context.waitTimer >= 0.8f && !DistanceToPlayer(20f));
+                    _ => _context.waitTimer >= 0.5f && !DistanceToPlayer(15f));
                 combatFsm.AddTransition("Wait", "Charge",
                     _ =>
                     {
                         var test = _context.timeSinceLastMeleeAttack >=
                                    _context.meleeAttackCooldown;
                         var facingPlayer = IsPointInView(_context.player.transform.position);
-                        return test && facingPlayer;
+                        var tooManyAttacks = _context.attackHistory.IsLast(AttackType.Melee);//_context.attackHistory.Count > 0 && _context.attackHistory.GetFirst() == AttackType.Melee && _context.attackHistory.ConsecutiveCount >= 1;
+                        var isFirst = !_context.attackHistory.Contains(AttackType.Melee) || _context.attackHistory.IsFirst(AttackType.Melee);
+                        return test && facingPlayer && !tooManyAttacks && isFirst;
                     });
 
                 combatFsm.AddTransition("Wait", "RangedAttack",
-                    _ => _context.timeSinceLastThrow >= _context.throwCooldown);
+                    _ =>
+                    {
+                        var tooManyAttacks = _context.attackHistory.IsLast(AttackType.Ranged);//_context.attackHistory.Count > 0 && _context.attackHistory.GetFirst() == AttackType.Ranged && _context.attackHistory.ConsecutiveCount >= 1;
+                        var isFirst = !_context.attackHistory.Contains(AttackType.Ranged) || _context.attackHistory.IsFirst(AttackType.Ranged);
+                        return _context.timeSinceLastThrow >= _context.throwCooldown &&
+                               IsPointInView(_context.player.transform.position) && !tooManyAttacks && isFirst;
+                    });
                 combatFsm.AddTransition("Wait", "GroundAttack",
-                    _ => _context.timeSinceLastGroundAttack >= _context.groundAttackCooldown);
+                    _ =>
+                    {
+                        var tooManyAttacks = _context.attackHistory.IsLast(AttackType.Ground);//_context.attackHistory.Count > 0 && _context.attackHistory.GetFirst() == AttackType.Ground && _context.attackHistory.ConsecutiveCount >= 1;
+                        var isFirst = !_context.attackHistory.Contains(AttackType.Ground) || _context.attackHistory.IsFirst(AttackType.Ground);
+                        return _context.timeSinceLastGroundAttack >=
+                               _context.groundAttackCooldown &&
+                               IsPointInView(_context.player.transform.position) && !tooManyAttacks && isFirst;
+                    });
                 
                 combatFsm.AddTransition("Charge", "Wait");
 
@@ -310,13 +345,27 @@ namespace Enemy.IceBoss
 
             var defeatedFsm = new StateMachine(needsExitTime: true);
             {
-                // defeatedFsm.AddState("Despawning", new DespawningState(_context));
+                defeatedFsm.AddState("Despawning", onEnter: state =>
+                {
+                    _context.animator.Despawn(() =>
+                    {
+                        _context.orbitCamera.RemoveAdditionalTarget(_context.animator.transform);
+                        _context.animator.AbsorbCore(_context.player.transform, () =>
+                        {
+                            state.fsm.StateCanExit();
+                        });
+                    });
+                }, needsExitTime: true);
+                defeatedFsm.SetStartState("Despawning");
             }
             _rootSm.AddState("Defeated", defeatedFsm);
 
             _rootSm.AddTransition("Intro", "Combat");
             _rootSm.AddTransition("Combat", "Defeated", _ => _context.entityStatus.CurrentHealth <= 0f,
-                forceInstantly: true);
+                forceInstantly: true, onTransition: _ =>
+                {
+                    _context.defeated = true;
+                });
 
             _rootSm.SetStartState("Intro");
         }
@@ -325,18 +374,18 @@ namespace Enemy.IceBoss
         {
             _context.dt = Time.deltaTime;
             _rootSm.OnLogic();
-
-            if (Input.GetKeyDown(KeyCode.Y))
-            {
-                SpawnCircleAttack();
-            }
-
-
-            // keyboard input to test the ground spike chain spawning
-            if (Input.GetKeyDown(KeyCode.U))
-            {
-                OnGroundAttack();
-            }
+            //
+            // if (Input.GetKeyDown(KeyCode.Y))
+            // {
+            //     SpawnCircleAttack();
+            // }
+            //
+            //
+            // // keyboard input to test the ground spike chain spawning
+            // if (Input.GetKeyDown(KeyCode.U))
+            // {
+            //     OnGroundAttack();
+            // }
         }
 
         private void OnDrawGizmos()
@@ -381,7 +430,7 @@ namespace Enemy.IceBoss
                 (position - _context.self.transform.position).normalized);
             var distanceToTarget = Vector3.Distance(_context.self.transform.position, position);
 
-            return angleToTarget <= maxViewAngle && distanceToTarget <= viewDistance;
+            return angleToTarget <= maxViewAngle;
         }
 
         private bool IsFacingPoint(Vector3 position, float angleTolerance)
@@ -450,6 +499,11 @@ namespace Enemy.IceBoss
                 var tiltDirection = Quaternion.Euler(tiltAngleFromVertical, angle, 0f) * Vector3.up;
                 _ = SpawnProjectile("groundspike", spawnPos, tiltDirection);
             }
+        }
+
+        private void ResetBoss()
+        {
+            
         }
     }
 }

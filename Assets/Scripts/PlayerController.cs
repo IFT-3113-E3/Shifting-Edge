@@ -169,7 +169,7 @@ public class PlayerController : MonoBehaviour
         {
             _animator.ResetTrigger(AttackTrigger);
             _animator.SetTrigger(BreakAttackTrigger);
-            _animator.Play("Idle");
+            // _animator.Play("Idle");
         }
     }
 

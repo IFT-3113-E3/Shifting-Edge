@@ -27,7 +27,6 @@ namespace Enemy.IceBoss
         public OrbitCamera orbitCamera;
         
         public Transform spawnPoint;
-        public SpeechBubbleSpawner speechBubbleSpawner;
         
         public int phase = 0;
         public float attackWaitCooldown = 3f;
@@ -43,11 +42,13 @@ namespace Enemy.IceBoss
         public float rangedAttackDistance = 15f;
         public float lookAtSpeed = 100f;
         public int numberOfRepeatedRangedAttacks = 0;
+        public bool hasJustTeleported = false;
         
-        public RecentSet<AttackType> attackHistory = new();
+        public RecentSet<AttackType> attackHistory = new() { AttackType.Ground, AttackType.Ranged, AttackType.Melee };
 
         public bool shouldActivate = false;
         public bool hasSpawned = false;
+        public bool defeated = false;
         
         public float dt = 0f;
     }

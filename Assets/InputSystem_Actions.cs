@@ -198,7 +198,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""name"": """",
                     ""id"": ""38e96b7e-594b-4d17-abc9-e0576c73ed7b"",
                     ""path"": ""<Keyboard>/shift"",
-                    ""interactions"": ""MultiTap"",
+                    ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard&Mouse"",
                     ""action"": ""Roll"",

@@ -73,6 +73,14 @@ namespace Enemy.IceBoss
             _movement = dir;
         }
         
+        public void ResetAtPointAndOrientation(Vector3 point, Quaternion rotation)
+        {
+            _interpolatedRotation = rotation;
+            _mc.CancelVelocity();
+            _mc.SetPosition(point);
+            _mc.SetRotation(rotation);
+        }
+        
         public float DistanceTo(Vector3 target)
         {
             return Vector3.Distance(

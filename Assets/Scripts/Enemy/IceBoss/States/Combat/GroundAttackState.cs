@@ -37,7 +37,7 @@ namespace Enemy.IceBoss.States.Combat
         {
             if (_preparingGroundAttack)
             {
-                _ctx.movementController.LookAt(_ctx.player.transform.position, _ctx.lookAtSpeed);
+                _ctx.movementController.LookAt(_ctx.player.transform.position, _ctx.lookAtSpeed * 3f);
                 
                 _prepareTimeElapsed += _ctx.dt;
                 if (_prepareTimeElapsed >= _prepareTime)
@@ -68,6 +68,7 @@ namespace Enemy.IceBoss.States.Combat
         public override void OnExit()
         {
             // Logic for exiting the ground attack state
+            _ctx.animator.SetChargingFlashEnabled(false);
             _ctx.timeSinceLastGroundAttack = 0f;
             _ctx.attackHistory.Add(AttackType.Ground);
         }

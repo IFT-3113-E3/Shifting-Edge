@@ -32,9 +32,9 @@ namespace Enemy.IceBoss.States.Intro
         private IEnumerator InteractionSequence()
         {
             // Logic for the interaction sequence
-            _ctx.speechBubbleSpawner.Speak(
-                "I am the Ice Boss! Prepare to meet your doom!",
-                2f);
+            // _ctx.speechBubbleSpawner.Speak(
+            //     "I am the Ice Boss! Prepare to meet your doom!",
+            //     2f);
             
             // For example, play an animation or spawn some enemies
             yield return new WaitForSeconds(2f);

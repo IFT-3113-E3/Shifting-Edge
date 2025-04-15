@@ -5160,6 +5160,9 @@ MonoBehaviour:
   jumpForce: 18
   jumpTime: 0.85
   gravity: 9.8
+  rollForce: 12
+  rollCooldownTime: 0.5
+  maxConsecutiveRolls: 3
   FPS: 12
 --- !u!114 &6061238130636642520
 MonoBehaviour:
@@ -5417,7 +5420,7 @@ MonoBehaviour:
   Drag: 0.1
   AllowJumpingWhenSliding: 1
   JumpUpSpeed: 10
-  JumpScalableForwardSpeed: 4
+  JumpScalableForwardSpeed: 2
   JumpPreGroundingGraceTime: 0
   JumpPostGroundingGraceTime: 0
   IgnoredColliders: []
