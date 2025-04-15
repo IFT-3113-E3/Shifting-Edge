@@ -504,6 +504,18 @@ namespace MeshVFX
                 }
             }
         }
+        
+        public void SetCollisionEnabled(bool enabled)
+        {
+            foreach (var clone in _clones)
+            {
+                foreach (var frag in clone.GetFragments())
+                {
+                    var rb = frag.Rigidbody;
+                    rb.detectCollisions = enabled;
+                }
+            }
+        }
     
         public bool AreAllFragmentsFinishedDissolving()
         {

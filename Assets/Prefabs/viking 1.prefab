@@ -4981,7 +4981,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 75140ed55d663d84d8888b6658b1184e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -11.281702
+      value: -30.31
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 75140ed55d663d84d8888b6658b1184e, type: 3}
       propertyPath: m_LocalRotation.w
@@ -5160,6 +5160,9 @@ MonoBehaviour:
   jumpForce: 18
   jumpTime: 0.85
   gravity: 9.8
+  rollForce: 12
+  rollCooldownTime: 0.5
+  maxConsecutiveRolls: 3
   FPS: 12
 --- !u!114 &6061238130636642520
 MonoBehaviour:
@@ -5352,7 +5355,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09be9f6ca99b43139d37b2349fc66a44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 10000
+  maxHealth: 150
 --- !u!114 &1475713745477728930
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5417,7 +5420,7 @@ MonoBehaviour:
   Drag: 0.1
   AllowJumpingWhenSliding: 1
   JumpUpSpeed: 10
-  JumpScalableForwardSpeed: 4
+  JumpScalableForwardSpeed: 2
   JumpPreGroundingGraceTime: 0
   JumpPostGroundingGraceTime: 0
   IgnoredColliders: []

@@ -13,7 +13,11 @@ namespace Enemy.IceBoss.States.Combat
 
         public override void OnEnter()
         {
-            _ctx.waitTimer = 0f;
+            if (!_ctx.hasJustTeleported)
+            {
+                _ctx.waitTimer = 0f;
+            }
+            _ctx.hasJustTeleported = false;
         }
 
         public override void OnLogic()
