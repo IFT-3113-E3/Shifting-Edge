@@ -222,7 +222,7 @@ public class PlayerController : MonoBehaviour
     public void OnAttackDash()
     {
         // dash a little bit forward
-        float force = new Vector2(_inputHorizontal, _inputVertical).normalized.magnitude * 4.5f;
+        float force = new Vector2(_inputHorizontal, _inputVertical).normalized.magnitude * 7f;
         ApplyExternalForce(
             new Vector3(0, -2f, force),
             true, true);
@@ -244,14 +244,6 @@ public class PlayerController : MonoBehaviour
         {
             _mc.AddVelocity(force);
         }
-    }
-    
-    public void ApplyKnockback(Vector2 direction, float force)
-    {
-        // create a knockback force going up in the air in the direction of the hit
-        var height = force + gravity;
-        var knockback = new Vector3(direction.x, height, direction.y) * force;
-        ApplyExternalForce(knockback, true);
     }
     
     void Update()
@@ -314,7 +306,7 @@ public class PlayerController : MonoBehaviour
         MovementUpdate();
         
         // Update cooldown
-        if (_rollLockedOut && !_isRolling)
+        if (!_isRolling)
         {
             _rollCooldownTimer += Time.deltaTime;
             if (_rollCooldownTimer >= rollCooldownTime)
@@ -337,6 +329,7 @@ public class PlayerController : MonoBehaviour
                     _rollLockedOut = true;
                     _rollCooldownTimer = 0f;
                 }
+                _rollCooldownTimer = 0f;
             }
             else if (_rollLockedOut)
             {
