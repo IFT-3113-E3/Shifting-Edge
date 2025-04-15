@@ -9,7 +9,7 @@ public class PauseMenuManager : MonoBehaviour
 
     [Header("Camera Control")]
     public OrbitCamera orbitCamera;
-    public CameraPauseOffset cameraPauseOffset;  // Ton script d'offset sur la caméra
+    // public CameraPauseOffset cameraPauseOffset;  // Ton script d'offset sur la caméra
 
     private bool isPaused = false;
 
@@ -35,8 +35,8 @@ public class PauseMenuManager : MonoBehaviour
         if (orbitCamera != null)
             orbitCamera.enabled = false;
 
-        if (cameraPauseOffset != null)
-            cameraPauseOffset.EnterPause();
+        // if (cameraPauseOffset != null)
+        //     cameraPauseOffset.EnterPause();
     }
 
     public void ResumeGame()
@@ -50,14 +50,14 @@ public class PauseMenuManager : MonoBehaviour
         if (orbitCamera != null)
             orbitCamera.enabled = true;
 
-        if (cameraPauseOffset != null)
-            cameraPauseOffset.ExitPause();
+        // if (cameraPauseOffset != null)
+        //     cameraPauseOffset.ExitPause();
     }
 
     public void OnHoverDirection(string direction)
     {
-        if (!isPaused || cameraPauseOffset == null) return;
+        // if (!isPaused || cameraPauseOffset == null) return;
 
-        cameraPauseOffset.Hover(direction);
+        // cameraPauseOffset.Hover(direction);
     }
 }

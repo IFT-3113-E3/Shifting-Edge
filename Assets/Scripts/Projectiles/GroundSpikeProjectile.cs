@@ -5,7 +5,6 @@ using UnityEngine.VFX;
 
 namespace Projectiles
 {
-
     public class GroundSpikeProjectile : MonoBehaviour
     {
         public float startHeight = -2f;
@@ -99,5 +98,4 @@ namespace Projectiles
         }
 
     }
-
 }

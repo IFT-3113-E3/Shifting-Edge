@@ -1,6 +1,4 @@
-﻿
-using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
@@ -23,7 +21,7 @@ public class PlayerController : MonoBehaviour
     [Space]
     [Tooltip("Force that pulls the player down. Changing this value causes all movement, jumping and falling to be changed as well.")]
     public float gravity = 9.8f;
-    
+
     private InputSystem_Actions _playerControls;
 
     private float _jumpElapsedTime = 0;
@@ -39,32 +37,31 @@ public class PlayerController : MonoBehaviour
     private float _inputVertical;
     private bool _inputJump;
     private bool _inputAttack;
-    private bool _inputCrouch;
-    private bool _inputSprint;
 
     private Animator _animator;
-    private CharacterController _cc;
+    // private CharacterController _cc;
+    private EntityMovementController _mc;
     private Camera _camera;
     private ComboManager _cm;
     private DynamicSwordSlash _slashController;
-    
+
     private Vector3 _externalForce = Vector3.zero;
     private bool _movementLocked;
 
     private InputAction _moveAction;
     private InputAction _jumpAction;
     private InputAction _attackAction;
-    
+
     private void Awake()
     {
         _playerControls = new InputSystem_Actions();
-        
+
         _moveAction = _playerControls.Player.Move;
         _moveAction.Enable();
-        
+
         _jumpAction = _playerControls.Player.Jump;
         _jumpAction.Enable();
-        
+
         _attackAction = _playerControls.Player.Attack;
         _attackAction.Enable();
     }
@@ -79,17 +76,21 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         _camera = Camera.main;
-        _cc = GetComponent<CharacterController>();
+        // _cc = GetComponent<CharacterController>();
+        _mc = GetComponent<EntityMovementController>();
         _animator = GetComponent<Animator>();
         _cm = GetComponent<ComboManager>();
         _slashController = GetComponent<DynamicSwordSlash>();
 
         if (!_animator)
             Debug.LogWarning("Animator is required on the PlayerController");
-        
-        if (!_cc)
-            Debug.LogWarning("CharacterController is required on the PlayerController");
-        
+
+        if (!_mc)
+            Debug.LogWarning("EntityMovementController is required on the PlayerController");
+
+        // if (!_cc)
+        //     Debug.LogWarning("CharacterController is required on the PlayerController");
+
         if (!_cm)
             Debug.LogWarning("ComboManager is required on the PlayerController");
 
@@ -107,7 +108,7 @@ public class PlayerController : MonoBehaviour
 
     public int FPS = 12;
     private float _time;
-    
+
     void OnSlashInfo(SlashInfo slashInfo)
     {
         // draw the debug slash segments
@@ -118,13 +119,13 @@ public class PlayerController : MonoBehaviour
             var tipPos = transform.position + segment.tipPosition;
             Debug.DrawLine(basePos, tipPos, Color.red, 1f);
         }
-        
+
     }
-    
+
     void PlayAttack(int i)
     {
         // reorient the player to the last input direction before the next attack
-        Vector2 input = new Vector2(_inputHorizontal, _inputVertical);
+        Vector2 input = new(_inputHorizontal, _inputVertical);
         if (input.magnitude > 0)
         {
             float angle = Mathf.Atan2(input.x, input.y) * Mathf.Rad2Deg;
@@ -135,7 +136,7 @@ public class PlayerController : MonoBehaviour
         _animator.ResetTrigger(BreakAttack);
         _animator.SetTrigger(Attack);
     }
-    
+
     void BreakCombo(bool cancelled, string debug)
     {
         _movementLocked = false;
@@ -147,7 +148,7 @@ public class PlayerController : MonoBehaviour
             _animator.SetTrigger(BreakAttack);
         }
     }
-    
+
     public void OnAttackAnimationEnd()
     {
         _movementLocked = false;
@@ -162,7 +163,7 @@ public class PlayerController : MonoBehaviour
             new Vector3(0, -2f, force),
             true, true);
     }
-   
+
     public void ApplyExternalForce(Vector3 force, bool immediate = false, bool local = false)
     {
         // apply force to the player
@@ -173,14 +174,14 @@ public class PlayerController : MonoBehaviour
 
         if (immediate)
         {
-            _externalForce = force;
+            _mc.SetVelocity(force);
         }
         else
         {
             _externalForce += force;
         }
     }
-    
+
     public void ApplyKnockback(Vector2 direction, float force)
     {
         // create a knockback force going up in the air in the direction of the hit
@@ -188,7 +189,7 @@ public class PlayerController : MonoBehaviour
         var knockback = new Vector3(direction.x, height, direction.y) * force;
         ApplyExternalForce(knockback, true);
     }
-    
+
     void Update()
     {
         _time += Time.deltaTime;
@@ -200,7 +201,7 @@ public class PlayerController : MonoBehaviour
             _time -= updateTime;
             _animator.speed = updateTime / Time.deltaTime;
         }
-        
+
         _inputHorizontal = _moveAction.ReadValue<Vector2>().x;
         _inputVertical = _moveAction.ReadValue<Vector2>().y;
         _inputJump = _jumpAction.triggered;
@@ -211,14 +212,14 @@ public class PlayerController : MonoBehaviour
         // if ( _inputCrouch )
         //     _isCrouching = !_isCrouching;
 
-        if ( _cc.isGrounded && _animator )
+        if ( _mc.IsGrounded && _animator )
         {
             // _animator.SetBool(Crouch, _isCrouching);
-            
-            float minimumSpeed = 0.9f;
-            _animator.SetBool(Run, _cc.velocity.magnitude > minimumSpeed );
 
-            // _isSprinting = _cc.velocity.magnitude > minimumSpeed && _inputSprint;
+            float minimumSpeed = 0.9f;
+            _animator.SetBool(Run, _mc.Velocity.magnitude > minimumSpeed );
+
+            // _isSprinting = _mc.velocity.magnitude > minimumSpeed && _inputSprint;
             // _animator.SetBool(Sprint, _isSprinting );
 
         }
@@ -226,31 +227,31 @@ public class PlayerController : MonoBehaviour
         // prevent air from spamming from anystate
         if (_animator)
         {
-            _animator.SetBool(Air, _cc.isGrounded == false );
+            _animator.SetBool(Air, !_mc.IsGrounded);
         }
 
-        if ( _inputJump && _cc.isGrounded )
+        if ( _inputJump && _mc.IsGrounded )
         {
             _isJumping = true;
         }
-        
-        if (_inputAttack && _cc.isGrounded)
+
+        if (_inputAttack && _mc.IsGrounded)
         {
             _cm.TryAttack();
             _isInCombo = true;
         }
 
-        if (!_cc.isGrounded && _isInCombo)
+        if (!_mc.IsGrounded && _isInCombo)
         {
             _cm.ResetCombo("Player is not grounded");
         }
-        
+
         if (!_cm.IsAttacking && _isInCombo && (_inputHorizontal != 0 || _inputVertical != 0))
         {
             _cm.ResetCombo("Player is moving while attacking");
         }
-        
-        HeadHittingDetect();
+
+        // HeadHittingDetect();
 
         MovementUpdate();
     }
@@ -258,14 +259,14 @@ public class PlayerController : MonoBehaviour
 
     private void MovementUpdate()
     {
-        Vector3 inputVector = new Vector3(_inputHorizontal, 0, _inputVertical);
+        Vector3 inputVector = new(_inputHorizontal, 0, _inputVertical);
         inputVector = Vector3.ClampMagnitude(inputVector, 1f);
-        
+
         if (_movementLocked)
         {
             inputVector = Vector3.zero;
         }
-        
+
         Vector3 moveDirection = Vector3.zero;
         if (inputVector.magnitude > 0.1)
         {
@@ -276,27 +277,37 @@ public class PlayerController : MonoBehaviour
             camRight.y = 0;
             camRight.Normalize();
             moveDirection = (camForward * inputVector.z + camRight * inputVector.x).normalized;
-            
+
             float targetAngle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0, Mathf.Round(targetAngle / 45f) * 45f, 0);
         }
-        
-        
+
+        // Apply the movement to the character controller
+        var inputHorizontal = _movementLocked ? 0 : _inputHorizontal;
+        var inputVertical = _movementLocked ? 0 : _inputVertical;
+        var inputJump = !_movementLocked && _inputJump;
+        var inputs = new PlayerCharacterInputs
+        {
+            CameraRotation = _camera.transform.rotation,
+            JumpDown = inputJump,
+            MoveAxisForward = inputVertical,
+            MoveAxisRight = inputHorizontal,
+        };
+        _mc.SetInputs(ref inputs);
+
         float velocityAddition = velocity;
         if ( _isSprinting )
             velocityAddition += sprintAdittion;
         if (_isCrouching)
-            velocityAddition -= (velocity * 0.50f);
-        
+            velocityAddition -= velocity * 0.50f;
+
         Vector3 horizontalVelocity = moveDirection * velocityAddition;
-        
-        float verticalVelocity = 0;
         if ( _isJumping )
         {
 
             // Apply inertia and smoothness when climbing the jump
             // It is not necessary when descending, as gravity itself will gradually pulls
-            verticalVelocity = Mathf.SmoothStep(jumpForce, jumpForce * 0.30f, _jumpElapsedTime / jumpTime);
+            float verticalVelocity = Mathf.SmoothStep(jumpForce, jumpForce * 0.30f, _jumpElapsedTime / jumpTime);
 
             // Jump timer
             _jumpElapsedTime += Time.deltaTime;
@@ -305,42 +316,42 @@ public class PlayerController : MonoBehaviour
                 _isJumping = false;
                 _jumpElapsedTime = 0;
             }
-        }
 
-        // Add gravity to Y axis
-        if (!_cc.isGrounded)
-        {
-            verticalVelocity -= gravity;
+            // Add gravity to Y axis
+            if (!_mc.IsGrounded)
+            {
+                verticalVelocity -= gravity;
+            }
+            else
+            {
+                verticalVelocity -= 1f; // to keep the character grounded
+            }
+
+            // Apply external force
+            if (_externalForce.magnitude > 0)
+            {
+                _externalForce = Vector3.Lerp(_externalForce, Vector3.zero, Time.deltaTime * 5f);
+            }
+
+            Vector3 finalVelocity = horizontalVelocity + Vector3.up * verticalVelocity + _externalForce;
+
+            // Apply the final velocity to the character controller
+            _mc.MoveTo(finalVelocity * Time.deltaTime);
         }
-        else
-        {
-            verticalVelocity -= 1f; // to keep the character grounded
-        }
-        
-        // Apply external force
-        if (_externalForce.magnitude > 0)
-        {
-            _externalForce = Vector3.Lerp(_externalForce, Vector3.zero, Time.deltaTime * 5f);
-        }
-        
-        Vector3 finalVelocity = horizontalVelocity + Vector3.up * verticalVelocity + _externalForce; 
-        
-        // Apply the final velocity to the character controller
-        _cc.Move(finalVelocity * Time.deltaTime);
     }
 
-    void HeadHittingDetect()
-    {
-        float headHitDistance = 1.1f;
-        Vector3 ccCenter = transform.TransformPoint(_cc.center);
-        float hitCalc = _cc.height / 2f * headHitDistance;
+    // void HeadHittingDetect()
+    // {
+    //     float headHitDistance = 1.1f;
+    //     Vector3 ccCenter = transform.TransformPoint(_cc.center);
+    //     float hitCalc = _cc.height / 2f * headHitDistance;
 
-        if (Physics.Raycast(ccCenter, Vector3.up, hitCalc))
-        {
-            _jumpElapsedTime = 0;
-            _isJumping = false;
-        }
-    }
+    //     if (Physics.Raycast(ccCenter, Vector3.up, hitCalc))
+    //     {
+    //         _jumpElapsedTime = 0;
+    //         _isJumping = false;
+    //     }
+    // }
 
     private void OnDestroy()
     {

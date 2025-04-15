@@ -21,7 +21,8 @@ namespace Status
                 status.ApplyDamage(new DamageRequest
                 {
                     damage = damage,
-                    hitPoint = other.transform.position,
+                    hitPoint = // point of impact,
+                        (other.ClosestPointOnBounds(transform.position) - transform.position).normalized,
                     source = owner
                 });
                 Debug.Log($"{owner?.name ?? "Something"} dealt {damage} to {other.name}");

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using Status;
 using UI;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Utils;
 
 namespace Enemy.IceBoss
@@ -14,7 +12,7 @@ namespace Enemy.IceBoss
         Melee,
         Ground
     }
-    
+
     [Serializable]
     public class BossContext
     {
@@ -25,10 +23,10 @@ namespace Enemy.IceBoss
         public EntityStatus entityStatus;
         public CameraEffects cameraEffects;
         public OrbitCamera orbitCamera;
-        
+
         public Transform spawnPoint;
         public SpeechBubbleSpawner speechBubbleSpawner;
-        
+
         public int phase = 0;
         public float attackWaitCooldown = 3f;
         public float meleeAttackCooldown = 3f;
@@ -43,12 +41,12 @@ namespace Enemy.IceBoss
         public float rangedAttackDistance = 15f;
         public float lookAtSpeed = 100f;
         public int numberOfRepeatedRangedAttacks = 0;
-        
+
         public RecentSet<AttackType> attackHistory = new();
 
         public bool shouldActivate = false;
         public bool hasSpawned = false;
-        
+
         public float dt = 0f;
     }
 }
