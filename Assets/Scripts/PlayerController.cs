@@ -29,7 +29,7 @@ public class PlayerController : MonoBehaviour
     private float _jumpElapsedTime = 0;
 
     // Player states
-    // private bool _isJumping = false;
+    private bool _isJumping = false;
     private bool _isSprinting = false;
     private bool _isCrouching = false;
     private bool _isInCombo = false;
@@ -43,8 +43,7 @@ public class PlayerController : MonoBehaviour
     private bool _inputSprint;
 
     private Animator _animator;
-    // private CharacterController _cc;
-    private EntityMovementController _mc;
+    private CharacterController _cc;
     private Camera _camera;
     private ComboManager _cm;
     private DynamicSwordSlash _slashController;
@@ -80,8 +79,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         _camera = Camera.main;
-        // _cc = GetComponent<CharacterController>();
-        _mc = GetComponent<EntityMovementController>();
+        _cc = GetComponent<CharacterController>();
         _animator = GetComponent<Animator>();
         _cm = GetComponent<ComboManager>();
         _slashController = GetComponent<DynamicSwordSlash>();
@@ -89,11 +87,8 @@ public class PlayerController : MonoBehaviour
         if (!_animator)
             Debug.LogWarning("Animator is required on the PlayerController");
         
-        if (!_mc)
-            Debug.LogWarning("EntityMovementController is required on the PlayerController");
-        
-        // if (!_cc)
-        //     Debug.LogWarning("CharacterController is required on the PlayerController");
+        if (!_cc)
+            Debug.LogWarning("CharacterController is required on the PlayerController");
         
         if (!_cm)
             Debug.LogWarning("ComboManager is required on the PlayerController");
@@ -178,11 +173,11 @@ public class PlayerController : MonoBehaviour
 
         if (immediate)
         {
-            _mc.SetVelocity(force);
+            _externalForce = force;
         }
         else
         {
-            _mc.AddVelocity(force);
+            _externalForce += force;
         }
     }
     
@@ -216,12 +211,12 @@ public class PlayerController : MonoBehaviour
         // if ( _inputCrouch )
         //     _isCrouching = !_isCrouching;
 
-        if ( _mc.IsGrounded && _animator )
+        if ( _cc.isGrounded && _animator )
         {
             // _animator.SetBool(Crouch, _isCrouching);
             
             float minimumSpeed = 0.9f;
-            _animator.SetBool(Run, _mc.Velocity.magnitude > minimumSpeed );
+            _animator.SetBool(Run, _cc.velocity.magnitude > minimumSpeed );
 
             // _isSprinting = _cc.velocity.magnitude > minimumSpeed && _inputSprint;
             // _animator.SetBool(Sprint, _isSprinting );
@@ -231,21 +226,21 @@ public class PlayerController : MonoBehaviour
         // prevent air from spamming from anystate
         if (_animator)
         {
-            _animator.SetBool(Air, !_mc.IsGrounded );
+            _animator.SetBool(Air, _cc.isGrounded == false );
         }
 
-        // if ( _inputJump && _mc.IsGrounded )
-        // {
-        //     _isJumping = true;
-        // }
+        if ( _inputJump && _cc.isGrounded )
+        {
+            _isJumping = true;
+        }
         
-        if (_inputAttack && _mc.IsGrounded )
+        if (_inputAttack && _cc.isGrounded)
         {
             _cm.TryAttack();
             _isInCombo = true;
         }
 
-        if (!_mc.IsGrounded && _isInCombo)
+        if (!_cc.isGrounded && _isInCombo)
         {
             _cm.ResetCombo("Player is not grounded");
         }
@@ -255,7 +250,7 @@ public class PlayerController : MonoBehaviour
             _cm.ResetCombo("Player is moving while attacking");
         }
         
-        // HeadHittingDetect();
+        HeadHittingDetect();
 
         MovementUpdate();
     }
@@ -263,103 +258,89 @@ public class PlayerController : MonoBehaviour
 
     private void MovementUpdate()
     {
-        // Vector3 inputVector = new Vector3(_inputHorizontal, 0, _inputVertical);
-        // inputVector = Vector3.ClampMagnitude(inputVector, 1f);
-        //
-        // if (_movementLocked)
-        // {
-        //     inputVector = Vector3.zero;
-        // }
-        //
-        // Vector3 moveDirection = Vector3.zero;
-        // if (inputVector.magnitude > 0.1)
-        // {
-        //     Vector3 camForward  = _camera.transform.forward;
-        //     camForward.y = 0;
-        //     camForward.Normalize();
-        //     Vector3 camRight = _camera.transform.right;
-        //     camRight.y = 0;
-        //     camRight.Normalize();
-        //     moveDirection = (camForward * inputVector.z + camRight * inputVector.x).normalized;
-        //     
-        //     float targetAngle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
-        //     transform.rotation = Quaternion.Euler(0, Mathf.Round(targetAngle / 45f) * 45f, 0);
-        // }
+        Vector3 inputVector = new Vector3(_inputHorizontal, 0, _inputVertical);
+        inputVector = Vector3.ClampMagnitude(inputVector, 1f);
         
-        // Apply the movement to the character controller
-
-        var inputHorizontal = _movementLocked ? 0 : _inputHorizontal;
-        var inputVertical = _movementLocked ? 0 : _inputVertical;
-        var inputJump = !_movementLocked && _inputJump;
-        var inputs = new PlayerCharacterInputs
+        if (_movementLocked)
         {
-            CameraRotation = _camera.transform.rotation,
-            JumpDown = inputJump,
-            MoveAxisForward = inputVertical,
-            MoveAxisRight = inputHorizontal,
-        };
-        _mc.SetInputs(ref inputs);
-        //
-        //
-        // float velocityAddition = velocity;
-        // if ( _isSprinting )
-        //     velocityAddition += sprintAdittion;
-        // if (_isCrouching)
-        //     velocityAddition -= (velocity * 0.50f);
-        //
-        // Vector3 horizontalVelocity = moveDirection * velocityAddition;
-        //
-        // float verticalVelocity = 0;
-        // if ( _isJumping )
-        // {
-        //
-        //     // Apply inertia and smoothness when climbing the jump
-        //     // It is not necessary when descending, as gravity itself will gradually pulls
-        //     verticalVelocity = Mathf.SmoothStep(jumpForce, jumpForce * 0.30f, _jumpElapsedTime / jumpTime);
-        //
-        //     // Jump timer
-        //     _jumpElapsedTime += Time.deltaTime;
-        //     if (_jumpElapsedTime >= jumpTime)
-        //     {
-        //         _isJumping = false;
-        //         _jumpElapsedTime = 0;
-        //     }
-        // }
-        //
-        // // Add gravity to Y axis
-        // if (!_cc.isGrounded)
-        // {
-        //     verticalVelocity -= gravity;
-        // }
-        // else
-        // {
-        //     verticalVelocity -= 1f; // to keep the character grounded
-        // }
-        //
-        // // Apply external force
-        // if (_externalForce.magnitude > 0)
-        // {
-        //     _externalForce = Vector3.Lerp(_externalForce, Vector3.zero, Time.deltaTime * 5f);
-        // }
-        //
-        // Vector3 finalVelocity = horizontalVelocity + Vector3.up * verticalVelocity + _externalForce; 
-        //
-        // // Apply the final velocity to the character controller
-        // _cc.Move(finalVelocity * Time.deltaTime);
+            inputVector = Vector3.zero;
+        }
+        
+        Vector3 moveDirection = Vector3.zero;
+        if (inputVector.magnitude > 0.1)
+        {
+            Vector3 camForward  = _camera.transform.forward;
+            camForward.y = 0;
+            camForward.Normalize();
+            Vector3 camRight = _camera.transform.right;
+            camRight.y = 0;
+            camRight.Normalize();
+            moveDirection = (camForward * inputVector.z + camRight * inputVector.x).normalized;
+            
+            float targetAngle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.Euler(0, Mathf.Round(targetAngle / 45f) * 45f, 0);
+        }
+        
+        
+        float velocityAddition = velocity;
+        if ( _isSprinting )
+            velocityAddition += sprintAdittion;
+        if (_isCrouching)
+            velocityAddition -= (velocity * 0.50f);
+        
+        Vector3 horizontalVelocity = moveDirection * velocityAddition;
+        
+        float verticalVelocity = 0;
+        if ( _isJumping )
+        {
+
+            // Apply inertia and smoothness when climbing the jump
+            // It is not necessary when descending, as gravity itself will gradually pulls
+            verticalVelocity = Mathf.SmoothStep(jumpForce, jumpForce * 0.30f, _jumpElapsedTime / jumpTime);
+
+            // Jump timer
+            _jumpElapsedTime += Time.deltaTime;
+            if (_jumpElapsedTime >= jumpTime)
+            {
+                _isJumping = false;
+                _jumpElapsedTime = 0;
+            }
+        }
+
+        // Add gravity to Y axis
+        if (!_cc.isGrounded)
+        {
+            verticalVelocity -= gravity;
+        }
+        else
+        {
+            verticalVelocity -= 1f; // to keep the character grounded
+        }
+        
+        // Apply external force
+        if (_externalForce.magnitude > 0)
+        {
+            _externalForce = Vector3.Lerp(_externalForce, Vector3.zero, Time.deltaTime * 5f);
+        }
+        
+        Vector3 finalVelocity = horizontalVelocity + Vector3.up * verticalVelocity + _externalForce; 
+        
+        // Apply the final velocity to the character controller
+        _cc.Move(finalVelocity * Time.deltaTime);
     }
 
-    // void HeadHittingDetect()
-    // {
-    //     float headHitDistance = 1.1f;
-    //     Vector3 ccCenter = transform.TransformPoint(_cc.center);
-    //     float hitCalc = _cc.height / 2f * headHitDistance;
-    //
-    //     if (Physics.Raycast(ccCenter, Vector3.up, hitCalc))
-    //     {   
-    //         _jumpElapsedTime = 0;
-    //         _isJumping = false;
-    //     }
-    // }
+    void HeadHittingDetect()
+    {
+        float headHitDistance = 1.1f;
+        Vector3 ccCenter = transform.TransformPoint(_cc.center);
+        float hitCalc = _cc.height / 2f * headHitDistance;
+
+        if (Physics.Raycast(ccCenter, Vector3.up, hitCalc))
+        {
+            _jumpElapsedTime = 0;
+            _isJumping = false;
+        }
+    }
 
     private void OnDestroy()
     {

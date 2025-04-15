@@ -297,7 +297,7 @@ namespace Enemy.IceBoss
                     _ => _context.timeSinceLastThrow >= _context.throwCooldown);
                 combatFsm.AddTransition("Wait", "GroundAttack",
                     _ => _context.timeSinceLastGroundAttack >= _context.groundAttackCooldown);
-                
+
                 combatFsm.AddTransition("Charge", "Wait");
 
                 combatFsm.AddTransition("Teleport", "Wait");

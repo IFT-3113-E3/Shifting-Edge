@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityHFSM;
 
 namespace Enemy.IceBoss
 {
@@ -27,7 +28,7 @@ namespace Enemy.IceBoss
             return $"State: {path}";
         }
     }
-    
+
     public class BossStateOverlay : MonoBehaviour, IStateObserver<BossContext>
     {
         private List<string> _activeStates = new();
