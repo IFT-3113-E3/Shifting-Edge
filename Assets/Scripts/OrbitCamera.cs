@@ -11,6 +11,8 @@ public class OrbitCamera : MonoBehaviour
     public float followSmoothness = 5f; // Smoothing for following movement
     public float distance = 5f; // Distance from the target
     public float entranceDuration = 2f; // Duration of the entrance transition
+    
+    public Vector3 startDirection = new Vector3(0, 0, -1); // Default direction the camera faces
 
     private Vector3 _currentRotation;
     private Vector3 _targetRotation;
@@ -51,12 +53,28 @@ public class OrbitCamera : MonoBehaviour
 
     private void Start()
     {
-        _currentRotation = new Vector3(30, 0, 0); // Default starting angle
-        _targetRotation = _currentRotation;
-        _targetPosition = target.position;
+        if (startDirection.sqrMagnitude > 0.01f)
+        {
+            Vector3 dir = startDirection.normalized;
 
-        // _currentTransition = StartCoroutine(EntranceTransition());
+            // Get yaw from the horizontal direction
+            float yaw = Mathf.Atan2(dir.x, -dir.z) * Mathf.Rad2Deg;
+
+            // Fixed 30° downward tilt
+            float pitch = 30f;
+
+            _currentRotation = new Vector3(pitch, yaw, 0f);
+            _targetRotation = _currentRotation;
+        }
+        else
+        {
+            _currentRotation = new Vector3(30, 0, 0);
+            _targetRotation = _currentRotation;
+        }
+
+        _targetPosition = target.position;
     }
+
 
     private void Update()
     {
