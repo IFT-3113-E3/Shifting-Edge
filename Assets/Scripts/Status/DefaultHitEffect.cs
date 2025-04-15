@@ -7,16 +7,10 @@ namespace Status
     {
         public Color flashColor = Color.red;
         public float flashDuration = 0.1f;
-
-        private Coroutine _flashRoutine;
-        
         public ParticleSystem hitParticles;
-
         private MeshFlashEffect _meshFlashEffect;
         private EntityMovementController _mc;
-        
-        private int _numberOfHits = 0;
-        
+
         private void Awake()
         {
             hitParticles = GetComponentInChildren<ParticleSystem>();
@@ -24,16 +18,15 @@ namespace Status
             {
                 hitParticles.Stop();
             }
-            
+
             _meshFlashEffect = GetComponent<MeshFlashEffect>();
             _mc = GetComponent<EntityMovementController>();
         }
 
         public void ReactToHit(DamageRequest damageRequest)
         {
-            _numberOfHits++;
             var hitPoint = damageRequest.hitPoint;
-            
+
             // if (_flashRoutine != null)
             //     StopCoroutine(_flashRoutine);
             // _flashRoutine = StartCoroutine(FlashRoutine());
@@ -49,7 +42,7 @@ namespace Status
                 });
                 _meshFlashEffect.FlashOnce(flashDuration);
             }
-            
+
             if (hitParticles != null)
             {
                 hitParticles.transform.position = hitPoint;
@@ -57,7 +50,7 @@ namespace Status
                 hitParticles.Simulate(hitParticles.main.duration);
                 hitParticles.Play();
             }
-            
+
             if (_mc != null)
             {
                 _mc.CancelVelocity();
@@ -67,8 +60,6 @@ namespace Status
                 _mc.AddKnockback(knockbackDirection, damageRequest.knockbackForce,
                     5.0f);
             }
-            
-            Debug.Log($"[DefaultHitEffect] Hit with {damageRequest.damage} damage ({_numberOfHits})");
         }
 
         // private IEnumerator FlashRoutine()
@@ -85,7 +76,7 @@ namespace Status
         //         });
         //         _meshFlashEffect.FlashOnce(flashDuration);
         //     }
-        //     
+        //
         // }
     }
 }

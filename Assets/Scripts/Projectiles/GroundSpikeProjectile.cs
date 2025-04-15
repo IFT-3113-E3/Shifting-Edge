@@ -5,7 +5,6 @@ using UnityEngine.VFX;
 
 namespace Projectiles
 {
-
     public class GroundSpikeProjectile : MonoBehaviour
     {
         public float startHeight = -2f;
@@ -13,21 +12,21 @@ namespace Projectiles
         public float riseTime = 0.1f;
         public float holdTime = 1f;
         public float retractTime = 0.3f;
-        
+
         public VisualEffect eruptionVFX;
         private VisualEffect _vfx;
-        
+
         private MeshFlashEffect _meshFlashEffect;
 
         private Vector3 _startPos;
         private Vector3 _endPos;
-        private bool _isDone = false;
+        // private bool _isDone = false;
 
         private void Start()
         {
             _startPos = transform.position + transform.forward * startHeight;
             _endPos = _startPos + transform.forward * riseHeight;
-            
+
             _meshFlashEffect = GetComponent<MeshFlashEffect>();
             if (_meshFlashEffect)
             {
@@ -37,7 +36,7 @@ namespace Projectiles
                     BaseAlpha = 1f,
                 });
             }
-            
+
             // Start the behavior sequence
             StartCoroutine(SpikeRoutine());
         }
@@ -51,7 +50,7 @@ namespace Projectiles
             Vector3 groundPos = FindGroundPosition(_endPos);
 
             SpawnEruptionVFX(groundPos);
-            
+
             yield return MoveSpike(_startPos, _endPos, riseTime);
 
             yield return new WaitForSeconds(holdTime);
@@ -87,7 +86,7 @@ namespace Projectiles
                 Debug.LogError("Eruption VFX prefab not assigned.");
             }
         }
-        
+
         private Vector3 FindGroundPosition(Vector3 position)
         {
             RaycastHit hit;
@@ -97,7 +96,6 @@ namespace Projectiles
             }
             return position;
         }
-        
-    }
 
+    }
 }

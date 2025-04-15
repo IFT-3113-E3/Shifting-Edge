@@ -27,20 +27,20 @@ namespace Status
         //         }
         //     }
         // }
-        //
+
         // public void AddEffect(IStatusEffect effect)
         // {
         //     if (HasEffect(effect.Id)) return;
-        //
+
         //     activeEffects.Add(effect);
         //     effect.OnApply(this);
         // }
-        //
+
         // public bool HasEffect(string id)
         // {
         //     return activeEffects.Exists(e => e.Id == id);
         // }
-        //
+
         // public void RemoveEffect(string id)
         // {
         //     int index = activeEffects.FindIndex(e => e.Id == id);

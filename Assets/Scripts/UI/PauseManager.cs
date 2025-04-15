@@ -1,15 +1,11 @@
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class PauseMenuManager : MonoBehaviour
 {
-    [Header("UI Elements")]
-    public GameObject pauseUI;               // Ton Canvas de menu pause
-    public RawImage pauseBlurImage;          // RawImage floue à activer pendant la pause
-
-    [Header("Camera Control")]
-    public OrbitCamera orbitCamera;
-    // public CameraPauseOffset cameraPauseOffset;  // Ton script d'offset sur la caméra
+    public GameObject pauseMenuPanel;
+    public GameObject optionsPanel;
+    public GameObject characterPanel;
 
     private bool isPaused = false;
 
@@ -17,7 +13,7 @@ public class PauseMenuManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (isPaused)
+            if (pauseMenuPanel.activeSelf)
                 ResumeGame();
             else
                 PauseGame();
@@ -26,38 +22,40 @@ public class PauseMenuManager : MonoBehaviour
 
     public void PauseGame()
     {
-        isPaused = true;
+        pauseMenuPanel.SetActive(true);
         Time.timeScale = 0f;
-
-        pauseUI.SetActive(true);
-        pauseBlurImage.enabled = true;
-
-        if (orbitCamera != null)
-            orbitCamera.enabled = false;
-
-        // if (cameraPauseOffset != null)
-            // cameraPauseOffset.EnterPause();
+        isPaused = true;
     }
 
     public void ResumeGame()
     {
-        isPaused = false;
+        pauseMenuPanel.SetActive(false);
+        optionsPanel.SetActive(false);
+        characterPanel.SetActive(false);
         Time.timeScale = 1f;
-
-        pauseUI.SetActive(false);
-        pauseBlurImage.enabled = false;
-
-        if (orbitCamera != null)
-            orbitCamera.enabled = true;
-
-        // if (cameraPauseOffset != null)
-            // cameraPauseOffset.ExitPause();
+        isPaused = false;
     }
 
-    public void OnHoverDirection(string direction)
+    public void OpenOptions()
     {
-        // if (!isPaused || cameraPauseOffset == null) return;
+        optionsPanel.SetActive(true);
+        pauseMenuPanel.SetActive(false);
+    }
 
-        // cameraPauseOffset.Hover(direction);
+    public void OpenCharacterPanel()
+    {
+        characterPanel.SetActive(true);
+        pauseMenuPanel.SetActive(false);
+    }
+
+    public void ReturnToMainMenu()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("StartMenu");
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
     }
 }

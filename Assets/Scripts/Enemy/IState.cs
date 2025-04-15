@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace Enemy
@@ -14,7 +13,7 @@ namespace Enemy
         protected readonly TContext ctx;
         protected readonly StateMachine<TContext> sm;
         protected StateMachine<TContext> parent;
-        
+
         protected internal TContext ContextDbg => ctx;
 
         public State<TContext> ActiveState => sm.CurrentState;
@@ -32,7 +31,7 @@ namespace Enemy
         {
             this.parent = parent;
             IsCompleted = false;
-            
+
             // Initialize the observers
             foreach (var observer in parent.GetObservers())
                 sm.AddObserver(observer);
@@ -52,7 +51,7 @@ namespace Enemy
         protected virtual void FixedUpdate()
         {
         }
-        
+
         public void Finish()
         {
             IsCompleted = true;
@@ -87,15 +86,15 @@ namespace Enemy
     {
         private State<TContext> _currentState;
         private readonly List<IStateObserver<TContext>> _observers = new();
-        
+
         // event for when a state is completed
         public event Action<State<TContext>> OnComplete;
-        
+
         public State<TContext> CurrentState => _currentState;
 
         public void AddObserver(IStateObserver<TContext> observer) =>
             _observers.Add(observer);
-        
+
         public void RemoveObserver(IStateObserver<TContext> observer) =>
             _observers.Remove(observer);
 
@@ -108,21 +107,21 @@ namespace Enemy
                 Debug.Log("StateMachine: New state is null, not changing.");
                 return;
             }
-            
+
             Debug.Log("Entering ChangeState for " + newState.GetType().Name +
-                      " with current state " + _currentState?.GetType().Name + "\n" +
-                      "_currentState == newState: " + (_currentState == newState) + "\n");
+                    " with current state " + _currentState?.GetType().Name + "\n" +
+                    "_currentState == newState: " + (_currentState == newState) + "\n");
             if (_currentState != null && _currentState == newState && !_currentState.IsCompleted)
             {
                 Debug.Log("StateMachine: New state is the same as current state, not changing.");
                 return;
             }
-            
+
             if (_currentState != null)
             {
                 foreach (var observer in _observers)
                     observer.OnStateExit(_currentState);
-                
+
                 _currentState.Exit();
             }
 
@@ -131,8 +130,8 @@ namespace Enemy
             _currentState = newState;
             if (_currentState == null) return;
             _currentState.Init(this);
-            
-            foreach (var observer in _observers) 
+
+            foreach (var observer in _observers)
                 observer.OnStateEnter(_currentState);
             _currentState.Enter();
         }
@@ -141,10 +140,10 @@ namespace Enemy
         {
             foreach (var observer in _observers)
                 observer.OnStateUpdate(_currentState);
-            
+
             if (_currentState == null) return;
             _currentState.UpdateBranch();
-            
+
             if (_currentState.IsCompleted)
             {
                 OnComplete?.Invoke(_currentState);
@@ -160,7 +159,6 @@ namespace Enemy
         {
             states ??= new List<State<TContext>>();
             if (_currentState == null) return states;
-
             states.Add(_currentState);
             return _currentState.StateMachine.GetActiveStateBranch(states);
         }

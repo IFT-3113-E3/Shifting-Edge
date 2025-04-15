@@ -9,7 +9,7 @@ public class SkillNodeUI : MonoBehaviour
     private Button button;
     private Image buttonImage;
     [SerializeField] private TextMeshProUGUI skillNameText;
-    
+
     [Header("Couleurs")]
     public Color lockedColor = Color.gray;
     public Color unlockedColor = Color.green;
@@ -20,12 +20,12 @@ public class SkillNodeUI : MonoBehaviour
         button = GetComponent<Button>();
         buttonImage = GetComponent<Image>();
         skillNameText = GetComponentInChildren<TextMeshProUGUI>(); // Récupère automatiquement le texte
-        
+
         button.transition = Selectable.Transition.None;
-        
+
         // Affiche le nom de la compétence
         skillNameText.text = skillData.skillName;
-        
+
         UpdateVisual();
         button.onClick.AddListener(OnClick);
     }
@@ -63,7 +63,7 @@ public class SkillNodeUI : MonoBehaviour
 
     void UpdateDependentSkills()
     {
-        foreach (var skillUI in FindObjectsOfType<SkillNodeUI>())
+        foreach (var skillUI in FindObjectsByType<SkillNodeUI>(FindObjectsSortMode.None))
         {
             if (!skillUI.skillData.isUnlocked)
             {

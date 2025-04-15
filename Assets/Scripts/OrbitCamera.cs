@@ -5,9 +5,8 @@ using UnityEngine;
 public class OrbitCamera : MonoBehaviour
 {
     public new PixelPerfect.PixelPerfectCamera camera;
-    
+
     public Transform target; // The object the camera orbits around
-    
     public float rotationSpeed = 0.5f; // Speed of transition for orbiting
     public float followSmoothness = 5f; // Smoothing for following movement
     public float distance = 5f; // Distance from the target
@@ -20,7 +19,7 @@ public class OrbitCamera : MonoBehaviour
     private Coroutine _currentTransition;
     private bool _isDragging = false;
     private Vector3 _lastMousePosition;
-    
+
     [SerializeField] private List<Transform> additionalTargets = new();
     [SerializeField] private float targetPadding = 2f;
 
@@ -28,7 +27,7 @@ public class OrbitCamera : MonoBehaviour
     {
         target = newTarget;
     }
-    
+
     public void AddAdditionalTarget(Transform newTarget)
     {
         if (!additionalTargets.Contains(newTarget))
@@ -36,7 +35,7 @@ public class OrbitCamera : MonoBehaviour
             additionalTargets.Add(newTarget);
         }
     }
-    
+
     public void RemoveAdditionalTarget(Transform targetToRemove)
     {
         if (additionalTargets.Contains(targetToRemove))
@@ -44,12 +43,12 @@ public class OrbitCamera : MonoBehaviour
             additionalTargets.Remove(targetToRemove);
         }
     }
-    
+
     public void ClearAdditionalTargets()
     {
         additionalTargets.Clear();
     }
-    
+
     private void Start()
     {
         _currentRotation = new Vector3(30, 0, 0); // Default starting angle
@@ -137,7 +136,7 @@ public class OrbitCamera : MonoBehaviour
         Vector3 startVelocity = _velocity;
 
         camera.pixelSnapping = false;
-        
+
         while (t < 1f)
         {
             t += Time.deltaTime * rotationSpeed;
@@ -179,10 +178,10 @@ public class OrbitCamera : MonoBehaviour
         transform.position = desiredPosition;
         transform.LookAt(_targetPosition + lookOffset);
 
+
         // Optional: Clamp camera to ensure main target is within view bounds (2D screen space clamp)
         ClampMainTargetVisibility(bounds);
     }
-
 
     private void SnapToNearestAngle()
     {
@@ -208,7 +207,7 @@ public class OrbitCamera : MonoBehaviour
         transform.position = endPosition;
         transform.LookAt(_targetPosition);
     }
-    
+
     private void ClampMainTargetVisibility(Bounds bounds)
     {
         if (!target || camera == null) return;
@@ -225,5 +224,4 @@ public class OrbitCamera : MonoBehaviour
             _targetPosition = Vector3.SmoothDamp(_targetPosition, target.position, ref _velocity, 1f / followSmoothness);
         }
     }
-
 }

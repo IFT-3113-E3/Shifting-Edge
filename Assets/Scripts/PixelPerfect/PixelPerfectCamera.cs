@@ -7,23 +7,23 @@ namespace PixelPerfect
     {
         public int ppu = 32;
         public bool pixelSnapping = true;
-    
+
         private int _textureWidth;
         private int _textureHeight;
         private float _pixelStep; // Smallest movement step
         private Camera _cam;
-        
+
         public int RefResolutionX => _cam.pixelWidth;
         public int RefResolutionY => _cam.pixelHeight;
-    
+
         public Transform virtualCamera;
-    
+
         private void Awake()
         {
             _cam = GetComponent<Camera>();
             _textureWidth = _cam.pixelWidth;
             _textureHeight = _cam.pixelHeight;
-        
+
             Debug.Log($"Texture size: {_textureWidth}x{_textureHeight}");
         }
 

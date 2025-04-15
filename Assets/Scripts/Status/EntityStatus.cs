@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Status
 {
-    
     public struct DamageRequest
     {
         public float damage;
@@ -22,7 +21,7 @@ namespace Status
             this.hitPoint = hitPoint;
         }
     }
-    
+
     public class EntityStatus : MonoBehaviour
     {
         [SerializeField] // Modifié pour être accessible dans l'inspecteur et depuis d'autres scripts
@@ -32,9 +31,8 @@ namespace Status
 
         public event Action<DamageRequest> OnDamageTaken;
         public event Action<DamageRequest> OnDeath;
-        
-        private readonly List<IStatusEffect> _activeEffects = new();
 
+        private readonly List<IStatusEffect> _activeEffects = new();
 
         private void Awake()
         {
@@ -54,7 +52,7 @@ namespace Status
                 }
             }
         }
-        
+
         public void AddEffect(IStatusEffect effect)
         {
             if (HasEffect(effect.Id)) return;
@@ -78,15 +76,13 @@ namespace Status
             }
         }
 
+
         public void ApplyDamage(DamageRequest damageRequest)
         {
             if (IsDead) return;
 
-            Debug.Log($"Damage taken: {damageRequest.damage} from {damageRequest.source.name} at {damageRequest.hitPoint}");
-            
-            
             var amount = damageRequest.damage;
-            
+
             CurrentHealth = Mathf.Max(CurrentHealth - amount, 0);
             OnDamageTaken?.Invoke(damageRequest);
 
