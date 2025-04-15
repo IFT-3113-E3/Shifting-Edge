@@ -10,15 +10,14 @@ public class FollowPlayer : MonoBehaviour
         {
             GameObject foundPlayer = GameObject.FindGameObjectWithTag("Player");
             if (foundPlayer != null)
-                player = foundPlayer.transform;
-        }
+                player = foundPlayer.transform;        }
     }
 
     void LateUpdate()
     {
         if (player != null)
         {
-            transform.position = player.position;
+            transform.position = new Vector3(player.position.x, player.position.y + 10, player.position.z);
         }
     }
 }

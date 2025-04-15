@@ -107,7 +107,7 @@ ParticleSystem:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  moveWithTransform: 0
+  moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 1
   randomSeed: 0
@@ -3793,7 +3793,7 @@ ParticleSystem:
     radiusScale: 0.4
     collidesWith:
       serializedVersion: 2
-      m_Bits: 256
+      m_Bits: 1
     maxCollisionShapes: 256
     quality: 2
     voxelSize: 0.5
@@ -4846,4 +4846,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52d671be4b047e24cb40cec950552435, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 0}
