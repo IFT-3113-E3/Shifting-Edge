@@ -1,13 +1,14 @@
 using UnityEngine;
 using UnityEngine.UI;
 using Status;
+using TMPro;
 
 public class CharacterMenuManager : MonoBehaviour
 {
     public GameObject characterPanel;
-    public Text hpText;
-    public Text defText;
-    public Text atkText;
+    public TextMeshProUGUI hpText;
+    public TextMeshProUGUI defText;
+    public TextMeshProUGUI atkText;
     public Button returnButton;
     public GameObject pauseMenuPanel;
 
