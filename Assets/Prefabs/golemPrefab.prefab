@@ -1429,7 +1429,9 @@ MonoBehaviour:
     timeSinceLastGroundAttack: 0
     dashSpeed: 10
     chargeDistance: 15
+    rangedAttackDistance: 15
     lookAtSpeed: 100
+    numberOfRepeatedRangedAttacks: 0
     shouldActivate: 0
     hasSpawned: 0
     dt: 0
@@ -1584,7 +1586,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09be9f6ca99b43139d37b2349fc66a44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 1000
+  maxHealth: 250
 --- !u!114 &2412109303451755057
 MonoBehaviour:
   m_ObjectHideFlags: 0
