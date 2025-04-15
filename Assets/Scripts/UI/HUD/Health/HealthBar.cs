@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Status;
 
-public class HealthBar : MonoBehaviour 
+public class HealthBar : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private Image healthFillImage;
@@ -55,15 +55,15 @@ public class HealthBar : MonoBehaviour
         if (Mathf.Abs(healthFillImage.fillAmount - _targetFillAmount) > 0.001f)
         {
             healthFillImage.fillAmount = Mathf.Lerp(
-                healthFillImage.fillAmount, 
-                _targetFillAmount, 
+                healthFillImage.fillAmount,
+                _targetFillAmount,
                 smoothSpeed * Time.deltaTime
             );
             healthFillImage.color = healthGradient.Evaluate(healthFillImage.fillAmount);
         }
     }
 
-    private void UpdateHealth(float damage, GameObject source)
+    private void UpdateHealth(DamageRequest damageRequest)
     {
         if (!_isInitialized) return;
 

@@ -1,12 +1,16 @@
 ﻿using System;
+using Audio;
 using Status;
 using UnityEngine;
+using UnityEngine.Audio;
 
 namespace Projectiles
 {
     public class Projectile : MonoBehaviour
     {
         public ProjectileData projectileData;
+        
+        public AudioMixer audioMixer;
 
         private Rigidbody _rb;
         private Collider _collisionCollider;
@@ -86,11 +90,18 @@ namespace Projectiles
             // }
         }
 
+        private void Start()
+        {
+            _audioSource.outputAudioMixerGroup = AudioSingleton.Instance.SfxMixerGroup;
+        }
+
         public void Initialize(Vector3 direction, ProjectileData data, EntityStatus owner)
         {
             projectileData = data;
 
             _owner = owner;            
+            
+            _audioSource.volume = projectileData.volumeMultiplier;
             
             _isHitboxEnabled = true;
             _bounceCount = 0;

@@ -126,7 +126,7 @@ namespace Enemy.IceBoss
         void OnGroundAttack()
         {
             var direction = _context.movementController.TransientForward;
-            var firePos = _context.self.transform.position + direction * 2f;
+            var firePos = _context.self.transform.position + direction * 3f;
 
             var groundAttackShockwave = SpawnProjectile("golemgroundattack", firePos, direction);
             var distance = Vector3.Distance(firePos,
@@ -166,16 +166,42 @@ namespace Enemy.IceBoss
             _rootSm.AddState("Intro", introFsm);
 
             var combatFsm = new HybridStateMachine(
-                afterOnLogic: _ =>
+                afterOnLogic: state =>
                 {
                     _context.timeSinceLastMeleeAttack += Time.deltaTime;
                     _context.timeSinceLastThrow += Time.deltaTime;
                     _context.timeSinceLastGroundAttack += Time.deltaTime;
+                    
+                    var healthPercentage = _context.entityStatus.CurrentHealth /
+                        _context.entityStatus.maxHealth;
+
+                    if (healthPercentage < 0.5f)
+                    {
+                        if (_context.phase == 0)
+                        {
+                            _rootSm.Trigger("PhaseChange");
+                        }
+                        _context.phase = 1;
+                    }
+                    else
+                    {
+                        _context.phase = 0;
+                    }
                 },
                 needsExitTime: true
             );
             {
                 combatFsm.AddState("Wait", new WaitState(_context));
+                
+                combatFsm.AddState("Enraged", _ =>
+                {
+                    _context.animator.PlayEnragedAnimAndCallback(
+                        () =>
+                        {
+                            combatFsm.StateCanExit();
+                        });
+                }, needsExitTime: true);
+                
                 combatFsm.AddState("Teleport", new State(needsExitTime: true,
                     onEnter: _ =>
                     {
@@ -214,7 +240,29 @@ namespace Enemy.IceBoss
                     chargeFsm.AddTransition("MoveIntoPosition", "Charge");
                 }
                 combatFsm.AddState("Charge", chargeFsm);
-                combatFsm.AddState("RangedAttack", new RangedAttackState(_context));
+
+                var rangedAttackFsm = new StateMachine(needsExitTime: true);
+                {
+                    rangedAttackFsm.AddState("MoveIntoPosition", new MoveIntoPositionState(_context, _context.rangedAttackDistance));
+
+                    rangedAttackFsm.AddState("RangedAttack", new RangedAttackState(_context));
+                    
+                    rangedAttackFsm.AddTransition("RangedAttack", "MoveIntoPosition",
+                        _ => _context.phase == 1 && _context.numberOfRepeatedRangedAttacks <
+                            (_context.phase == 0 ? 0 : 1), _ =>
+                        {
+                            _context.numberOfRepeatedRangedAttacks++;
+                        });
+
+                    rangedAttackFsm.AddTransition("MoveIntoPosition", "RangedAttack");
+                    
+                    rangedAttackFsm.AddExitTransition("RangedAttack", onTransition: _ =>
+                    {
+                        _context.numberOfRepeatedRangedAttacks = 0;
+                    });
+
+                }
+                combatFsm.AddState("RangedAttack", rangedAttackFsm);
 
                 var groundAttackFsm = new StateMachine(needsExitTime: true);
                 {
@@ -231,6 +279,9 @@ namespace Enemy.IceBoss
                 combatFsm.AddState("GroundAttack", groundAttackFsm);
 
                 combatFsm.AddExitTransition("Wait");
+
+                combatFsm.AddTriggerTransitionFromAny("PhaseChange", "Enraged", forceInstantly: true);
+                combatFsm.AddTransition("Enraged", "Wait");
                 combatFsm.AddTransition("Wait", "Teleport",
                     _ => _context.waitTimer >= 0.8f && !DistanceToPlayer(20f));
                 combatFsm.AddTransition("Wait", "Charge",
@@ -243,8 +294,7 @@ namespace Enemy.IceBoss
                     });
 
                 combatFsm.AddTransition("Wait", "RangedAttack",
-                    _ => _context.timeSinceLastThrow >= _context.throwCooldown
-                         && !DistanceToPlayer(15f));
+                    _ => _context.timeSinceLastThrow >= _context.throwCooldown);
                 combatFsm.AddTransition("Wait", "GroundAttack",
                     _ => _context.timeSinceLastGroundAttack >= _context.groundAttackCooldown);
 

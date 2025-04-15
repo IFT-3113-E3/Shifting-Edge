@@ -48,15 +48,16 @@ namespace Enemy.IceBoss.States.Combat
 
                     _ctx.animator.GroundAttack(() =>
                     {
-                        if (_attackCount > 3)
+                        var maxAttacks = _ctx.phase == 0 ? 3 : 5;
+                        if (_attackCount >= maxAttacks)
                         {
                             fsm.StateCanExit();
                         }
                         else
                         {
-                            _attackCount++;
                             ResetForNewAttack();
                         }
+                        _attackCount++;
                     });
                 }
             }

@@ -32,6 +32,8 @@ namespace Projectiles
         public AudioClip[] hitSound;
         public AudioClip[] destroySound;
         
+        public float volumeMultiplier = 1f;
+        
         [Header("Optional Scripted Behavior")]
         public MonoBehaviour script;
     }

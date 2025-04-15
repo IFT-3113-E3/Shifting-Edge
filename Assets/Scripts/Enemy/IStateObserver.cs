@@ -1,6 +1,4 @@
-﻿using UnityHFSM;
-
-namespace Enemy
+﻿namespace Enemy
 {
     public interface IStateObserver<TContext>
     {

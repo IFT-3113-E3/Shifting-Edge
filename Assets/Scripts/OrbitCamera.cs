@@ -1,10 +1,11 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class OrbitCamera : MonoBehaviour
 {
     public new PixelPerfect.PixelPerfectCamera camera;
-    
+
     public Transform target; // The object the camera orbits around
     public float rotationSpeed = 0.5f; // Speed of transition for orbiting
     public float followSmoothness = 5f; // Smoothing for following movement
@@ -19,13 +20,42 @@ public class OrbitCamera : MonoBehaviour
     private bool _isDragging = false;
     private Vector3 _lastMousePosition;
 
+    [SerializeField] private List<Transform> additionalTargets = new();
+    [SerializeField] private float targetPadding = 2f;
+
+    public void SetMainTarget(Transform newTarget)
+    {
+        target = newTarget;
+    }
+
+    public void AddAdditionalTarget(Transform newTarget)
+    {
+        if (!additionalTargets.Contains(newTarget))
+        {
+            additionalTargets.Add(newTarget);
+        }
+    }
+
+    public void RemoveAdditionalTarget(Transform targetToRemove)
+    {
+        if (additionalTargets.Contains(targetToRemove))
+        {
+            additionalTargets.Remove(targetToRemove);
+        }
+    }
+
+    public void ClearAdditionalTargets()
+    {
+        additionalTargets.Clear();
+    }
+
     private void Start()
     {
         _currentRotation = new Vector3(30, 0, 0); // Default starting angle
         _targetRotation = _currentRotation;
         _targetPosition = target.position;
 
-        _currentTransition = StartCoroutine(EntranceTransition());
+        // _currentTransition = StartCoroutine(EntranceTransition());
     }
 
     private void Update()
@@ -106,7 +136,7 @@ public class OrbitCamera : MonoBehaviour
         Vector3 startVelocity = _velocity;
 
         camera.pixelSnapping = false;
-        
+
         while (t < 1f)
         {
             t += Time.deltaTime * rotationSpeed;
@@ -126,16 +156,31 @@ public class OrbitCamera : MonoBehaviour
     {
         if (!target) return;
 
-        // Calculate the new position around the target
-        var rotation = Quaternion.Euler(_currentRotation);
-        var lookOffset = new Vector3(0, 0.5f, 0);
-        var offset = rotation * new Vector3(0, 0, -distance);
-        _targetPosition = Vector3.SmoothDamp(_targetPosition, target.position, ref _velocity, 1f / followSmoothness);
+        // Combine all targets into a bounds
+        var allTargets = new List<Transform>(additionalTargets) { target };
+        Bounds bounds = new Bounds(allTargets[0].position, Vector3.zero);
 
-        var desiredPosition = _targetPosition + offset + lookOffset;
+        foreach (var t in allTargets)
+        {
+            bounds.Encapsulate(t.position + Vector3.one * targetPadding);
+            bounds.Encapsulate(t.position - Vector3.one * targetPadding);
+        }
+
+        // Center is our camera's target point
+        _targetPosition = Vector3.SmoothDamp(_targetPosition, bounds.center, ref _velocity, 1f / followSmoothness);
+
+        // Maintain current rotation logic
+        Quaternion rotation = Quaternion.Euler(_currentRotation);
+        Vector3 lookOffset = new Vector3(0, 0.5f, 0);
+        Vector3 offset = rotation * new Vector3(0, 0, -distance);
+        Vector3 desiredPosition = _targetPosition + offset + lookOffset;
 
         transform.position = desiredPosition;
         transform.LookAt(_targetPosition + lookOffset);
+
+
+        // Optional: Clamp camera to ensure main target is within view bounds (2D screen space clamp)
+        ClampMainTargetVisibility(bounds);
     }
 
     private void SnapToNearestAngle()
@@ -161,5 +206,22 @@ public class OrbitCamera : MonoBehaviour
 
         transform.position = endPosition;
         transform.LookAt(_targetPosition);
+    }
+
+    private void ClampMainTargetVisibility(Bounds bounds)
+    {
+        if (!target || camera == null) return;
+
+        float cameraHeight = camera.ppu > 0 ? camera.RefResolutionX / (float)camera.ppu : 10f;
+        float cameraWidth = cameraHeight * camera.RefResolutionX / camera.RefResolutionY;
+
+        float requiredWidth = bounds.size.x;
+        float requiredHeight = bounds.size.z; // Use Z for top-down depth
+
+        if (requiredWidth > cameraWidth || requiredHeight > cameraHeight)
+        {
+            // Fallback to centering on main target
+            _targetPosition = Vector3.SmoothDamp(_targetPosition, target.position, ref _velocity, 1f / followSmoothness);
+        }
     }
 }

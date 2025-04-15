@@ -13,17 +13,33 @@ namespace Enemy.IceBoss
         private FractureEffect _fractureEffect;
         private MeshTrailEffect _meshTrailEffect;
         private MeshFlashEffect _meshFlashEffect;
+        
+        public GameObject coreObject;
 
         private Coroutine _currentCoroutine;
         private Coroutine _animCoroutine;
 
-        private AudioSource _audioSource;
+        public AudioSource sfxAudioSource;
+        public AudioSource secondarySfxAudioSource;
+        public AudioSource ambientAudioSource;
 
         public AudioClip tpInAudioClip;
         public AudioClip tpOutAudioClip;
         public AudioClip[] throwAudioClip;
         public AudioClip[] throwPrepareAudioClip;
         public AudioClip[] moveAudioClips;
+
+        public AudioClip[] voiceAudioClips;
+        public AudioClip[] chargeAudioClips;
+        public AudioClip[] dashAudioClips;
+        public AudioClip[] smashAudioClips;
+        public AudioClip[] punchAudioClips;
+        
+        public AudioClip deathAudioClip;
+        public AudioClip[] hitAudioClips;
+        
+        public AudioClip ambientLoopAudioClip;
+        
 
         private Vector3 _targetPos;
         private Quaternion _targetRotation;
@@ -86,10 +102,9 @@ namespace Enemy.IceBoss
 
             _meshFlashEffect.SetOptions(_chargingFlashOptions);
 
-            _audioSource = GetComponent<AudioSource>();
-            if (_audioSource == null)
+            if (sfxAudioSource == null || ambientAudioSource == null)
             {
-                Debug.LogError("[BossController] AudioSource component not found!");
+                Debug.LogError("[BossAnimator] AudioSource components not found!");
             }
             
             if (fakeSpikePrefab == null)
@@ -143,11 +158,15 @@ namespace Enemy.IceBoss
         public void PreparePunch()
         {
             _animator.Play("PreparePunch");
+            PlayWindupAudio();
         }
         
         public void ReturnToIdle()
         {
             _animator.CrossFade("Idle", 0.1f);
+            // ensure fake spike is hidden
+            _fakeSpikeController.Hide();
+            SetChargingFlashEnabled(false);
         }
         
         public void SetChargingFlashEnabled(bool flashEnabled)
@@ -178,6 +197,7 @@ namespace Enemy.IceBoss
                 damageVFX.enabled = true;
                 damageVFX.Play();
             }
+            PlayHitAudio();
         }
 
         public void AssembleAndSpawn(Vector3 targetPos, Quaternion targetRotation,
@@ -208,7 +228,50 @@ namespace Enemy.IceBoss
 
             SetVisible(true);
             _fractureEffect.SetFragmentsEnabled(false);
+            
+            PlayAmbientLoop();
+            
+            PlayVoiceAudio();
+            yield return PlayAnimAndCallback("Enraged", null);
+            
+            onComplete?.Invoke();
+        }
+        
+        public void Despawn(Action onComplete = null)
+        {
+            if (_currentCoroutine != null)
+            {
+                StopCoroutine(_currentCoroutine);
+            }
 
+            _currentCoroutine = StartCoroutine(DespawnRoutine(onComplete));
+        }
+
+        private IEnumerator DespawnRoutine(Action onComplete = null)
+        {
+
+            _fractureEffect.SetFragmentsEnabled(true);
+            _fractureEffect.SetDissolveSpeedFactor(1f);
+            _fractureEffect.ResetFragmentsAtSource();
+            _fractureEffect.SetGravityEnabled(true);
+
+            yield return new WaitForFixedUpdate();
+            yield return new WaitForFixedUpdate();
+
+            // Set original object invisible
+            SetVisible(false);
+
+            yield return null;
+
+            // yield return StartCoroutine(_fractureEffect.BreakAndPauseFragmentsSmooth(explosionForce: 0.5f,
+                // slowdownTime: 0.75f));
+
+            // yield return new WaitUntil(_fractureEffect.AreAllFragmentsFinishedDissolving);
+
+            // Set original object invisible
+
+            _fractureEffect.SetFragmentsEnabled(false);
+            
             onComplete?.Invoke();
         }
 
@@ -246,10 +309,7 @@ namespace Enemy.IceBoss
                     slowdownTime: 0.75f * speedFactor));
 
             // Play teleport sound
-            if (_audioSource != null && tpOutAudioClip != null)
-            {
-                _audioSource.PlayOneShot(tpOutAudioClip);
-            }
+            PlayTeleportOutAudio();
 
             yield return new WaitForSeconds(0.1f * speedFactor);
 
@@ -268,11 +328,8 @@ namespace Enemy.IceBoss
 
             _mc.SetPosition(pos);
             _mc.SetRotation(rot);
-
-            if (_audioSource != null && tpInAudioClip != null)
-            {
-                _audioSource.PlayOneShot(tpInAudioClip);
-            }
+            
+            PlayTeleportInAudio();
 
             yield return StartCoroutine(_fractureEffect.ReassembleSmooth(0.5f * speedFactor, 0.05f * speedFactor));
 
@@ -385,6 +442,15 @@ namespace Enemy.IceBoss
             _animCoroutine = StartCoroutine(PlayAnimAndCallback("GroundAttack", onComplete));
         }
         
+        public void PlayEnragedAnimAndCallback(Action onComplete = null)
+        {
+            if (_animCoroutine != null)
+            {
+                StopCoroutine(_animCoroutine);
+            }
+            _animCoroutine = StartCoroutine(PlayAnimAndCallback("Enraged", onComplete));
+            PlayVoiceAudio();
+        }
         
         private IEnumerator PlayAnimAndCallback(string stateName, Action onComplete)
         {
@@ -404,6 +470,7 @@ namespace Enemy.IceBoss
                 StopCoroutine(_animCoroutine);
             }
             _animCoroutine = StartCoroutine(PlayAnimAndCallback("Punch", onComplete));
+            PlayPunchAudio();
         }
 
 
@@ -433,45 +500,120 @@ namespace Enemy.IceBoss
         private void OnGolemGroundAttackEvent()
         {
             OnGroundAttackEvent?.Invoke();
+            PlaySmashAudio();
+        }
+
+        private void PlayRandomSFX(AudioSource audioSource, AudioClip[] clips)
+        {
+            if (clips.Length <= 0) return;
+            var randomIndex = UnityEngine.Random.Range(0, clips.Length);
+            audioSource.PlayOneShot(clips[randomIndex]);
         }
         
-        private void PlayThrowAudio()
+        private void PlayPrimarySFX(AudioClip[] clips)
         {
-            if (_audioSource != null && throwAudioClip.Length > 0)
-            {
-                int randomIndex = UnityEngine.Random.Range(0, throwAudioClip.Length);
-                _audioSource.PlayOneShot(throwAudioClip[randomIndex]);
-            }
-            else
-            {
-                Debug.LogWarning("[BossAnimator] AudioSource component not found or no audio clips assigned!");
-            }
+            if (sfxAudioSource == null) return;
+            PlayRandomSFX(sfxAudioSource, clips);
         }
         
-        private void PlayThrowPrepareAudio()
+        private void PlayPrimarySFX(AudioClip clip)
         {
-            if (_audioSource != null && throwPrepareAudioClip.Length > 0)
-            {
-                int randomIndex = UnityEngine.Random.Range(0, throwPrepareAudioClip.Length);
-                _audioSource.PlayOneShot(throwPrepareAudioClip[randomIndex]);
-            }
-            else
-            {
-                Debug.LogWarning("[BossAnimator] AudioSource component not found or no audio clips assigned!");
-            }
+            if (sfxAudioSource == null) return;
+            if (clip == null) return;
+            sfxAudioSource.PlayOneShot(clip);
         }
         
-        private void PlayMoveAudio()
+        private void PlaySecondarySFX(AudioClip[] clips)
         {
-            if (_audioSource != null && moveAudioClips.Length > 0)
-            {
-                int randomIndex = UnityEngine.Random.Range(0, moveAudioClips.Length);
-                _audioSource.PlayOneShot(moveAudioClips[randomIndex]);
-            }
-            else
-            {
-                Debug.LogWarning("[BossAnimator] AudioSource component not found or no audio clips assigned!");
-            }
+            if (secondarySfxAudioSource == null) return;
+            PlayRandomSFX(secondarySfxAudioSource, clips);
+        }
+        
+        private void PlaySecondarySFX(AudioClip clip)
+        {
+            if (secondarySfxAudioSource == null) return;
+            if (clip == null) return;
+            secondarySfxAudioSource.PlayOneShot(clip);
+        }
+
+        public void PlayAmbientLoop()
+        {
+            if (ambientAudioSource == null) return;
+            if (ambientLoopAudioClip == null) return;
+            ambientAudioSource.clip = ambientLoopAudioClip;
+            ambientAudioSource.loop = true;
+            ambientAudioSource.Play();
+        }
+        
+        public void StopAmbientLoop()
+        {
+            if (ambientAudioSource == null) return;
+            ambientAudioSource.Stop();
+        }
+        
+        public void PlayThrowAudio()
+        {
+            PlayPrimarySFX(throwAudioClip);
+        }
+        
+        public void PlayThrowPrepareAudio()
+        {
+            PlayPrimarySFX(throwPrepareAudioClip);
+        }
+        
+        public void PlayMoveAudio()
+        {
+            PlayPrimarySFX(moveAudioClips);
+        }
+        
+        public void PlayVoiceAudio()
+        {
+            PlayPrimarySFX(voiceAudioClips);
+        }
+        
+        public void PlayChargeAudio()
+        {
+            PlayPrimarySFX(chargeAudioClips);
+        }
+        
+        public void PlayDashAudio()
+        {
+            PlayPrimarySFX(dashAudioClips);
+        }
+        
+        public void PlaySmashAudio()
+        {
+            PlayPrimarySFX(smashAudioClips);
+        }
+        
+        public void PlayPunchAudio()
+        {
+            PlayPrimarySFX(punchAudioClips);
+        }
+        
+        public void PlayDeathAudio()
+        {
+            PlayPrimarySFX(deathAudioClip);
+        }
+        
+        public void PlayHitAudio()
+        {
+            PlaySecondarySFX(hitAudioClips);
+        }
+        
+        private void PlayTeleportInAudio()
+        {
+            PlaySecondarySFX(tpInAudioClip);
+        }
+        
+        private void PlayTeleportOutAudio()
+        {
+            PlaySecondarySFX(tpOutAudioClip);
+        }
+        
+        public void PlayWindupAudio()
+        {
+            PlaySecondarySFX(chargeAudioClips);
         }
     }
 }

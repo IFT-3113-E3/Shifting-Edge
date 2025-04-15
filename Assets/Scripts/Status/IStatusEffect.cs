@@ -4,8 +4,8 @@ namespace Status
     {
         string Id { get; }
         bool IsFinished { get; }
-        void OnApply(StatusEffectManager manager);
+        void OnApply(EntityStatus manager);
         void Tick(float deltaTime);
-        void OnRemove(StatusEffectManager manager);
+        void OnRemove(EntityStatus manager);
     }
 }
