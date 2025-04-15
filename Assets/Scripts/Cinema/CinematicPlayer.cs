@@ -16,7 +16,7 @@ public class CinematicPlayer : MonoBehaviour
     public List<Slide> slides;
     public Image imageHolder;
     public TextMeshProUGUI textHolder;
-    public CanvasGroup fadeOverlay; // référence à Image_Fade
+    public CanvasGroup fadeOverlay;
     public float textSpeed = 0.03f;
     public float fadeDuration = 1.0f;
 
@@ -40,7 +40,7 @@ public class CinematicPlayer : MonoBehaviour
                 if (index < slides.Count) {
                     StartCoroutine(PlaySlide());
                 } else {
-                    StartCoroutine(FadeToBlackThenLoad("NomDeTaSceneDeJeu"));
+                    StartCoroutine(FadeToBlackThenLoad("MainScene"));
                 }
             }
         }
