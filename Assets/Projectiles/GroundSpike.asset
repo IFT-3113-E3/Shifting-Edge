@@ -31,4 +31,5 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 5f46db1d65236cb41b7f8ade4d001f79, type: 3}
   - {fileID: 8300000, guid: fd6af5552be668245aa2d85764a0a415, type: 3}
   destroySound: []
+  volumeMultiplier: 0.4
   script: {fileID: 0}

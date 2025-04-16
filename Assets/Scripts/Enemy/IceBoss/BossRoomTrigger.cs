@@ -6,6 +6,7 @@ namespace Enemy.IceBoss
     public class BossRoomTrigger : MonoBehaviour
     {
         [SerializeField] private BossController boss;
+        [SerializeField] private AudioSource audiosource;
 
         private void Start()
         {
@@ -28,6 +29,8 @@ namespace Enemy.IceBoss
             {
                 boss.Context.shouldActivate = true;
                 Debug.Log("[Boss Trigger] Activated boss via trigger!");
+
+                audiosource.Play();
             }
         }
     }
