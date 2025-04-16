@@ -14308,13 +14308,13 @@ AudioSource:
   m_GameObject: {fileID: 1681077214}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: -6062185815088664046, guid: 1841b968e98e4b545a81dd690d13459e, type: 2}
   m_audioClip: {fileID: 8300000, guid: 1d3cfdbd667680d4788aa2b170043bfb, type: 3}
   m_Resource: {fileID: 8300000, guid: 1d3cfdbd667680d4788aa2b170043bfb, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.787
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -18414,11 +18414,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 237317625404452477, guid: e449c248750ed0b4e846a64d481c4594, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 1920
+      value: 857
       objectReference: {fileID: 0}
     - target: {fileID: 237317625404452477, guid: e449c248750ed0b4e846a64d481c4594, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 1080
+      value: 483
       objectReference: {fileID: 0}
     - target: {fileID: 883777343307218551, guid: e449c248750ed0b4e846a64d481c4594, type: 3}
       propertyPath: m_LocalPosition.x
