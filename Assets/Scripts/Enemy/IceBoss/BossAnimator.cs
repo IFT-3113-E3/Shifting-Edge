@@ -177,6 +177,7 @@ namespace Enemy.IceBoss
             _fakeSpikeController.Hide();
             _fractureEffect.SetFragmentsEnabled(true);
             _fractureEffect.ResetFragmentsAtSource();
+            _fractureEffect.SetCollisionEnabled(true);
             _fractureEffect.SetGravityEnabled(true);
 
             SetVisible(false);
