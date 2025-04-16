@@ -1660,6 +1660,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 210182293565413668, guid: 81bd809f5577f10409c964fd5a7e828d, type: 3}
+      propertyPath: shakeMultiplier
+      value: 0.4
+      objectReference: {fileID: 0}
     - target: {fileID: 696623528362354436, guid: 81bd809f5577f10409c964fd5a7e828d, type: 3}
       propertyPath: target
       value: 

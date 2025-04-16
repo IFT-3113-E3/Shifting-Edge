@@ -197,7 +197,7 @@ public class EntityMovementController : MonoBehaviour, ICharacterController
             }
         }
     }
-
+    
     /// <summary>
     /// This is called every frame by the AI script in order to tell the character what its inputs are
     /// </summary>

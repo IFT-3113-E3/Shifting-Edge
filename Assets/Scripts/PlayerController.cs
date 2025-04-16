@@ -158,6 +158,25 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // TEMP: find a better way to do this
+    private Vector3 GetCameraRelativeDirection(float inputX, float inputZ)
+    {
+        Vector3 inputDir = new Vector3(inputX, 0f, inputZ);
+
+        if (inputDir.sqrMagnitude < 0.01f)
+            return Vector3.zero;
+
+        Vector3 camForward = _camera.transform.forward;
+        camForward.y = 0f;
+        camForward.Normalize();
+
+        Vector3 camRight = _camera.transform.right;
+        camRight.y = 0f;
+        camRight.Normalize();
+
+        return (camForward * inputDir.z + camRight * inputDir.x).normalized;
+    }
+
     private void Roll()
     {
         // cancel attacks if rolling
@@ -173,7 +192,7 @@ public class PlayerController : MonoBehaviour
         _animator.ResetTrigger(BreakAttackTrigger);
         _animator.SetTrigger(RollTrigger);
 
-        Vector3 rollDirection = new Vector3(_inputHorizontal, 0f, _inputVertical);
+        Vector3 rollDirection = GetCameraRelativeDirection(_inputHorizontal, _inputVertical);
         if (rollDirection.sqrMagnitude < 0.1f)
         {
             rollDirection = transform.forward;
