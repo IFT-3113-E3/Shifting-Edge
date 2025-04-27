@@ -2989,17 +2989,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 3262891157653870106, guid: 5753fb64d05dbe9429128e21f9060783, type: 3}
   m_PrefabInstance: {fileID: 1376350432}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1512237460 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2387423244851114634, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}
-  m_PrefabInstance: {fileID: 4339900622686715395}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1574369817
 GameObject:
   m_ObjectHideFlags: 0
@@ -3631,7 +3620,7 @@ MonoBehaviour:
   musicSlider: {fileID: 261117754}
   sfxSlider: {fileID: 1267067255}
   uiSlider: {fileID: 113756599}
-  applyButton: {fileID: 1512237460}
+  applyButton: {fileID: 0}
   cancelButton: {fileID: 0}
 --- !u!1 &2001213441
 GameObject:
@@ -4412,7 +4401,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 7063320974600481702, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}
+    - {fileID: 4896223370696023436, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}
+    - {fileID: 4785485550779353078, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}
