@@ -1,10 +1,6 @@
-﻿using System;
-using UnityEditor;
-
-namespace Enemy.IceBoss
+﻿namespace Enemy.IceBoss
 {
     using UnityEngine;
-    using System.Collections.Generic;
 
     public class BossDebugger : MonoBehaviour
     {

@@ -257,10 +257,9 @@ public class EnemyAI : MonoBehaviour
             }
 
             // Infliger des dégâts au joueur EntityStatus
-            EntityStatus playerHealth = player.GetComponent<EntityStatus>();
-            if (playerHealth != null)
+            if (player.TryGetComponent<EntityStatus>(out var playerHealth))
             {
-                DamageRequest damageRequest = new DamageRequest(damage, gameObject, player.position);
+                DamageRequest damageRequest = new(damage, gameObject, player.position);
                 playerHealth.ApplyDamage(damageRequest);
             }
         }

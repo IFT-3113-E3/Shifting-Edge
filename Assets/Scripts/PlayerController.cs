@@ -12,18 +12,6 @@ public class PlayerController : MonoBehaviour
     private static readonly int AttackTrigger = Animator.StringToHash("lightAttack");
     private static readonly int BreakAttackTrigger = Animator.StringToHash("breakAttack");
     private static readonly int RollTrigger = Animator.StringToHash("roll");
-
-    [Tooltip("Speed at which the character moves. It is not affected by gravity or jumping.")]
-    public float velocity = 5f;
-    [Tooltip("This value is added to the speed value while the character is sprinting.")]
-    public float sprintAdittion = 3.5f;
-    [Tooltip("The higher the value, the higher the character will jump.")]
-    public float jumpForce = 18f;
-    [Tooltip("Stay in the air. The higher the value, the longer the character floats before falling.")]
-    public float jumpTime = 0.85f;
-    [Space]
-    [Tooltip("Force that pulls the player down. Changing this value causes all movement, jumping and falling to be changed as well.")]
-    public float gravity = 9.8f;
     
     [SerializeField] private float rollForce = 15f;
     [SerializeField] private float rollCooldownTime = 0.5f; // short delay after 3 rolls
@@ -110,10 +98,7 @@ public class PlayerController : MonoBehaviour
         
         if (!_mc)
             Debug.LogWarning("EntityMovementController is required on the PlayerController");
-        
-        // if (!_cc)
-        //     Debug.LogWarning("CharacterController is required on the PlayerController");
-        
+
         if (!_cm)
             Debug.LogWarning("ComboManager is required on the PlayerController");
 
@@ -173,6 +158,25 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // TEMP: find a better way to do this
+    private Vector3 GetCameraRelativeDirection(float inputX, float inputZ)
+    {
+        Vector3 inputDir = new Vector3(inputX, 0f, inputZ);
+
+        if (inputDir.sqrMagnitude < 0.01f)
+            return Vector3.zero;
+
+        Vector3 camForward = _camera.transform.forward;
+        camForward.y = 0f;
+        camForward.Normalize();
+
+        Vector3 camRight = _camera.transform.right;
+        camRight.y = 0f;
+        camRight.Normalize();
+
+        return (camForward * inputDir.z + camRight * inputDir.x).normalized;
+    }
+
     private void Roll()
     {
         // cancel attacks if rolling
@@ -188,7 +192,7 @@ public class PlayerController : MonoBehaviour
         _animator.ResetTrigger(BreakAttackTrigger);
         _animator.SetTrigger(RollTrigger);
 
-        Vector3 rollDirection = new Vector3(_inputHorizontal, 0f, _inputVertical);
+        Vector3 rollDirection = GetCameraRelativeDirection(_inputHorizontal, _inputVertical);
         if (rollDirection.sqrMagnitude < 0.1f)
         {
             rollDirection = transform.forward;
@@ -206,11 +210,6 @@ public class PlayerController : MonoBehaviour
         _isRolling = false;
         _movementLocked = false;
         _animator.ResetTrigger(RollTrigger);
-    }
-    
-    void OnGUI()
-    {
-        GUI.Label(new Rect(10, 10, 300, 20), $"Rolls left: {_rollsRemaining}");
     }
     
     public void OnAttackAnimationEnd()
@@ -278,7 +277,6 @@ public class PlayerController : MonoBehaviour
 
             // _isSprinting = _cc.velocity.magnitude > minimumSpeed && _inputSprint;
             // _animator.SetBool(Sprint, _isSprinting );
-
         }
 
         // prevent air from spamming from anystate

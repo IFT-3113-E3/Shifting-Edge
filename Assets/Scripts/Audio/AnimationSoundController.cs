@@ -10,6 +10,8 @@ public class AnimationSoundController : MonoBehaviour
         public string eventName;
         public AudioClip[] clips;
         [Range(0.8f, 1.2f)] public float pitchVariation = 1.1f;
+
+        [Range(0.0f, 1.0f)] public float volume = 1.0f;
         public bool noRepeat = true;
     }
 
@@ -53,6 +55,7 @@ public class AnimationSoundController : MonoBehaviour
         var selectedClip = availableClips[randomIndex];
 
         _audioSource.pitch = Random.Range(1f / group.pitchVariation, group.pitchVariation);
+        _audioSource.volume = group.volume;
         _audioSource.PlayOneShot(selectedClip);
 
         if (group.noRepeat)
@@ -73,6 +76,14 @@ public class AnimationSoundController : MonoBehaviour
     // Méthodes spécifiques pour faciliter l'assignation dans les Animation Events
     public void PlayRandomFootstep() => PlayRandomSound("Footstep");
     public void PlayRandomSwing() => PlayRandomSound("Swing");
+
+    public void PlaySwing1() => PlayRandomSound("Swing1");
+
+    public void PlaySwing2() => PlayRandomSound("Swing2");
+
+    public void PlaySwing3() => PlayRandomSound("Swing3");
     public void PlayRandomJump() => PlayRandomSound("Jump");
     public void PlayRandomLand() => PlayRandomSound("Land");
+
+    public void PlayRoll() => PlayRandomSound("Roll");
 }

@@ -16,6 +16,7 @@ namespace Enemy.IceBoss
         
         public GameObject coreObject;
         private IVisibilityTransitionEffect coreDissolver;
+        private AudioSource coreAudioSource;
 
         private Coroutine _currentCoroutine;
         private Coroutine _animCoroutine;
@@ -23,9 +24,13 @@ namespace Enemy.IceBoss
         public AudioSource sfxAudioSource;
         public AudioSource secondarySfxAudioSource;
         public AudioSource ambientAudioSource;
+        public AudioSource musicAudioSource;
+        public AudioSource windAudioSource;
 
         public AudioClip tpInAudioClip;
         public AudioClip tpOutAudioClip;
+
+        public AudioClip spawnAudioClip;
         public AudioClip[] throwAudioClip;
         public AudioClip[] throwPrepareAudioClip;
         public AudioClip[] moveAudioClips;
@@ -37,6 +42,7 @@ namespace Enemy.IceBoss
         public AudioClip[] punchAudioClips;
         
         public AudioClip deathAudioClip;
+        public AudioClip shatterAudioClip;
         public AudioClip[] hitAudioClips;
         
         public AudioClip ambientLoopAudioClip;
@@ -129,6 +135,7 @@ namespace Enemy.IceBoss
             if (coreObject)
             {
                 coreDissolver = coreObject.GetComponent<IVisibilityTransitionEffect>();
+                coreAudioSource = coreObject.GetComponent<AudioSource>();
             }
             
         }
@@ -170,6 +177,7 @@ namespace Enemy.IceBoss
             _fakeSpikeController.Hide();
             _fractureEffect.SetFragmentsEnabled(true);
             _fractureEffect.ResetFragmentsAtSource();
+            _fractureEffect.SetCollisionEnabled(true);
             _fractureEffect.SetGravityEnabled(true);
 
             SetVisible(false);
@@ -203,7 +211,7 @@ namespace Enemy.IceBoss
             if (coreDissolver != null)
             {
                 coreDissolver.Hide();
-
+                coreAudioSource.Play();
                 while (coreDissolver.IsVisible)
                 {
                     core.transform.position = Vector3.MoveTowards(core.transform.position, target.position + Vector3.up*1.5f,
@@ -268,6 +276,7 @@ namespace Enemy.IceBoss
                 StopCoroutine(_currentCoroutine);
             }
 
+            PlaySpawnAudio();
             StartCoroutine(AssembleAndSpawnRoutine(targetPos, targetRotation, onComplete));
         }
 
@@ -310,6 +319,9 @@ namespace Enemy.IceBoss
         private IEnumerator DespawnRoutine(Action onComplete = null)
         {
             PlayDeathAudio();
+            ambientAudioSource.Stop();
+            musicAudioSource.Stop();
+            windAudioSource.Play();
 
             SetChargingFlashEnabled(false);
             
@@ -567,6 +579,10 @@ namespace Enemy.IceBoss
         private void OnGolemGroundAttackEvent()
         {
             OnGroundAttackEvent?.Invoke();
+        }
+
+        private void OnGolemGroundSwingEvent()
+        {
             PlaySmashAudio();
         }
         
@@ -582,14 +598,14 @@ namespace Enemy.IceBoss
             }
         }
 
-        private void PlayRandomSFX(AudioSource audioSource, AudioClip[] clips)
+        private void PlayRandomSFX(AudioSource audioSource, AudioClip[] clips, float volume=1.0f)
         {
             if (clips.Length <= 0) return;
             var randomIndex = UnityEngine.Random.Range(0, clips.Length);
             audioSource.PlayOneShot(clips[randomIndex]);
         }
         
-        private void PlayPrimarySFX(AudioClip[] clips)
+        private void PlayPrimarySFX(AudioClip[] clips, float volume=1.0f)
         {
             if (sfxAudioSource == null) return;
             PlayRandomSFX(sfxAudioSource, clips);
@@ -644,6 +660,11 @@ namespace Enemy.IceBoss
         {
             PlayPrimarySFX(moveAudioClips);
         }
+
+        public void PlaySpawnAudio()
+        {
+            PlayPrimarySFX(spawnAudioClip);
+        }
         
         public void PlayVoiceAudio()
         {
@@ -673,6 +694,7 @@ namespace Enemy.IceBoss
         public void PlayDeathAudio()
         {
             PlayPrimarySFX(deathAudioClip);
+            PlaySecondarySFX(shatterAudioClip);
         }
         
         public void PlayHitAudio()

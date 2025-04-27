@@ -12,10 +12,16 @@ public class PortalCollision : MonoBehaviour
     [Tooltip("Le tag de l'objet joueur (si playerOnly est vrai)")]
     public string playerTag = "Player";
 
+    [Tooltip("Le nombre d'objets requis pour ouvrir le portail")]
+    public int requiredItems = 3;
+
+    [Tooltip("Si le portail est ouvert ou non")]
+    private bool isOpen = false;
+
     private void OnCollisionEnter(Collision collision)
     {
         // Vérifie si on accepte seulement le joueur ou tous les objets
-        if (!playerOnly || (playerOnly && collision.gameObject.CompareTag(playerTag)))
+        if (isOpen && (!playerOnly || (playerOnly && collision.gameObject.CompareTag(playerTag))))
         {
             // Charge la nouvelle scène
             SceneManager.LoadScene(sceneToLoad);
@@ -25,9 +31,23 @@ public class PortalCollision : MonoBehaviour
     // Si vous voulez utiliser des triggers au lieu de collisions solides
     private void OnTriggerEnter(Collider other)
     {
-        if (!playerOnly || (playerOnly && other.CompareTag(playerTag)))
+        if (isOpen && (!playerOnly || (playerOnly && other.CompareTag(playerTag))))
         {
             SceneManager.LoadScene(sceneToLoad);
         }
+    }
+
+    void Update()
+    {
+        if (!isOpen && Collectible.totalCollected >= requiredItems)
+        {
+            OpenPortal();
+        }
+    }
+
+    void OpenPortal()
+    {
+        isOpen = true;
+        Debug.Log("Portail ouvert !");
     }
 }
