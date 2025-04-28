@@ -119,6 +119,8 @@ namespace MeshVFX
         {
             foreach (var clone in _flashRenderers)
             {
+                if (!clone || !clone.gameObject.activeSelf)
+                    continue;
                 clone.GetPropertyBlock(_mpb);
                 var color = _currentOptions.ColorOverride ?? overrideMaterial.GetColor(baseColorPropertyName);
                 color.a = alpha;
