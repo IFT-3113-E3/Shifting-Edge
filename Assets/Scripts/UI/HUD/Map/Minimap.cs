@@ -2,13 +2,23 @@ using UnityEngine;
 
 public class Minimap : MonoBehaviour
 {
-    public Transform player;
-    public float height = 20f;
+    [SerializeField] private Transform player;
+    [SerializeField] private float height = 20f;
+    [SerializeField] private bool rotateWithPlayer = false;
 
     private void LateUpdate()
     {
-        Vector3 newPosition = player.position;
-        newPosition.y = height;
-        transform.position = newPosition;
+        // Positionnement au-dessus du joueur
+        transform.position = player.position + Vector3.up * height;
+        
+        // Rotation (soit fixe, soit suivant le joueur sur l'axe Y seulement)
+        if (!rotateWithPlayer)
+        {
+            transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+        }
+        else
+        {
+            transform.rotation = Quaternion.Euler(90f, player.eulerAngles.y, 0f);
+        }
     }
 }
