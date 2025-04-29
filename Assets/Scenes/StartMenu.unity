@@ -585,8 +585,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 75.93501, y: 53.274994}
-  m_SizeDelta: {x: 138.96, y: 15}
+  m_AnchoredPosition: {x: 54.30001, y: 53.274994}
+  m_SizeDelta: {x: 95.69, y: 15}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &205692182
 MonoBehaviour:
@@ -1346,6 +1346,13 @@ MonoBehaviour:
   hoverSound: {fileID: 8300000, guid: 0c5ecec1da92419469ebe8561256e719, type: 3}
   clickSound: {fileID: 8300000, guid: f8eba00be6aa7784bbba92d5f96f9a8e, type: 3}
   menuMixerGroup: {fileID: 4285128729811340243, guid: 1841b968e98e4b545a81dd690d13459e, type: 2}
+  audioSource: {fileID: 0}
+  buttonImage: {fileID: 0}
+  originalButtonColor: {r: 0, g: 0, b: 0, a: 0}
+  buttonText: {fileID: 0}
+  originalTextColor: {r: 0, g: 0, b: 0, a: 0}
+  hoverTransparency: 0.5
+  transitionSpeed: 0.2
 --- !u!114 &366942711
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1868,6 +1875,13 @@ MonoBehaviour:
   hoverSound: {fileID: 8300000, guid: 0c5ecec1da92419469ebe8561256e719, type: 3}
   clickSound: {fileID: 8300000, guid: 85a83a6980f591a48a3ba0067ccc048c, type: 3}
   menuMixerGroup: {fileID: 4285128729811340243, guid: 1841b968e98e4b545a81dd690d13459e, type: 2}
+  audioSource: {fileID: 0}
+  buttonImage: {fileID: 0}
+  originalButtonColor: {r: 0, g: 0, b: 0, a: 0}
+  buttonText: {fileID: 0}
+  originalTextColor: {r: 0, g: 0, b: 0, a: 0}
+  hoverTransparency: 0.5
+  transitionSpeed: 0.2
 --- !u!1 &534229833 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3976207963984488148, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}
@@ -1888,6 +1902,13 @@ MonoBehaviour:
   hoverSound: {fileID: 8300000, guid: 0c5ecec1da92419469ebe8561256e719, type: 3}
   clickSound: {fileID: 8300000, guid: f8eba00be6aa7784bbba92d5f96f9a8e, type: 3}
   menuMixerGroup: {fileID: 4285128729811340243, guid: 1841b968e98e4b545a81dd690d13459e, type: 2}
+  audioSource: {fileID: 0}
+  buttonImage: {fileID: 0}
+  originalButtonColor: {r: 0, g: 0, b: 0, a: 0}
+  buttonText: {fileID: 0}
+  originalTextColor: {r: 0, g: 0, b: 0, a: 0}
+  hoverTransparency: 0.5
+  transitionSpeed: 0.2
 --- !u!1 &542802094
 GameObject:
   m_ObjectHideFlags: 0
@@ -2006,6 +2027,13 @@ MonoBehaviour:
   hoverSound: {fileID: 8300000, guid: 0c5ecec1da92419469ebe8561256e719, type: 3}
   clickSound: {fileID: 8300000, guid: f8eba00be6aa7784bbba92d5f96f9a8e, type: 3}
   menuMixerGroup: {fileID: 4285128729811340243, guid: 1841b968e98e4b545a81dd690d13459e, type: 2}
+  audioSource: {fileID: 0}
+  buttonImage: {fileID: 0}
+  originalButtonColor: {r: 0, g: 0, b: 0, a: 0}
+  buttonText: {fileID: 0}
+  originalTextColor: {r: 0, g: 0, b: 0, a: 0}
+  hoverTransparency: 0.5
+  transitionSpeed: 0.2
 --- !u!1 &562085003
 GameObject:
   m_ObjectHideFlags: 0
@@ -2647,6 +2675,13 @@ MonoBehaviour:
   hoverSound: {fileID: 8300000, guid: 0c5ecec1da92419469ebe8561256e719, type: 3}
   clickSound: {fileID: 8300000, guid: f8eba00be6aa7784bbba92d5f96f9a8e, type: 3}
   menuMixerGroup: {fileID: 4285128729811340243, guid: 1841b968e98e4b545a81dd690d13459e, type: 2}
+  audioSource: {fileID: 0}
+  buttonImage: {fileID: 0}
+  originalButtonColor: {r: 0, g: 0, b: 0, a: 0}
+  buttonText: {fileID: 0}
+  originalTextColor: {r: 0, g: 0, b: 0, a: 0}
+  hoverTransparency: 0.5
+  transitionSpeed: 0.2
 --- !u!224 &910510758 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2784773238855271452, guid: 1ad6bf7a9a175184396332466db9d855, type: 3}
@@ -3227,6 +3262,13 @@ MonoBehaviour:
   hoverSound: {fileID: 8300000, guid: 0c5ecec1da92419469ebe8561256e719, type: 3}
   clickSound: {fileID: 8300000, guid: f8eba00be6aa7784bbba92d5f96f9a8e, type: 3}
   menuMixerGroup: {fileID: 4285128729811340243, guid: 1841b968e98e4b545a81dd690d13459e, type: 2}
+  audioSource: {fileID: 0}
+  buttonImage: {fileID: 0}
+  originalButtonColor: {r: 0, g: 0, b: 0, a: 0}
+  buttonText: {fileID: 0}
+  originalTextColor: {r: 0, g: 0, b: 0, a: 0}
+  hoverTransparency: 0.5
+  transitionSpeed: 0.2
 --- !u!1 &1131243422
 GameObject:
   m_ObjectHideFlags: 0
@@ -3661,6 +3703,13 @@ MonoBehaviour:
   hoverSound: {fileID: 8300000, guid: 0c5ecec1da92419469ebe8561256e719, type: 3}
   clickSound: {fileID: 8300000, guid: f8eba00be6aa7784bbba92d5f96f9a8e, type: 3}
   menuMixerGroup: {fileID: 4285128729811340243, guid: 1841b968e98e4b545a81dd690d13459e, type: 2}
+  audioSource: {fileID: 0}
+  buttonImage: {fileID: 0}
+  originalButtonColor: {r: 0, g: 0, b: 0, a: 0}
+  buttonText: {fileID: 0}
+  originalTextColor: {r: 0, g: 0, b: 0, a: 0}
+  hoverTransparency: 0.5
+  transitionSpeed: 0.2
 --- !u!1 &1226187603
 GameObject:
   m_ObjectHideFlags: 0
@@ -3745,6 +3794,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1339343807 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7495252809710866725, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}
+  m_PrefabInstance: {fileID: 4339900622686715395}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1368222685
@@ -4026,6 +4086,13 @@ MonoBehaviour:
   hoverSound: {fileID: 8300000, guid: 0c5ecec1da92419469ebe8561256e719, type: 3}
   clickSound: {fileID: 8300000, guid: f8eba00be6aa7784bbba92d5f96f9a8e, type: 3}
   menuMixerGroup: {fileID: 4285128729811340243, guid: 1841b968e98e4b545a81dd690d13459e, type: 2}
+  audioSource: {fileID: 0}
+  buttonImage: {fileID: 0}
+  originalButtonColor: {r: 0, g: 0, b: 0, a: 0}
+  buttonText: {fileID: 0}
+  originalTextColor: {r: 0, g: 0, b: 0, a: 0}
+  hoverTransparency: 0.5
+  transitionSpeed: 0.2
 --- !u!1 &1574369817
 GameObject:
   m_ObjectHideFlags: 0
@@ -5290,6 +5357,13 @@ MonoBehaviour:
   hoverSound: {fileID: 8300000, guid: 0c5ecec1da92419469ebe8561256e719, type: 3}
   clickSound: {fileID: 8300000, guid: f8eba00be6aa7784bbba92d5f96f9a8e, type: 3}
   menuMixerGroup: {fileID: 4285128729811340243, guid: 1841b968e98e4b545a81dd690d13459e, type: 2}
+  audioSource: {fileID: 0}
+  buttonImage: {fileID: 0}
+  originalButtonColor: {r: 0, g: 0, b: 0, a: 0}
+  buttonText: {fileID: 0}
+  originalTextColor: {r: 0, g: 0, b: 0, a: 0}
+  hoverTransparency: 0.5
+  transitionSpeed: 0.2
 --- !u!1 &2116985988
 GameObject:
   m_ObjectHideFlags: 0
@@ -5664,7 +5738,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5443895138188137876, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}
       propertyPath: m_Alpha
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5725608613881994019, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}
       propertyPath: m_AnchorMax.y
@@ -5721,6 +5795,34 @@ PrefabInstance:
     - target: {fileID: 7495252809710866725, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}
       propertyPath: m_hasFontAssetChanged
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8344285682900617209, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}
+      propertyPath: buttonText
+      value: 
+      objectReference: {fileID: 1339343807}
+    - target: {fileID: 8344285682900617209, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}
+      propertyPath: originalTextColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8344285682900617209, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}
+      propertyPath: originalTextColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8344285682900617209, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}
+      propertyPath: originalTextColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8344285682900617209, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}
+      propertyPath: originalButtonColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8344285682900617209, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}
+      propertyPath: originalButtonColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8344285682900617209, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}
+      propertyPath: originalButtonColor.r
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8985895611094252820, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}
       propertyPath: m_Name
