@@ -119,6 +119,11 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &17076808 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8718082432504421627, guid: 1c763303082de784f8b375feb1028165, type: 3}
+  m_PrefabInstance: {fileID: 1543016595}
+  m_PrefabAsset: {fileID: 0}
 --- !u!64 &66794952
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -354,6 +359,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4167526917156904420, guid: a49a786505c02884dab33400511ad442, type: 3}
       insertIndex: -1
       addedObject: {fileID: 434825702}
+    - targetCorrespondingSourceObject: {fileID: 4167526917156904420, guid: a49a786505c02884dab33400511ad442, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 434825706}
   m_SourcePrefab: {fileID: 100100000, guid: a49a786505c02884dab33400511ad442, type: 3}
 --- !u!1 &434825701 stripped
 GameObject:
@@ -378,6 +386,22 @@ MonoBehaviour:
   fadeGroup: {fileID: 1196239514}
   fadeDuration: 2
   menuSceneName: MainMenu
+--- !u!114 &434825706
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 434825701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ffc2ef88355777499983c9e4f5c09ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pauseMenuPanel: {fileID: 1730319266}
+  optionsPanel: {fileID: 17076808}
+  characterPanel: {fileID: 685469349}
+  hud: {fileID: 1354931933}
 --- !u!114 &472050463 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2537821862136440336, guid: e449c248750ed0b4e846a64d481c4594, type: 3}
@@ -444,6 +468,11 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 3551677912181157352, guid: f12dbb1e1f84fbe41863480eb67db266, type: 3}
+--- !u!1 &685469349 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1771230125858937757, guid: 1c763303082de784f8b375feb1028165, type: 3}
+  m_PrefabInstance: {fileID: 1543016595}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &755799489
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1478,6 +1507,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Game Over Canvas
       objectReference: {fileID: 0}
+    - target: {fileID: 5591129536263940871, guid: f37e270f9596869449273663d05174e8, type: 3}
+      propertyPath: gameCamera
+      value: 
+      objectReference: {fileID: 2035243702}
+    - target: {fileID: 5591129536263940871, guid: f37e270f9596869449273663d05174e8, type: 3}
+      propertyPath: canvasScaler
+      value: 
+      objectReference: {fileID: 472050463}
     - target: {fileID: 6222715027695977156, guid: f37e270f9596869449273663d05174e8, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -1716,6 +1753,16 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 39.14, y: -320.9, z: 0}
+--- !u!1 &1354931933 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8430015143153787124, guid: 003af499a5394db4f952cdc04b87c5dd, type: 3}
+  m_PrefabInstance: {fileID: 2100942592}
+  m_PrefabAsset: {fileID: 0}
+--- !u!224 &1354931937 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 7074421373167906900, guid: 003af499a5394db4f952cdc04b87c5dd, type: 3}
+  m_PrefabInstance: {fileID: 2100942592}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1363940408
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2140,6 +2187,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: Menu Pause Canva
       objectReference: {fileID: 0}
+    - target: {fileID: 233600591559471996, guid: 1c763303082de784f8b375feb1028165, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2339189667842886970, guid: 1c763303082de784f8b375feb1028165, type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 2035243702}
+    - target: {fileID: 2373003335749022476, guid: 1c763303082de784f8b375feb1028165, type: 3}
+      propertyPath: gameCamera
+      value: 
+      objectReference: {fileID: 2035243702}
+    - target: {fileID: 2373003335749022476, guid: 1c763303082de784f8b375feb1028165, type: 3}
+      propertyPath: canvasScaler
+      value: 
+      objectReference: {fileID: 472050463}
     - target: {fileID: 3739572863505785455, guid: 1c763303082de784f8b375feb1028165, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -2311,6 +2374,11 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 0, z: 1}
   m_Center: {x: 4.656613e-10, y: 0, z: -0.000000014901161}
+--- !u!1 &1730319266 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 233600591559471996, guid: 1c763303082de784f8b375feb1028165, type: 3}
+  m_PrefabInstance: {fileID: 1543016595}
+  m_PrefabAsset: {fileID: 0}
 --- !u!64 &1744627827
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -2944,7 +3012,7 @@ RectTransform:
   - {fileID: 2022816647}
   - {fileID: 1178869777}
   - {fileID: 202860961}
-  m_Father: {fileID: 2096686167}
+  m_Father: {fileID: 1354931937}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
@@ -3151,8 +3219,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 2049005551}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -3270,7 +3337,10 @@ PrefabInstance:
       objectReference: {fileID: 1756585837}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 7074421373167906900, guid: 003af499a5394db4f952cdc04b87c5dd, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2049005551}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 003af499a5394db4f952cdc04b87c5dd, type: 3}
 --- !u!64 &2117632047
