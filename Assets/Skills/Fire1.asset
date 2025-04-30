@@ -17,4 +17,6 @@ MonoBehaviour:
   manaCost: 1
   icon: {fileID: 0}
   prerequisites: []
-  isUnlocked: 0
+  reward:
+    type: 0
+    value: 50

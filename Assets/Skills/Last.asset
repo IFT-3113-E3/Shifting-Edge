@@ -19,3 +19,6 @@ MonoBehaviour:
   prerequisites:
   - {fileID: 11400000, guid: 21b81f028414e0d459048ad03bbcf3ae, type: 2}
   - {fileID: 11400000, guid: 31c475e7b64a90e469ddc9aafdf2df1b, type: 2}
+  reward:
+    type: 0
+    value: 50

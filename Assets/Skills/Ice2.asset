@@ -18,3 +18,6 @@ MonoBehaviour:
   icon: {fileID: 0}
   prerequisites:
   - {fileID: 11400000, guid: b9aaa3154b4d21d448e146629b1a5fb9, type: 2}
+  reward:
+    type: 0
+    value: 50
