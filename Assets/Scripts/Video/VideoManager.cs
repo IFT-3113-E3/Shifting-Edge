@@ -10,8 +10,7 @@ namespace UI
         [Header("UI Elements")]
         [SerializeField] private TMP_Dropdown resolutionDropdown;
         [SerializeField] private TMP_Dropdown displayModeDropdown;
-        [SerializeField] private Button applyButton;
-        [SerializeField] private Button cancelButton;
+        [SerializeField] private Button defaultButton;
 
         [Header("Pixel Art Setup")]
         [SerializeField] private VirtualScreen virtualScreen;
@@ -107,8 +106,7 @@ namespace UI
 
         private void InitializeButtons()
         {
-            if (applyButton) applyButton.onClick.AddListener(ApplyVideoSettings);
-            if (cancelButton) cancelButton.onClick.AddListener(CancelPendingChanges);
+            if (defaultButton) defaultButton.onClick.AddListener(CancelPendingChanges);
             UpdateButtonStates();
         }
 
@@ -167,8 +165,7 @@ namespace UI
 
         private void UpdateButtonStates()
         {
-            if (applyButton) applyButton.interactable = hasUnsavedChanges;
-            if (cancelButton) cancelButton.interactable = hasUnsavedChanges;
+            if (defaultButton) defaultButton.interactable = hasUnsavedChanges;
         }
 
         private void OnDestroy()

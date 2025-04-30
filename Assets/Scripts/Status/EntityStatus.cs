@@ -34,6 +34,8 @@ namespace Status
 
         private readonly List<IStatusEffect> _activeEffects = new();
 
+        public DeathSequence deathSequence;
+
         private void Awake()
         {
             CurrentHealth = maxHealth;
@@ -108,6 +110,7 @@ namespace Status
             IsDead = true;
             OnDeath?.Invoke(damageRequest);
             // gameObject.SetActive(false);
+            deathSequence.TriggerDeath();
         }
 
         public void Revive()
