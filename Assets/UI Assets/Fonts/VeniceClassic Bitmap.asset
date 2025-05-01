@@ -103,7 +103,7 @@ MonoBehaviour:
     referencedTextAssetGUID: 
     fontStyle: 0
     fontStyleModifier: 0
-    renderMode: 4117
+    renderMode: 4118
     includeFontFeatures: 0
   m_SourceFontFile: {fileID: 12800000, guid: c6f54c3e2def9714db613c3912736ae7, type: 3}
   m_SourceFontFilePath: 

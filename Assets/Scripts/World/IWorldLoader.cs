@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace World
 {
@@ -9,6 +10,6 @@ namespace World
     
     public interface IWorldLoader
     {
-        void LoadSection(WorldSection section, Action<SectionLoadResult> onLoaded);
+        Task<SectionLoadResult> LoadSection(WorldSection section);
     }
 }

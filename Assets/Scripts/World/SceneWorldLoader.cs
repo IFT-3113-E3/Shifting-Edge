@@ -15,17 +15,17 @@ namespace World
             _sceneGraph = sceneGraph;
         }
 
-        public void LoadSection(WorldSection section, Action<SectionLoadResult> onLoaded)
+        public async Task<SectionLoadResult> LoadSection(WorldSection section)
         {
-            _ = LoadSectionInternalAsync(section, onLoaded);
+            return await LoadSectionInternalAsync(section);
         }
         
-        public void UnloadAll()
+        public async Task UnloadAll()
         {
-            _ = UnloadAllInternalAsync();
+            await UnloadAllInternalAsync();
         }
 
-        private async Task LoadSectionInternalAsync(WorldSection section, Action<SectionLoadResult> onLoaded)
+        private async Task<SectionLoadResult> LoadSectionInternalAsync(WorldSection section)
         {
             if (!_sceneGraph.NodeExists(SectionTag))
             {
@@ -40,7 +40,7 @@ namespace World
             if (scene == null)
             {
                 Debug.LogError($"Scene '{section.sceneName}' could not be retrieved by tag '{SectionTag}' after load.");
-                return;
+                throw new InvalidOperationException($"Scene '{section.sceneName}' could not be retrieved by tag '{SectionTag}' after load.");
             }
 
             SceneCoordinator coordinator = null;
@@ -53,10 +53,10 @@ namespace World
             if (!coordinator)
             {
                 Debug.LogError($"SceneCoordinator not found in scene '{section.sceneName}'");
-                return;
+                throw new InvalidOperationException($"SceneCoordinator not found in scene '{section.sceneName}'");
             }
-
-            onLoaded?.Invoke(new SectionLoadResult { SceneCoordinator = coordinator });
+            
+            return new SectionLoadResult { SceneCoordinator = coordinator };
         }
         
         private async Task UnloadAllInternalAsync()

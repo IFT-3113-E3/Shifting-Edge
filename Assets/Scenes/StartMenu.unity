@@ -422,7 +422,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1808091785098288726, guid: 170926eeaddd5764b82d8fb4f1000f6f, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -10.175034
+      value: -10.175049
       objectReference: {fileID: 0}
     - target: {fileID: 1808091785098288726, guid: 170926eeaddd5764b82d8fb4f1000f6f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -685,7 +685,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1808091785098288726, guid: 170926eeaddd5764b82d8fb4f1000f6f, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -10.175034
+      value: -10.175049
       objectReference: {fileID: 0}
     - target: {fileID: 1808091785098288726, guid: 170926eeaddd5764b82d8fb4f1000f6f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -881,7 +881,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &366942709
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1712,7 +1712,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1808091785098288726, guid: 170926eeaddd5764b82d8fb4f1000f6f, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -10.175034
+      value: -10.175049
       objectReference: {fileID: 0}
     - target: {fileID: 1808091785098288726, guid: 170926eeaddd5764b82d8fb4f1000f6f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -2744,6 +2744,7 @@ GameObject:
   - component: {fileID: 1368222691}
   - component: {fileID: 1368222692}
   - component: {fileID: 1368222693}
+  - component: {fileID: 1368222694}
   m_Layer: 5
   m_Name: Main Menu Canva
   m_TagString: Untagged
@@ -2870,7 +2871,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   launchPanel: {fileID: 371819279}
   mainMenuPanel: {fileID: 159260252}
-  loadPanel: {fileID: 0}
+  loadPanel: {fileID: 562085005}
   optionsPanel: {fileID: 575141500}
   creditsPanel: {fileID: 203637807}
   optionsSubPanels:
@@ -2887,6 +2888,18 @@ MonoBehaviour:
   OnTransitionComplete:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1368222694
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1368222685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc6b5a27a80a4a93ae51a8a8909fa5d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1376350432
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3002,6 +3015,7 @@ GameObject:
   - component: {fileID: 1574369818}
   - component: {fileID: 1574369821}
   - component: {fileID: 1574369822}
+  - component: {fileID: 1574369823}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -3142,6 +3156,18 @@ MonoBehaviour:
   ppu: 32
   pixelSnapping: 1
   virtualCamera: {fileID: 1942910114}
+--- !u!114 &1574369823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1574369817}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f8e2ed718074ff5a8546c96883d37e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1693368380 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 909354088240537891, guid: 2b415da0c9aee6946a80b108bcb87be7, type: 3}

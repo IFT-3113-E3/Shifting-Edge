@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using UnityEngine;
 using Unity.Logging;
 using UnityEngine.SceneManagement;
@@ -123,18 +124,15 @@ public class GameManager : MonoBehaviour
     }
     
 
-    public void StartNewGame()
+    public void StartNewGame(int slot = 0)
     {
         if (_currentGameState != GameState.MainMenu)
         {
             Log.Warning("Cannot start new game from current state: " + _currentGameState);
             return;
         }
-        if (!SaveSystem.GetNextSaveSlot(out _currentSaveSlot)) 
-        {
-            Log.Error("Failed to get next save slot.");
-            return;
-        }
+            // overwrite the first save slot
+        _currentSaveSlot = slot;
 
         _gameSession = CreateGameSession();
         
@@ -181,6 +179,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        AudioListener.pause = true;
         Time.timeScale = 0;
         _currentGameState = GameState.Paused;
     }
@@ -188,23 +187,22 @@ public class GameManager : MonoBehaviour
     private async void StartWithGameSession(GameSession session)
     {
         _gameSession = session;
-        bool sceneReplaced = false;
-        bool playerInitialized = false;
-        bool worldInitialized = false;
-
         try
         {
+            await LoadingScreenManager.Instance.Show("Loading Game...");
             await _gameContext.SceneService.ReplaceScene("Main", "GameScene");
-            sceneReplaced = true;
 
             PlayerManager.Initialize(_gameSession, AssetDb.playerPrefab);
-            playerInitialized = true;
 
             World.Initialize(_gameContext, _gameSession);
-            worldInitialized = true;
 
             World.OnLoaded += OnWorldLoaded;
-            World.StartSessionAtSection(AssetDb.GetWorldSection(_gameSession.worldSectionId), _gameSession.spawnPointId);
+            var section = AssetDb.GetWorldSection(_gameSession.worldSectionId);
+            if (!section)
+            {
+                throw new Exception("World section not found: " + _gameSession.worldSectionId);
+            }
+            await World.StartSessionAtSection(section, _gameSession.spawnPointId);
 
             _currentGameState = GameState.InGame;
         }
@@ -212,22 +210,33 @@ public class GameManager : MonoBehaviour
         {
             Log.Error("Failed to start game session: " + ex.Message);
 
-            // Cleanup in reverse order
-            if (worldInitialized)
-                World.Uninitialize();
-
-            if (playerInitialized)
-                PlayerManager.Despawn();
-
-            if (sceneReplaced)
-                await _gameContext.SceneService.ReplaceScene("Main", "StartMenu");
-
-            _gameSession = null;
-            _currentGameState = GameState.MainMenu;
+            await ReturnToMainMenu();
         }
     }
     
-    private void OnWorldLoaded(SectionLoadResult res)
+    public async void TransitionTo(string exitId)
+    {
+        try
+        {
+            if (_currentGameState != GameState.InGame)
+            {
+                Log.Warning("Cannot transition from current state: " + _currentGameState);
+                return;
+            }
+
+            await LoadingScreenManager.Instance.Show("Transitioning...");
+            
+            World.TransitionTo(exitId);
+        }
+        catch (Exception ex)
+        {
+            Log.Error("Error during transition: " + ex.Message);
+            await LoadingScreenManager.Instance.Hide(1f);
+            await ReturnToMainMenu(); // fallback if transition fails
+        }
+    }
+    
+    private async void OnWorldLoaded(SectionLoadResult res)
     {
         try
         {
@@ -237,11 +246,13 @@ public class GameManager : MonoBehaviour
             var spawnRotation = spawnPoint?.rotation ?? Quaternion.identity;
             PlayerManager.SpawnAt(spawnPosition, spawnRotation);
             coordinator.AssignCameraTarget(PlayerManager.Player.transform);
+            await LoadingScreenManager.Instance.Hide(1f);
+            SaveSystem.SaveGameSession(_gameSession, _currentSaveSlot);
+            await LoadingScreenManager.Instance.ShowToastAsync("Progress saved", 2f);
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            Log.Error("Error while spawning player: " + ex.Message);
-            ReturnToMainMenu(); // fallback if spawn fails
+            Log.Error("Error during world load: " + e.Message);
         }
     }
     
@@ -253,26 +264,32 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        Time.timeScale = 1;
+        AudioListener.pause = false;
+        Time.timeScale = 1f;
         _currentGameState = GameState.InGame;
     }
     
-    public void ReturnToMainMenu()
+    public async Task ReturnToMainMenu()
     {
+        // if (_currentGameState == GameState.MainMenu) return;
+        _currentGameState = GameState.MainMenu;
+        await LoadingScreenManager.Instance.Show("Loading Main Menu...");
         World.OnLoaded -= OnWorldLoaded;
-        SaveSystem.SaveGameSession(_gameSession, _currentSaveSlot);
-        World.Uninitialize();
-        _gameSession = null;
         
-        // SceneManager.LoadScene("StartMenu", LoadSceneMode.Single);
-        _ = _gameContext.SceneService.ReplaceScene("Main", "StartMenu");
+        SaveSystem.SaveGameSession(_gameSession, _currentSaveSlot);
+        await World.Uninitialize();
+        _gameSession = null;
+        AudioListener.pause = false;
+        Time.timeScale = 1f;
+        await _gameContext.SceneService.ReplaceScene("Main", "StartMenu");
+        await LoadingScreenManager.Instance.Hide(1f);
     }
     
-    public void QuitGame()
+    public async Task QuitGame()
     {
         if (_currentGameState == GameState.InGame)
         {
-            ReturnToMainMenu();
+            await ReturnToMainMenu();
         }
         Application.Quit();
     }

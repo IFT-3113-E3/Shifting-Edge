@@ -51,13 +51,14 @@ public static class SaveSystem
         
         var data = new SessionSaveData
         {
-            worldSectionId = session.spawnPointId,
+            worldSectionId = session.worldSectionId,
             spawnPointId = session.spawnPointId
         };
         session.PlayerStats.SaveData(ref data);
 
         var json = JsonUtility.ToJson(data, prettyPrint: true);
         File.WriteAllText(GetSavePath(slot), json);
+        Debug.Log($"Game session saved to slot {slot} at {GetSavePath(slot)}.");
     }
 
     public static SessionSaveData LoadSaveData(int slot)
@@ -67,6 +68,7 @@ public static class SaveSystem
             return null;
 
         var json = File.ReadAllText(savePath);
+        Debug.Log($"Loading save data from {savePath}.");
         return JsonUtility.FromJson<SessionSaveData>(json);
     }
 }

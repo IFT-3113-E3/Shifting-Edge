@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace World
@@ -36,11 +37,11 @@ namespace World
             _loader = new SceneWorldLoader(_gameContext.SceneService);
         }
         
-        public void Uninitialize()
+        public async Task Uninitialize()
         {
             if (_loader != null)
             {
-                _loader.UnloadAll();
+                await _loader.UnloadAll();
                 _loader = null;
             }
 
@@ -48,7 +49,7 @@ namespace World
             _currentSceneCoordinator = null;
         }
 
-        public void StartSessionAtSection(WorldSection section, string spawnPointId)
+        public async Task StartSessionAtSection(WorldSection section, string spawnPointId)
         {
             if (!section)
             {
@@ -60,19 +61,13 @@ namespace World
             _session.worldSectionId = section.sectionId;
             _session.spawnPointId = spawnPointId;
 
-            _loader.LoadSection(section, OnSectionLoaded);
-        }
-
-        private void OnSectionLoaded(SectionLoadResult result)
-        {
-            _currentSceneCoordinator = result.SceneCoordinator;
-
-            if (!_currentSceneCoordinator)
+            var result = await _loader.LoadSection(section);
+            if (result.SceneCoordinator == null)
             {
                 Debug.LogError("SceneCoordinator is null after load.");
                 return;
             }
-            
+            _currentSceneCoordinator = result.SceneCoordinator;
             OnLoaded?.Invoke(result);
         }
 

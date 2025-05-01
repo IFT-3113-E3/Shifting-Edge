@@ -21,7 +21,7 @@ public class PauseMenuManager : MonoBehaviour
     public void PauseGame()
     {
         pauseMenuPanel.SetActive(true);
-        Time.timeScale = 0f;
+        GameManager.Instance.PauseGame();
     }
 
     public void ResumeGame()
@@ -29,7 +29,7 @@ public class PauseMenuManager : MonoBehaviour
         pauseMenuPanel.SetActive(false);
         optionsPanel.SetActive(false);
         characterPanel.SetActive(false);
-        Time.timeScale = 1f;
+        GameManager.Instance.ResumeGame();
     }
 
     public void OpenOptions()
@@ -46,12 +46,14 @@ public class PauseMenuManager : MonoBehaviour
 
     public void ReturnToMainMenu()
     {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene("StartMenu");
+        pauseMenuPanel.SetActive(false);
+        optionsPanel.SetActive(false);
+        characterPanel.SetActive(false);
+        _ = GameManager.Instance.ReturnToMainMenu();
     }
 
     public void QuitGame()
     {
-        Application.Quit();
+        _ = GameManager.Instance.QuitGame();
     }
 }

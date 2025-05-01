@@ -17,7 +17,7 @@ public class SceneGraphService : MonoBehaviour
 
     private readonly Dictionary<string, SceneNode> _sceneRoots = new();
     private readonly Dictionary<string, Scene> _loadedScenes = new();
-    
+
     public void SetRootScene(string tag, string sceneName)
     {
         if (_sceneRoots.ContainsKey(tag))
@@ -39,7 +39,7 @@ public class SceneGraphService : MonoBehaviour
             tcs.SetException(new InvalidOperationException($"Failed to start loading scene: {sceneName}"));
             return tcs.Task;
         }
-
+        
         op.completed += _ =>
         {
             var scene = SceneManager.GetSceneByName(sceneName);
@@ -56,7 +56,8 @@ public class SceneGraphService : MonoBehaviour
 
             tcs.SetResult(null);
         };
-
+        Debug.Log($"Loading scene '{sceneName}'");
+        
         return tcs.Task;
     }
     
@@ -82,6 +83,7 @@ public class SceneGraphService : MonoBehaviour
                 tcs.SetException(new InvalidOperationException($"Scene '{sceneName}' was not unloaded correctly."));
             }
         };
+        Debug.Log($"Unloading scene '{sceneName}'");
 
         return tcs.Task;
     }
@@ -104,23 +106,13 @@ public class SceneGraphService : MonoBehaviour
         if (_loadedScenes.TryGetValue(tag, out var existing))
         {
             // if there are children, unload them first
-            if (_sceneRoots.TryGetValue(tag, out var node))
-            {
-                foreach (var child in node.Children.ToList())
-                {
-                    await UnloadScene(child.Tag);
-                }
-            }
-            var unloadOp = SceneManager.UnloadSceneAsync(existing);
-            while (unloadOp is { isDone: false }) await Task.Yield();
-
-            _loadedScenes.Remove(tag);
-            _sceneRoots.Remove(tag);
+            await PopChildren(tag);
+            await UnloadScene(tag);
         }
 
         await LoadScene(tag, sceneName);
     }
-
+    
     public async Task PushChildScene(string parentTag, string childTag, string childSceneName)
     {
         Debug.Log($"Pushing child scene '{childTag}' to parent '{parentTag}'");
@@ -139,6 +131,7 @@ public class SceneGraphService : MonoBehaviour
 
         foreach (var child in parent.Children.ToList())
         {
+            await PopChildren(child.Tag);
             await UnloadScene(child.Tag);
         }
 

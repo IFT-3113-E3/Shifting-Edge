@@ -5,11 +5,11 @@ using UnityEngine.UI;
 
 namespace UI
 {
+    [RequireComponent(typeof(PixelUICanvas))]
     public class VirtualScreen : GraphicRaycaster
     {
         [SerializeField] private Camera gameCamera; // Reference to the camera rendering to the RenderTexture
         [SerializeField] private GameCanvasScaler canvasScaler; // The scaler of the UI projecting the RenderTexture
-        private Canvas _canvas;
 
         protected override void Awake()
         {
@@ -17,7 +17,6 @@ namespace UI
                 return;
                 
             base.Awake();
-            _canvas = GetComponent<Canvas>();
 
             // if (gameCamera == null)
             // {
@@ -45,12 +44,13 @@ namespace UI
                 canvasScaler = FindFirstObjectByType<GameCanvasScaler>();
             }
             
-            // set the canvas to camera space
-            if (_canvas.renderMode == RenderMode.ScreenSpaceOverlay)
-            {
-                _canvas.renderMode = RenderMode.ScreenSpaceCamera;
-                _canvas.worldCamera = CameraManager.Instance.GetCamera();
-            }
+            // set the canvas to camera space if it is not already
+            // if (_canvas.renderMode == RenderMode.ScreenSpaceCamera)
+            // {
+            //     _canvas.renderMode = RenderMode.ScreenSpaceCamera;
+            //     _canvas.worldCamera = CameraManager.Instance.GetCamera();
+            //     _canvas.sortingLayerName = "UI";
+            // }
         }
 
         public override void Raycast(PointerEventData eventData, List<RaycastResult> resultAppendList)

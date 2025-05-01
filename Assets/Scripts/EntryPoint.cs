@@ -7,7 +7,7 @@ public static class BoostrapperHook
     private const string SceneName = "BootstrapScene";
     
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    private static void OnRuntimeMethodLoad()
+    private static async void OnRuntimeMethodLoad()
     {
         for (var sceneIndex = 0; sceneIndex < SceneManager.sceneCount; sceneIndex++)
         {
@@ -16,7 +16,7 @@ public static class BoostrapperHook
             Debug.Log($"Bootstrap scene '{SceneName}' already loaded.");
             return;
         }
-        SceneManager.LoadScene(SceneName);
+        await SceneManager.LoadSceneAsync(SceneName);
     }
 }
 

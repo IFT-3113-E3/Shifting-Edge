@@ -24,7 +24,7 @@ public class PortalCollision : MonoBehaviour
         if (isOpen && (!playerOnly || (playerOnly && collision.gameObject.CompareTag(playerTag))))
         {
             // Charge la nouvelle scène
-            GameManager.Instance.World.TransitionTo(exitId);
+            GameManager.Instance.TransitionTo(exitId);
         }
     }
 
@@ -33,7 +33,7 @@ public class PortalCollision : MonoBehaviour
     {
         if (isOpen && (!playerOnly || (playerOnly && other.CompareTag(playerTag))))
         {
-            GameManager.Instance.World.TransitionTo(exitId);
+            GameManager.Instance.TransitionTo(exitId);
         }
     }
 

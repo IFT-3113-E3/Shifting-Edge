@@ -67,13 +67,14 @@ public class MenuManager : MonoBehaviour
     public void OnPlayClicked()
     {
         if (isTransitioning) return;
-        StartCoroutine(LoadGameAfterTransition(mainMenuPanel));
+        StartCoroutine(LoadGameAfterTransition(mainMenuPanel, true));
     }
     
     public void OnLoadClicked()
     {
         if (isTransitioning) return;
-        StartCoroutine(Transition(mainMenuPanel, loadPanel));
+        StartCoroutine(LoadGameAfterTransition(mainMenuPanel, false));
+        // StartCoroutine(Transition(mainMenuPanel, loadPanel));
     }
 
     public void OnOptionsClicked()
@@ -150,11 +151,18 @@ private IEnumerator BackFromOptionsRoutine()
     }
 
     // ===== COROUTINES PRINCIPALES =====
-    private IEnumerator LoadGameAfterTransition(CanvasGroup panelOut)
+    private IEnumerator LoadGameAfterTransition(CanvasGroup panelOut, bool newGame = false)
     {
         yield return StartCoroutine(FadeOut(panelOut));
         yield return new WaitForSecondsRealtime(sceneLoadDelay);
-        GameManager.Instance.StartNewGame();
+        if (newGame)
+        {
+            GameManager.Instance.StartNewGame();
+        }
+        else
+        {
+            GameManager.Instance.LoadGame(0);
+        }
     }
 
     private IEnumerator ShowSubPanel(CanvasGroup subPanel)
