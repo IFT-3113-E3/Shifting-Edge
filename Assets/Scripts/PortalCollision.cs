@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 public class PortalCollision : MonoBehaviour
 {
     [Tooltip("Le nom de la scène à charger")]
-    public string sceneToLoad;
+    public string exitId;
 
     [Tooltip("Vérifie si seulement le joueur peut déclencher le changement de scène")]
     public bool playerOnly = true;
@@ -24,7 +24,7 @@ public class PortalCollision : MonoBehaviour
         if (isOpen && (!playerOnly || (playerOnly && collision.gameObject.CompareTag(playerTag))))
         {
             // Charge la nouvelle scène
-            SceneManager.LoadScene(sceneToLoad);
+            GameManager.Instance.World.TransitionTo(exitId);
         }
     }
 
@@ -33,7 +33,7 @@ public class PortalCollision : MonoBehaviour
     {
         if (isOpen && (!playerOnly || (playerOnly && other.CompareTag(playerTag))))
         {
-            SceneManager.LoadScene(sceneToLoad);
+            GameManager.Instance.World.TransitionTo(exitId);
         }
     }
 

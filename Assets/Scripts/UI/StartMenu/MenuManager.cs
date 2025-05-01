@@ -90,7 +90,7 @@ public class MenuManager : MonoBehaviour
 
     public void OnQuitClicked()
     {
-        Application.Quit();
+        GameManager.Instance.QuitGame();
     }
 
     // ===== BOUTONS RETOUR =====
@@ -154,7 +154,7 @@ private IEnumerator BackFromOptionsRoutine()
     {
         yield return StartCoroutine(FadeOut(panelOut));
         yield return new WaitForSecondsRealtime(sceneLoadDelay);
-        SceneManager.LoadScene(gameSceneName);
+        GameManager.Instance.StartNewGame();
     }
 
     private IEnumerator ShowSubPanel(CanvasGroup subPanel)

@@ -26,9 +26,8 @@ MonoBehaviour:
   maxBounces: 50
   disableHitboxOnCollision: 0
   physicsConfig: {fileID: 11400000, guid: 5c19fb4dd5ca50c43a6fadef5f6fa2f4, type: 2}
-  spawnSound:
-  - {fileID: 0}
-  - {fileID: 0}
+  spawnSound: []
   hitSound: []
   destroySound: []
+  volumeMultiplier: 1
   script: {fileID: 0}

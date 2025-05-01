@@ -45,19 +45,21 @@ public class PlayerController : MonoBehaviour
     private bool _inputRoll;
 
     private Animator _animator;
-    // private CharacterController _cc;
     private EntityMovementController _mc;
     private Camera _camera;
     private ComboManager _cm;
     private DynamicSwordSlash _slashController;
-    
-    private Vector3 _externalForce = Vector3.zero;
-    private bool _movementLocked;
 
+    private bool _movementLocked;
+    private bool _inputEnabled;
+    
     private InputAction _moveAction;
     private InputAction _jumpAction;
     private InputAction _attackAction;
     private InputAction _rollAction;
+    
+    // Find a better place for this
+    public event Action<int> OnAttack;
     
     private void OnEnable()
     {
@@ -86,7 +88,7 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        _camera = Camera.main;
+        _camera = CameraManager.Instance?.GetCamera() ?? Camera.main;
         // _cc = GetComponent<CharacterController>();
         _mc = GetComponent<EntityMovementController>();
         _animator = GetComponent<Animator>();
@@ -216,6 +218,7 @@ public class PlayerController : MonoBehaviour
     {
         _movementLocked = false;
         _cm.OnAttackEnd();
+        OnAttack?.Invoke(_cm.CurrentCombo);
     }
 
     public void OnAttackDash()
@@ -242,6 +245,25 @@ public class PlayerController : MonoBehaviour
         else
         {
             _mc.AddVelocity(force);
+        }
+    }
+    
+    public void SetInputEnabled(bool inputEnabled)
+    {
+        _inputEnabled = inputEnabled;
+        if (_inputEnabled)
+        {
+            _moveAction.Enable();
+            _jumpAction.Enable();
+            _attackAction.Enable();
+            _rollAction.Enable();
+        }
+        else
+        {
+            _moveAction.Disable();
+            _jumpAction.Disable();
+            _attackAction.Disable();
+            _rollAction.Disable();
         }
     }
     

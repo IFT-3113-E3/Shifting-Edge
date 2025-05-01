@@ -8,46 +8,29 @@ public class SkillManager : MonoBehaviour
 
     [Header("References")]
     public SkillHUDController hudController;
-    public Animator characterAnimator;
 
-    private int _currentStacks;
-    private bool[] _animationTriggered = new bool[3];
+    private PlayerStats _playerStats;
 
     private void Start()
     {
+        _playerStats = GameManager.Instance.GameSession?.PlayerStats;
+        if (_playerStats == null)
+        {
+            Debug.LogError("PlayerStats is not initialized.");
+            return;
+        }
+        _playerStats.OnAbilityStacksChanged += OnStacksChanged;
         hudController.Initialize(maxStacks);
     }
 
     private void Update()
     {
-        CheckAnimations();
         HandleSkillInput();
     }
 
-    private void CheckAnimations()
+    private void OnStacksChanged(int numStacks)
     {
-        for (int i = 0; i < 3; i++)
-        {
-            if (characterAnimator.GetCurrentAnimatorStateInfo(0).IsName($"Attack_{i+1}") && 
-                !_animationTriggered[i])
-            {
-                OnAnimationCompleted(i);
-                _animationTriggered[i] = true;
-            }
-            else if (!characterAnimator.GetCurrentAnimatorStateInfo(0).IsName($"Attack_{i+1}"))
-            {
-                _animationTriggered[i] = false;
-            }
-        }
-    }
-
-    private void OnAnimationCompleted(int animationIndex)
-    {
-        if (_currentStacks < maxStacks)
-        {
-            _currentStacks++;
-            hudController.UpdateStacks(_currentStacks);
-        }
+        hudController.UpdateStacks(numStacks);
     }
 
     private void HandleSkillInput()
@@ -59,10 +42,10 @@ public class SkillManager : MonoBehaviour
 
     private void TryUseSkill(int skillIndex)
     {
-        if (skillIndex < skillCosts.Length && _currentStacks >= skillCosts[skillIndex])
+        var currentStacks = _playerStats.abilityStacks;
+        if (skillIndex < skillCosts.Length && currentStacks >= skillCosts[skillIndex])
         {
-            _currentStacks -= skillCosts[skillIndex];
-            hudController.UpdateStacks(_currentStacks);
+            _playerStats.SetAbilityStacks(currentStacks - skillCosts[skillIndex]);
             
             // Déclencher l'effet de la compétence ici
             Debug.Log($"Skill {skillIndex+1} used!");

@@ -30,7 +30,7 @@ RectTransform:
   m_GameObject: {fileID: 494563899739841758}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8782610961920733224}
@@ -87,7 +87,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &2444840545749664524
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -134,7 +134,6 @@ MonoBehaviour:
   maxStacks: 3
   skillCosts: 000000000000000000000000
   hudController: {fileID: 7418924571802271567}
-  characterAnimator: {fileID: 0}
 --- !u!1 &768892184244802046
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,9 +1,7 @@
 ﻿using Enemy.IceBoss.States.Combat;
 using Enemy.IceBoss.States.Intro;
-using MeshVFX;
 using Projectiles;
 using Status;
-using UI;
 using UnityEngine;
 using UnityHFSM;
 
@@ -13,7 +11,8 @@ namespace Enemy.IceBoss
         typeof(EntityStatus))]
     public class BossController : MonoBehaviour
     {
-        [Header("Context initialization")] public GameObject player;
+        [Header("Context initialization")] 
+        public GameObject player;
         public Transform spawnPoint;
 
         public CameraEffects cameraEffects;
@@ -82,6 +81,9 @@ namespace Enemy.IceBoss
 
         void InitializeBoss()
         {
+            player = GameManager.Instance.PlayerManager.Player.GameObject;
+            
+            Debug.Log("here this" + GameManager.Instance.PlayerManager.Player.gameObject.name);
             _context = new BossContext
             {
                 self = gameObject,

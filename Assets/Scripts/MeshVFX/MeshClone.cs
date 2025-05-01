@@ -10,6 +10,12 @@ namespace MeshVFX
 
         public static MeshRendererCloneBase Create(Renderer sourceRenderer)
         {
+            if (!sourceRenderer || !sourceRenderer.gameObject)
+            {
+                Debug.LogWarning("Attempted to clone a destroyed renderer.");
+                return null;
+            }
+
             if (sourceRenderer is SkinnedMeshRenderer skinnedMeshRenderer)
             {
                 return new SkinnedMeshRendererClone(skinnedMeshRenderer);

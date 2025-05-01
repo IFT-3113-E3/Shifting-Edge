@@ -1,10 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using PixelPerfect;
 using UnityEngine;
 
 public class OrbitCamera : MonoBehaviour
 {
-    public new PixelPerfect.PixelPerfectCamera camera;
+    public new PixelPerfectCamera camera;
 
     public Transform target; // The object the camera orbits around
     public float rotationSpeed = 0.5f; // Speed of transition for orbiting
@@ -55,9 +56,14 @@ public class OrbitCamera : MonoBehaviour
     {
         _currentRotation = new Vector3(30, startingAngle, 0); // Default starting angle
         _targetRotation = _currentRotation;
-        _targetPosition = target.position;
-
-        // _currentTransition = StartCoroutine(EntranceTransition());
+        if (target != null)
+        {
+            _targetPosition = target.position;
+        }
+        else
+        {
+            _targetPosition = Vector3.zero;
+        }
     }
 
     private void Update()
@@ -212,10 +218,10 @@ public class OrbitCamera : MonoBehaviour
 
     private void ClampMainTargetVisibility(Bounds bounds)
     {
-        if (!target || camera == null) return;
+        if (!target || !camera) return;
 
-        float cameraHeight = camera.ppu > 0 ? camera.RefResolutionX / (float)camera.ppu : 10f;
-        float cameraWidth = cameraHeight * camera.RefResolutionX / camera.RefResolutionY;
+        float cameraHeight = camera.ppu > 0 ? PixelPerfectCamera.RefResolutionX / (float)camera.ppu : 10f;
+        float cameraWidth = cameraHeight * PixelPerfectCamera.RefResolutionX / PixelPerfectCamera.RefResolutionY;
 
         float requiredWidth = bounds.size.x;
         float requiredHeight = bounds.size.z; // Use Z for top-down depth

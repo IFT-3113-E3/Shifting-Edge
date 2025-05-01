@@ -26,6 +26,11 @@ public class CameraEffects : MonoBehaviour
 
         while (elapsed < duration)
         {
+            if (Time.timeScale == 0)
+            {
+                yield return null;
+                continue;
+            }
             float t = Mathf.Clamp01(elapsed / duration);
             Vector3 shakeOffset = Random.insideUnitSphere * (magnitude * shakeMultiplier * (1 - t));
             transform.localPosition = _originalLocalPosition + shakeOffset;

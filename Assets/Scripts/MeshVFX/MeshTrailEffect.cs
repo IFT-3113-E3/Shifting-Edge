@@ -42,16 +42,16 @@ namespace MeshVFX
             }
         }
         
-        private List<Renderer> _meshRenderers = new();
+        private readonly List<Renderer> _meshRenderers = new();
 
-        private Queue<MeshTrailCloneGroup> _meshTrailComponents = new();
+        private readonly Queue<MeshTrailCloneGroup> _meshTrailComponents = new();
         private readonly Queue<MeshRendererCloneBase[]> _clonePool = new();
 
         private void Start()
         {
             foreach (var rend in GetComponentsInChildren<Renderer>())
             {
-                if (rend is MeshRenderer or SkinnedMeshRenderer)
+                if (rend && rend is MeshRenderer or SkinnedMeshRenderer)
                 {
                     _meshRenderers.Add(rend);
                 }
@@ -110,7 +110,18 @@ namespace MeshVFX
             for (var i = 0; i < clones.Length; i++)
             {
                 var clone = clones[i];
-                clone.SetTransform(_meshRenderers[i].transform);
+                var rend = _meshRenderers[i];
+                if (clone == null) 
+                {
+                    Debug.LogWarning($"Clone {i} is null in {gameObject.name} with {rend?.name ?? "null"}");
+                    continue;
+                };
+                if (rend == null)
+                {
+                    Debug.LogWarning($"Renderer {i} is null in {gameObject.name}");
+                    continue;
+                }
+                clone.SetTransform(rend.transform);
                 clone.SetLayer(gameObject.layer);
                 clone.UpdateMesh();
                 
@@ -145,6 +156,11 @@ namespace MeshVFX
                 for (int i = 0; i < group.Clones.Length; i++)
                 {
                     var clone = group.Clones[i];
+                    if (clone == null)
+                    {
+                        Debug.LogWarning($"Clone {i} is null in group {n} for {gameObject.name}");
+                        continue;
+                    }
                     clone.GetPropertyBlock(_mpb);
                     _mpb.SetColor(baseColorPropertyName, color);
                     clone.SetPropertyBlock(_mpb);
@@ -175,6 +191,11 @@ namespace MeshVFX
             {
                 var rend = _meshRenderers[i];
                 var clone = MeshRendererCloneBase.Create(rend);
+                if (clone == null)
+                {
+                    Debug.LogWarning($"Failed to create clone for {rend}");
+                    continue;
+                }
                 var cloneMat = new Material(overrideMaterial);
                 clone.Material = cloneMat;
                 clone.SetActive(false);

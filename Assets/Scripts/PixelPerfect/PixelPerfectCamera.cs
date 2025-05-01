@@ -12,23 +12,25 @@ namespace PixelPerfect
         private int _textureHeight;
         private float _pixelStep; // Smallest movement step
         private Camera _cam;
+        private static Camera PhysicalCamera => CameraManager.Instance?.GetCamera();
 
-        public int RefResolutionX => _cam.pixelWidth;
-        public int RefResolutionY => _cam.pixelHeight;
+        public static int RefResolutionX => PhysicalCamera.pixelWidth;
+        public static int RefResolutionY => PhysicalCamera.pixelHeight;
 
         public Transform virtualCamera;
 
         private void Awake()
         {
             _cam = GetComponent<Camera>();
-            _textureWidth = _cam.pixelWidth;
-            _textureHeight = _cam.pixelHeight;
 
-            Debug.Log($"Texture size: {_textureWidth}x{_textureHeight}");
         }
 
         private void Start()
         {
+            _textureWidth = RefResolutionX;
+            _textureHeight = RefResolutionY;
+            Debug.Log($"Texture size: {_textureWidth}x{_textureHeight}");
+
             _pixelStep = 1.0f / ppu;
             _cam.transform.rotation = Quaternion.Euler(Mathf.Atan(1.0f/Mathf.Sqrt(2.0f)) * Mathf.Rad2Deg, 0, 0);
             _cam.orthographicSize = _textureHeight / (2.0f * ppu);

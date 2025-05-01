@@ -31,9 +31,10 @@ namespace Status
 
         public event Action<DamageRequest> OnDamageTaken;
         public event Action<DamageRequest> OnDeath;
+        public event Action<float> OnHealthChanged;
 
         private readonly List<IStatusEffect> _activeEffects = new();
-
+        
         private void Awake()
         {
             CurrentHealth = maxHealth;
@@ -51,6 +52,17 @@ namespace Status
                     _activeEffects.RemoveAt(i);
                 }
             }
+        }
+        
+        public void SetMaxHealth(float value)
+        {
+            maxHealth = value;
+            CurrentHealth = Mathf.Min(CurrentHealth, maxHealth);
+        }
+        
+        public void SetCurrentHealth(float value)
+        {
+            CurrentHealth = Mathf.Clamp(value, 0, maxHealth);
         }
 
         public void AddEffect(IStatusEffect effect)
@@ -85,6 +97,7 @@ namespace Status
 
             CurrentHealth = Mathf.Max(CurrentHealth - amount, 0);
             OnDamageTaken?.Invoke(damageRequest);
+            OnHealthChanged?.Invoke(CurrentHealth);
 
             foreach (var reaction in GetComponents<IHitReaction>())
                 reaction.ReactToHit(damageRequest);
@@ -100,6 +113,7 @@ namespace Status
             if (IsDead) return;
 
             CurrentHealth = Mathf.Min(CurrentHealth + amount, maxHealth);
+            OnHealthChanged?.Invoke(CurrentHealth);
         }
 
         private void Die(DamageRequest damageRequest)

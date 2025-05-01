@@ -136,14 +136,23 @@ namespace MeshVFX
                 _hasFlashedBeforeStart = true;
                 return;
             }
+
             foreach (var clone in _flashRenderers)
+            {
+                if (!clone || !clone.gameObject.activeSelf)
+                    continue;
                 clone.enabled = true;
+            }
         }
 
         private void DisableFlash()
         {
             foreach (var clone in _flashRenderers)
+            {
+                if (!clone || !clone.gameObject.activeSelf)
+                    continue;
                 clone.enabled = false;
+            }
         }
 
         // === PUBLIC API ===
