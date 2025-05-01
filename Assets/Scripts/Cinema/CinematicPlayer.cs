@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using UnityEngine.SceneManagement;
 
 public class CinematicPlayer : MonoBehaviour
 {
@@ -20,16 +19,21 @@ public class CinematicPlayer : MonoBehaviour
     public float textSpeed = 0.03f;
     public float fadeDuration = 1.0f;
 
+    public GameObject[] objectsToEnableAfter;
+
     private int index = 0;
     private bool typing = false;
     private bool readyForNext = false;
 
     void Start() {
+        // Désactive tous les objets de gameplay
+        foreach (var go in objectsToEnableAfter) go.SetActive(false);
+
         StartCoroutine(PlaySlide());
     }
 
     void Update() {
-        if (Input.GetKeyDown(KeyCode.Space)) {
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)) {
             if (typing) {
                 StopAllCoroutines();
                 textHolder.text = slides[index].text;
@@ -40,7 +44,7 @@ public class CinematicPlayer : MonoBehaviour
                 if (index < slides.Count) {
                     StartCoroutine(PlaySlide());
                 } else {
-                    StartCoroutine(FadeToBlackThenLoad("MainScene"));
+                    StartCoroutine(FadeOutCinematic());
                 }
             }
         }
@@ -50,16 +54,12 @@ public class CinematicPlayer : MonoBehaviour
         typing = true;
         readyForNext = false;
 
-        // Fade to black
         yield return StartCoroutine(Fade(1));
 
-        // Change image
         imageHolder.sprite = slides[index].image;
 
-        // Fade in
         yield return StartCoroutine(Fade(0));
 
-        // Display text
         textHolder.text = "";
         foreach (char c in slides[index].text) {
             textHolder.text += c;
@@ -74,15 +74,21 @@ public class CinematicPlayer : MonoBehaviour
         float t = 0;
         float start = fadeOverlay.alpha;
         while (t < fadeDuration) {
-            t += Time.deltaTime;
+            t += Time.unscaledDeltaTime;
             fadeOverlay.alpha = Mathf.Lerp(start, targetAlpha, t / fadeDuration);
             yield return null;
         }
         fadeOverlay.alpha = targetAlpha;
     }
 
-    IEnumerator FadeToBlackThenLoad(string sceneName) {
+    IEnumerator FadeOutCinematic() {
         yield return StartCoroutine(Fade(1));
-        SceneManager.LoadScene(sceneName);
+        imageHolder.enabled = false;
+        textHolder.text = "";
+
+        yield return StartCoroutine(Fade(0));
+
+        foreach (var go in objectsToEnableAfter) go.SetActive(true);
+        Destroy(gameObject); // Optionnel : auto-détruire la cinématique
     }
 }

@@ -6,6 +6,7 @@ public class PauseMenuManager : MonoBehaviour
     public GameObject pauseMenuPanel;
     public GameObject optionsPanel;
     public GameObject characterPanel;
+    public GameObject hud;
 
     void Update()
     {
@@ -21,6 +22,7 @@ public class PauseMenuManager : MonoBehaviour
     public void PauseGame()
     {
         pauseMenuPanel.SetActive(true);
+        hud.SetActive(false);
         GameManager.Instance.PauseGame();
     }
 
@@ -29,6 +31,7 @@ public class PauseMenuManager : MonoBehaviour
         pauseMenuPanel.SetActive(false);
         optionsPanel.SetActive(false);
         characterPanel.SetActive(false);
+        hud.SetActive(true);
         GameManager.Instance.ResumeGame();
     }
 

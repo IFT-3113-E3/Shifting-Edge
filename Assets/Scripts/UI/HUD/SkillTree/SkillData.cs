@@ -10,4 +10,20 @@ public class SkillData : ScriptableObject
     public SkillData[] prerequisites;
 
     [System.NonSerialized] public bool isUnlocked = false;
+
+    public Reward reward;
+}
+
+[System.Serializable]
+public class Reward
+{
+    public RewardType type;
+    public float value;
+    
+    public enum RewardType
+    {
+        HealthIncrease,
+        ManaIncrease,
+        DamageBoost
+    }
 }

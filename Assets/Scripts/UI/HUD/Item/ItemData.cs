@@ -12,4 +12,14 @@ public class ItemData : ScriptableObject
     [Header("Stacking")]
     public bool stackable = true;
     public int maxStack = 1;
+
+    [Header("Item Type")]
+    public ItemType itemType;
+    public enum ItemType
+    {
+        Consumable,
+        Weapon,
+        Armor,
+        QuestItem,
+    }
 }
