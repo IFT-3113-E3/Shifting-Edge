@@ -9,7 +9,8 @@ public class CinematicPlayer : MonoBehaviour
     [System.Serializable]
     public class Slide {
         public Sprite image;
-        [TextArea(3,10)] public string text;
+        [TextArea(3, 10)] public string text;
+        public float displayDuration = 2f;
     }
 
     public List<Slide> slides;
@@ -24,50 +25,77 @@ public class CinematicPlayer : MonoBehaviour
     private int index = 0;
     private bool typing = false;
     private bool readyForNext = false;
+    private bool skipRequested = false;
 
     void Start() {
-        // Désactive tous les objets de gameplay
-        foreach (var go in objectsToEnableAfter) go.SetActive(false);
+        foreach (var go in objectsToEnableAfter) {
+            if (go != null) go.SetActive(false);
+        }
+
+        if (slides == null || slides.Count == 0) {
+            Debug.LogWarning("No slides assigned to CinematicPlayer!");
+            return;
+        }
 
         StartCoroutine(PlaySlide());
     }
 
     void Update() {
         if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)) {
-            if (typing) {
-                StopAllCoroutines();
-                textHolder.text = slides[index].text;
-                typing = false;
-                readyForNext = true;
-            } else if (readyForNext) {
-                index++;
-                if (index < slides.Count) {
-                    StartCoroutine(PlaySlide());
-                } else {
-                    StartCoroutine(FadeOutCinematic());
-                }
-            }
+            skipRequested = true;
         }
     }
 
     IEnumerator PlaySlide() {
         typing = true;
         readyForNext = false;
+        skipRequested = false;
 
         yield return StartCoroutine(Fade(1));
 
-        imageHolder.sprite = slides[index].image;
+        if (slides[index].image != null) {
+            imageHolder.sprite = slides[index].image;
+            imageHolder.color = Color.white;
+            imageHolder.enabled = true;
+        } else {
+            imageHolder.sprite = null;
+            imageHolder.color = Color.black;
+            imageHolder.enabled = true;
+        }
+
+        textHolder.text = "";
 
         yield return StartCoroutine(Fade(0));
 
-        textHolder.text = "";
         foreach (char c in slides[index].text) {
+            if (skipRequested) break;
             textHolder.text += c;
             yield return new WaitForSeconds(textSpeed);
         }
 
+        textHolder.text = slides[index].text;
         typing = false;
         readyForNext = true;
+        skipRequested = false;
+
+        float timer = 0f;
+        float waitTime = slides[index].displayDuration;
+
+        while (timer < waitTime) {
+            if (skipRequested) break;
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        skipRequested = false;
+        readyForNext = false;
+        index++;
+
+        if (index < slides.Count) {
+            StartCoroutine(PlaySlide());
+        } else {
+            StartCoroutine(FadeOutCinematic());
+        }
     }
 
     IEnumerator Fade(float targetAlpha) {
@@ -88,7 +116,10 @@ public class CinematicPlayer : MonoBehaviour
 
         yield return StartCoroutine(Fade(0));
 
-        foreach (var go in objectsToEnableAfter) go.SetActive(true);
-        Destroy(gameObject); // Optionnel : auto-détruire la cinématique
+        foreach (var go in objectsToEnableAfter) {
+            if (go != null) go.SetActive(true);
+        }
+
+        Destroy(gameObject);
     }
 }
