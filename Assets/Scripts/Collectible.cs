@@ -11,6 +11,10 @@ public class Collectible : MonoBehaviour
 
     private void Start()
     {
+        if (collectibleData == null)
+        {
+            Debug.LogError("CollectibleData is not assigned in the inspector.");
+        }
         if (cristal != null)
         {
             if (cristal.TryGetComponent<Renderer>(out var renderer))
@@ -34,6 +38,10 @@ public class Collectible : MonoBehaviour
 
     private void CheckCollectedState()
     {
+        if (collectibleData == null)
+        {
+            return;
+        }
         if (GameManager.Instance.GameSession.GameProgression.HasCollected(collectibleData.id))
         {
             isCollected = true;
@@ -61,6 +69,10 @@ public class Collectible : MonoBehaviour
     
     private void Collect()
     {
+        if (collectibleData == null)
+        {
+            return;
+        }
         if (isCollected) return;
 
         isCollected = true;

@@ -502,6 +502,7 @@ MonoBehaviour:
   pauseMenuPanel: {fileID: 920525902}
   optionsPanel: {fileID: 920525897}
   characterPanel: {fileID: 920525901}
+  hud: {fileID: 2107953773}
 --- !u!224 &850829467
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1755,6 +1756,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 003af499a5394db4f952cdc04b87c5dd, type: 3}
+--- !u!1 &2107953773 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8430015143153787124, guid: 003af499a5394db4f952cdc04b87c5dd, type: 3}
+  m_PrefabInstance: {fileID: 2107953772}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -16,7 +16,7 @@ public class PortalCollision : MonoBehaviour
     public string playerTag = "Player";
 
     [Tooltip("Le nombre d'objets requis pour ouvrir le portail")]
-    public CollectibleData[] requiredCollectibles;
+    public CollectibleData[] requiredCollectibles = Array.Empty<CollectibleData>();
 
     [Tooltip("Si le portail est ouvert ou non")]
     private bool isOpen = false;

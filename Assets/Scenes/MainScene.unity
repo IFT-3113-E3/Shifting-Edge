@@ -8942,7 +8942,9 @@ MonoBehaviour:
   exitId: bossExit
   playerOnly: 1
   playerTag: Player
-  requiredItems: 0
+  requiredCollectibles:
+  - {fileID: 11400000, guid: 6d32ef59b835d7247a9e858afe10be87, type: 2}
+  - {fileID: 11400000, guid: 187ff669b38040340be2166c5315d7b6, type: 2}
 --- !u!1 &926193545
 GameObject:
   m_ObjectHideFlags: 0
@@ -12528,6 +12530,10 @@ PrefabInstance:
       propertyPath: cristal
       value: 
       objectReference: {fileID: 1375311716}
+    - target: {fileID: -8917090856908311406, guid: 27ff2858f21c75540a7183325bc19c27, type: 3}
+      propertyPath: collectibleData
+      value: 
+      objectReference: {fileID: 11400000, guid: 187ff669b38040340be2166c5315d7b6, type: 2}
     - target: {fileID: 1194732123576047443, guid: 27ff2858f21c75540a7183325bc19c27, type: 3}
       propertyPath: m_Name
       value: core (1)
@@ -15255,6 +15261,10 @@ PrefabInstance:
       propertyPath: cristal
       value: 
       objectReference: {fileID: 837172517}
+    - target: {fileID: -8917090856908311406, guid: 27ff2858f21c75540a7183325bc19c27, type: 3}
+      propertyPath: collectibleData
+      value: 
+      objectReference: {fileID: 11400000, guid: 6d32ef59b835d7247a9e858afe10be87, type: 2}
     - target: {fileID: 1194732123576047443, guid: 27ff2858f21c75540a7183325bc19c27, type: 3}
       propertyPath: m_Name
       value: core
