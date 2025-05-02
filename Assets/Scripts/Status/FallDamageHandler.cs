@@ -1,68 +1,103 @@
+using System;
 using UnityEngine;
-using Status;
 
-[RequireComponent(typeof(EntityStatus))]
-public class FallDamageHandler : MonoBehaviour
+namespace Status
 {
-    [Header("Fall Damage Settings")]
-    public float minFallDistance = 3f;
-    public float damageMultiplier = 10f;
-
-    private EntityStatus entityStatus;
-    private CharacterController characterController;
-    private bool isFalling = false;
-    private float startFallHeight;
-    private float lastYPosition;
-
-    private void Awake()
+    [RequireComponent(typeof(EntityStatus))]
+    public class FallDamageHandler : MonoBehaviour
     {
-        entityStatus = GetComponent<EntityStatus>();
-        characterController = GetComponent<CharacterController>();
-    }
+        [Header("Fall Damage Settings")]
+        public float minFallDistance = 3f;
+        public float fallSpeedMultiplier = 3f;
+        public float damageMultiplier = 10f;
 
-    private void Update()
-    {
-        bool grounded = IsGrounded();
+        private EntityStatus _entityStatus;
+        private EntityMovementController _characterController;
+        private bool _isFalling = false;
 
-        if (!grounded && !isFalling)
+        private float _fallStartHeight;
+        private float _lastYVelocity;
+
+        private void Awake()
         {
-            isFalling = true;
-            startFallHeight = transform.position.y;
+            _entityStatus = GetComponent<EntityStatus>();
+            _characterController = GetComponent<EntityMovementController>();
         }
-        else if (grounded && isFalling)
-        {
-            isFalling = false;
-            float fallDistance = startFallHeight - transform.position.y;
 
-            if (fallDistance > minFallDistance)
+        private void OnEnable()
+        {
+            _characterController.OnGroundHitVelocity += HandleGroundHit;
+        }
+        
+        private void OnDisable()
+        {
+            _characterController.OnGroundHitVelocity -= HandleGroundHit;
+        }
+        
+        private void HandleGroundHit(Vector3 velocity)
+        {
+            float currentY = transform.position.y;
+            if (_isFalling)
             {
-                float damage = (fallDistance - minFallDistance) * damageMultiplier;
-                ApplyFallDamage(damage);
+                _isFalling = false;
+
+                float fallDistance = _fallStartHeight - currentY;
+                float impactSpeed = -velocity.y * fallSpeedMultiplier;
+                Debug.Log($"Falling distance: {fallDistance}, Speed: {impactSpeed}");
+
+                if (fallDistance > minFallDistance)
+                {
+                    float maxHeight = minFallDistance + 5f;
+                    float damageFromHeight = Mathf.InverseLerp(minFallDistance, maxHeight, fallDistance);
+                    float speedMultiplier = Mathf.Max(0f, impactSpeed);
+                    float damage = damageMultiplier * speedMultiplier * damageFromHeight;
+                    Debug.Log($"Fall damage: {damage}");
+
+                    ApplyFallDamage(damage);
+                }
             }
         }
-    }
 
-    private void ApplyFallDamage(float damage)
-    {
-        DamageRequest fallDamage = new DamageRequest(
-            damage,
-            null,
-            transform.position
-        );
-
-        entityStatus.ApplyDamage(fallDamage);
-    }
-
-    private bool IsGrounded()
-    {
-        if (characterController != null)
+        private void Update()
         {
-            return characterController.isGrounded;
+            bool grounded = IsGrounded();
+            float currentY = transform.position.y;
+
+            if (!grounded)
+            {
+                if (!_isFalling)
+                {
+                    _isFalling = true;
+                    _fallStartHeight = currentY;
+                }
+            }
+
+            
+            if (_lastYVelocity >= 0f && _characterController.Velocity.y < 0f)
+            {
+                // Player is falling down
+                _fallStartHeight = currentY;
+            }
+
+            _lastYVelocity = _characterController.Velocity.y;
         }
-        else
+
+        private void ApplyFallDamage(float damage)
         {
-            Ray ray = new Ray(transform.position + Vector3.up * 0.5f, Vector3.down);
-            return Physics.Raycast(ray, 1.0f);
+            if (damage <= float.Epsilon) return;
+
+            DamageRequest fallDamage = new DamageRequest(
+                damage,
+                null,
+                transform.position
+            );
+
+            _entityStatus.ApplyDamage(fallDamage);
+        }
+
+        private bool IsGrounded()
+        {
+            return _characterController.IsGrounded;
         }
     }
 }
