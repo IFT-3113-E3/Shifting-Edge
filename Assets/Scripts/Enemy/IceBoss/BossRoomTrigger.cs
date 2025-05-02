@@ -8,8 +8,15 @@ namespace Enemy.IceBoss
         [SerializeField] private BossController boss;
         [SerializeField] private AudioSource audiosource;
 
+        private bool _shouldSpawn = true;
+
         private void Start()
         {
+            if (GameManager.Instance.GameSession.GameProgression.HasDefeated("IceBoss"))
+            {
+                _shouldSpawn = false;
+                return;
+            }
             if (boss == null)
             {
                 boss = FindFirstObjectByType<BossController>();
@@ -23,15 +30,15 @@ namespace Enemy.IceBoss
 
         private void OnTriggerEnter(Collider other)
         {
+            if (!_shouldSpawn)
+                return;
             if (boss.Context.shouldActivate)
                 return;
-            if (other.CompareTag("Player"))
-            {
-                boss.Context.shouldActivate = true;
-                Debug.Log("[Boss Trigger] Activated boss via trigger!");
+            if (!other.CompareTag("Player")) return;
+            boss.Context.shouldActivate = true;
+            Debug.Log("[Boss Trigger] Activated boss via trigger!");
 
-                audiosource.Play();
-            }
+            audiosource.Play();
         }
     }
 
