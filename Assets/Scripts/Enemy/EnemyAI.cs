@@ -9,7 +9,8 @@ public enum EnemyState
     Idle,
     Patrol,
     Chase,
-    Attack
+    Attack,
+    ReturnToArea
 }
 
 public class EnemyAI : MonoBehaviour
@@ -24,6 +25,7 @@ public class EnemyAI : MonoBehaviour
     public float attackRange = 2f;
     public float patrolRadius = 10f;
     public float idleTime = 2f;
+    public float maxDistanceFromSpawnArea = 30f; // How far the enemy can wander from its spawn area
 
     [Header("Attack Settings")]
     public float attackCooldown = 1.5f;
@@ -33,38 +35,44 @@ public class EnemyAI : MonoBehaviour
     [Header("Visual Feedback")]
     public GameObject attackVFX;
 
-    // Références privées
+    // Private references
     private NavMeshAgent agent;
     private Transform player;
     private Animator animator;
-    private Vector3 startPosition;
-    // private bool canAttack = true;
+    private Vector3 spawnAreaCenter; // Center of the spawn area
+    private float spawnAreaRadius;   // Radius of the spawn area
     private Vector3 currentPatrolTarget;
+    private bool isInitialized = false;
 
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
-        startPosition = transform.position;
     }
 
-    public void Initialize(Transform playerTransform)
+    public void Initialize(Transform playerTransform, Vector3 areaCenter, float areaRadius)
     {
         player = playerTransform;
+        spawnAreaCenter = areaCenter;
+        spawnAreaRadius = areaRadius;
+        patrolRadius = Mathf.Min(patrolRadius, areaRadius * 0.8f); // Make sure patrol radius isn't larger than spawn area
 
-        // Configurer l'agent NavMesh
+        // Configure NavMesh agent
         if (agent)
         {
             agent.stoppingDistance = attackRange * 0.8f;
         }
 
-        // Démarrer le comportement
+        Debug.Log($"Enemy AI initialized with player: {player.name}, spawn area center: {spawnAreaCenter}, radius: {spawnAreaRadius}");
+
+        // Start AI behavior
+        isInitialized = true;
         StartCoroutine(StateMachine());
     }
 
     IEnumerator StateMachine()
     {
-        while (enabled)
+        while (enabled && isInitialized)
         {
             yield return StartCoroutine(currentState.ToString());
         }
@@ -72,7 +80,7 @@ public class EnemyAI : MonoBehaviour
 
     IEnumerator Idle()
     {
-        // S'arrêter et jouer l'animation d'inactivité
+        // Stop and play idle animation
         if (agent != null)
         {
             agent.isStopped = true;
@@ -85,46 +93,61 @@ public class EnemyAI : MonoBehaviour
             animator.SetBool(IsMoving, false);
         }
 
-        // Attendre un certain temps
+        // Wait for idle time
         float timer = 0;
         while (timer < idleTime)
         {
             timer += Time.deltaTime;
 
-            // Vérifier si le joueur est à portée
+            // Check if player is in range
             if (player != null && Vector3.Distance(transform.position, player.position) < detectionRange)
             {
                 currentState = EnemyState.Chase;
                 yield break;
             }
 
+            // Check if enemy has wandered too far from spawn area
+            if (Vector3.Distance(transform.position, spawnAreaCenter) > maxDistanceFromSpawnArea)
+            {
+                currentState = EnemyState.ReturnToArea;
+                yield break;
+            }
+
             yield return null;
         }
 
-        // Passer à l'état de patrouille
+        // Switch to patrol state
         currentState = EnemyState.Patrol;
     }
 
     IEnumerator Patrol()
     {
-        // Trouver un point de patrouille aléatoire
+        // Find a random patrol point within the spawn area
         bool foundPosition = false;
         int attempts = 0;
 
         while (!foundPosition && attempts < 5)
         {
-            // Position aléatoire autour du point de départ
+            // Random direction within patrol radius
             Vector3 randomDirection = Random.insideUnitSphere * patrolRadius;
             randomDirection.y = 0;
-            Vector3 targetPosition = startPosition + randomDirection;
+            Vector3 targetPosition = transform.position + randomDirection;
 
-            // Vérifier si le point est sur la NavMesh
+            // Make sure it's within the spawn area
+            if (Vector3.Distance(targetPosition, spawnAreaCenter) > spawnAreaRadius)
+            {
+                // Point outside spawn area, adjust it
+                Vector3 directionToTarget = (targetPosition - spawnAreaCenter).normalized;
+                targetPosition = spawnAreaCenter + directionToTarget * (spawnAreaRadius * 0.8f);
+            }
+
+            // Check if point is on NavMesh
             if (NavMesh.SamplePosition(targetPosition, out NavMeshHit hit, patrolRadius, NavMesh.AllAreas))
             {
                 currentPatrolTarget = hit.position;
                 foundPosition = true;
 
-                // Déplacer vers le point
+                // Move to point
                 if (agent != null)
                 {
                     agent.isStopped = false;
@@ -140,27 +163,34 @@ public class EnemyAI : MonoBehaviour
             attempts++;
         }
 
-        // Si on n'a pas trouvé de position valide, rester inactif
+        // If no valid position found, return to idle
         if (!foundPosition)
         {
             currentState = EnemyState.Idle;
             yield break;
         }
 
-        // Attendre d'atteindre la destination ou de détecter le joueur
-        while (Vector3.Distance(transform.position, currentPatrolTarget) > agent.stoppingDistance + 0.5f)
+        // Wait until destination reached or player detected
+        while (agent != null && Vector3.Distance(transform.position, currentPatrolTarget) > agent.stoppingDistance + 0.5f)
         {
-            // Vérifier si le joueur est à portée
+            // Check if player is in range
             if (player != null && Vector3.Distance(transform.position, player.position) < detectionRange)
             {
                 currentState = EnemyState.Chase;
                 yield break;
             }
 
+            // Check if enemy has wandered too far from spawn area
+            if (Vector3.Distance(transform.position, spawnAreaCenter) > maxDistanceFromSpawnArea)
+            {
+                currentState = EnemyState.ReturnToArea;
+                yield break;
+            }
+
             yield return null;
         }
 
-        // Destination atteinte, retour à l'état inactif
+        // Destination reached, return to idle
         currentState = EnemyState.Idle;
     }
 
@@ -172,7 +202,7 @@ public class EnemyAI : MonoBehaviour
             yield break;
         }
 
-        // Poursuivre le joueur
+        // Chase player
         if (agent != null)
         {
             agent.isStopped = false;
@@ -187,14 +217,14 @@ public class EnemyAI : MonoBehaviour
 
         while (true)
         {
-            // Mettre à jour la destination vers le joueur
+            // Update destination to player position
             if (agent != null && player != null)
             {
                 agent.SetDestination(player.position);
             }
 
-            // Vérifier si on peut attaquer
-            float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+            // Check if player is in attack range
+            float distanceToPlayer = player != null ? Vector3.Distance(transform.position, player.position) : float.MaxValue;
 
             if (distanceToPlayer < attackRange)
             {
@@ -202,10 +232,17 @@ public class EnemyAI : MonoBehaviour
                 yield break;
             }
 
-            // Vérifier si le joueur est hors de portée de détection
+            // Check if player is out of detection range
             if (distanceToPlayer > detectionRange * 1.5f)
             {
                 currentState = EnemyState.Patrol;
+                yield break;
+            }
+
+            // Check if enemy has wandered too far from spawn area
+            if (Vector3.Distance(transform.position, spawnAreaCenter) > maxDistanceFromSpawnArea)
+            {
+                currentState = EnemyState.ReturnToArea;
                 yield break;
             }
 
@@ -221,13 +258,13 @@ public class EnemyAI : MonoBehaviour
             yield break;
         }
 
-        // S'arrêter pour attaquer
+        // Stop to attack
         if (agent != null)
         {
             agent.isStopped = true;
         }
 
-        // Se tourner vers le joueur
+        // Face player
         Vector3 directionToPlayer = player.position - transform.position;
         directionToPlayer.y = 0;
         if (directionToPlayer != Vector3.zero)
@@ -235,7 +272,7 @@ public class EnemyAI : MonoBehaviour
             transform.rotation = Quaternion.LookRotation(directionToPlayer);
         }
 
-        // Lancer l'animation d'attaque
+        // Play attack animation
         if (animator != null)
         {
             animator.SetBool(IsMoving, false);
@@ -243,20 +280,20 @@ public class EnemyAI : MonoBehaviour
             animator.SetTrigger(Attack1);
         }
 
-        // Effectuer des dégâts après un court délai
-        yield return new WaitForSeconds(0.5f); // Délai pour que l'animation commence
+        // Wait for animation to start
+        yield return new WaitForSeconds(0.5f);
 
-        // Si le joueur est toujours à portée, infliger des dégâts
+        // Apply damage if player is still in range
         if (player != null && Vector3.Distance(transform.position, player.position) < attackRange * 1.2f)
         {
-            // Afficher l'effet visuel
+            // Show attack VFX
             if (attackVFX != null)
             {
                 GameObject vfx = Instantiate(attackVFX, player.position + Vector3.up, Quaternion.identity);
                 Destroy(vfx, 2f);
             }
 
-            // Infliger des dégâts au joueur EntityStatus
+            // Apply damage to player
             if (player.TryGetComponent<EntityStatus>(out var playerHealth))
             {
                 DamageRequest damageRequest = new(damage, gameObject, player.position);
@@ -264,28 +301,34 @@ public class EnemyAI : MonoBehaviour
             }
         }
 
-        // Attendre la fin de l'animation
+        // Wait for cooldown
         yield return new WaitForSeconds(attackCooldown);
 
-        // Déterminer le prochain état
+        // Determine next state
         if (player != null)
         {
             float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
             if (distanceToPlayer < attackRange)
             {
-                // Continuer d'attaquer
+                // Continue attacking
                 currentState = EnemyState.Attack;
             }
             else if (distanceToPlayer < detectionRange)
             {
-                // Poursuivre le joueur
+                // Chase player
                 currentState = EnemyState.Chase;
             }
             else
             {
-                // Retourner à la patrouille
+                // Return to patrol
                 currentState = EnemyState.Patrol;
+            }
+
+            // Check if enemy has wandered too far from spawn area
+            if (Vector3.Distance(transform.position, spawnAreaCenter) > maxDistanceFromSpawnArea)
+            {
+                currentState = EnemyState.ReturnToArea;
             }
         }
         else
@@ -294,19 +337,77 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    // Pour le débogage
+    IEnumerator ReturnToArea()
+    {
+        // Find a point within the spawn area
+        Vector3 returnPoint = spawnAreaCenter;
+        
+        // Try to find a valid NavMesh position near the center
+        if (NavMesh.SamplePosition(spawnAreaCenter, out NavMeshHit hit, spawnAreaRadius * 0.5f, NavMesh.AllAreas))
+        {
+            returnPoint = hit.position;
+        }
+
+        // Move back to spawn area
+        if (agent != null)
+        {
+            agent.isStopped = false;
+            agent.SetDestination(returnPoint);
+            
+            if (animator != null)
+            {
+                animator.SetBool(IsMoving, true);
+            }
+        }
+
+        // Wait until we're back in the area or player is detected
+        while (Vector3.Distance(transform.position, spawnAreaCenter) > spawnAreaRadius * 0.7f)
+        {
+            // Check if player is in range
+            if (player != null && Vector3.Distance(transform.position, player.position) < detectionRange)
+            {
+                currentState = EnemyState.Chase;
+                yield break;
+            }
+            
+            yield return null;
+        }
+
+        // Back in spawn area, return to patrol
+        currentState = EnemyState.Patrol;
+    }
+
+    // Debug visualization
     void OnDrawGizmosSelected()
     {
-        // Dessiner la zone de détection
+        // Draw detection range
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
 
-        // Dessiner la zone d'attaque
+        // Draw attack range
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
 
-        // Dessiner la zone de patrouille
+        // Draw patrol radius
         Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(startPosition, patrolRadius);
+        Gizmos.DrawWireSphere(transform.position, patrolRadius);
+        
+        // Draw spawn area if initialized
+        if (isInitialized)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(spawnAreaCenter, spawnAreaRadius);
+            
+            Gizmos.color = new Color(1f, 0.5f, 0f); // Orange
+            Gizmos.DrawWireSphere(spawnAreaCenter, maxDistanceFromSpawnArea);
+        }
+        
+        // Draw current patrol target if in patrol state
+        if (currentState == EnemyState.Patrol)
+        {
+            Gizmos.color = Color.white;
+            Gizmos.DrawSphere(currentPatrolTarget, 0.5f);
+            Gizmos.DrawLine(transform.position, currentPatrolTarget);
+        }
     }
 }
