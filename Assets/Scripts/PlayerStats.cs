@@ -7,7 +7,7 @@ public class PlayerStats : ScriptableObject
     public int maxHealth = 100;
     public int currentHealth = 100;
     public bool isDead = false;
-    public int maxAbilityStacks = 6;
+    public int maxAbilityStacks = 3;
     public int abilityStacks;
 
     public event Action<int> OnHealthChanged;

@@ -7,9 +7,13 @@ public class PauseMenuManager : MonoBehaviour
     public GameObject optionsPanel;
     public GameObject characterPanel;
     public GameObject hud;
+    
+    private bool _disableInput = false;
 
     void Update()
     {
+        if (_disableInput)
+            return;
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (pauseMenuPanel.activeSelf)
@@ -17,6 +21,11 @@ public class PauseMenuManager : MonoBehaviour
             else
                 PauseGame();
         }
+    }
+
+    public void SetInputDisabled(bool disable)
+    {
+        _disableInput = disable;
     }
 
     public void PauseGame()

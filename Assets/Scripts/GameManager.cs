@@ -102,7 +102,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        StartWithGameSession(gameSession);
+        _ = StartWithGameSession(gameSession);
     }
     
 
@@ -124,7 +124,7 @@ public class GameManager : MonoBehaviour
             return;
         }
         
-        StartWithGameSession(_gameSession);
+        _ = StartWithGameSession(_gameSession);
     }
 
     private GameSession CreateGameSession()
@@ -163,7 +163,7 @@ public class GameManager : MonoBehaviour
         _currentGameState = GameState.Paused;
     }
 
-    private async void StartWithGameSession(GameSession session)
+    private async Task StartWithGameSession(GameSession session)
     {
         _gameSession = session;
         try
@@ -190,6 +190,42 @@ public class GameManager : MonoBehaviour
             Log.Error("Failed to start game session: " + ex.Message);
 
             await ReturnToMainMenu();
+        }
+    }
+    
+    public async Task RestartAtLastCheckpoint()  
+    {
+        if (_currentGameState != GameState.InGame)
+        {
+            Log.Warning("Cannot restart from current state: " + _currentGameState);
+            return;
+        }
+
+        try
+        {
+            await LoadingScreenManager.Instance.Show("Restarting...");
+            
+            PlayerManager.Despawn();
+            await World.Uninitialize();
+            
+            _gameSession.PlayerStats.Revive();
+
+            PlayerManager.Initialize(_gameSession, AssetDb.playerPrefab);
+
+            World.Initialize(_gameContext, _gameSession);
+
+            var section = AssetDb.GetWorldSection(_gameSession.worldSectionId);
+            if (!section)
+            {
+                throw new Exception("World section not found: " + _gameSession.worldSectionId);
+            }
+            await World.StartSessionAtSection(section, _gameSession.spawnPointId);
+        }
+        catch (Exception ex)
+        {
+            Log.Error("Error during restart: " + ex.Message);
+            await LoadingScreenManager.Instance.Hide(1f);
+            await ReturnToMainMenu(); // fallback if restart fails
         }
     }
     
