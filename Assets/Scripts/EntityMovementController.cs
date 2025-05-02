@@ -94,6 +94,10 @@ public class EntityMovementController : MonoBehaviour, ICharacterController
     public Vector3 Velocity => Motor.Velocity;
     public Vector3 Position => Motor.TransientPosition;
     public Quaternion Rotation => Motor.TransientRotation;
+    
+    private Vector3 _velocityBeforeLanding;
+    
+    public event Action<Vector3> OnGroundHitVelocity;
 
     
     private void Awake()
@@ -495,7 +499,6 @@ public class EntityMovementController : MonoBehaviour, ICharacterController
 
     public void PostGroundingUpdate(float deltaTime)
     {
-        // Handle landing and leaving ground
         if (Motor.GroundingStatus.IsStableOnGround && !Motor.LastGroundingStatus.IsStableOnGround)
         {
             OnLanded();
@@ -503,6 +506,11 @@ public class EntityMovementController : MonoBehaviour, ICharacterController
         else if (!Motor.GroundingStatus.IsStableOnGround && Motor.LastGroundingStatus.IsStableOnGround)
         {
             OnLeaveStableGround();
+        }
+
+        if (!Motor.GroundingStatus.IsStableOnGround)
+        {
+            _velocityBeforeLanding = Motor.Velocity;
         }
     }
 
@@ -602,6 +610,7 @@ public class EntityMovementController : MonoBehaviour, ICharacterController
 
     protected void OnLanded()
     {
+        OnGroundHitVelocity?.Invoke(_velocityBeforeLanding);
     }
 
     protected void OnLeaveStableGround()
