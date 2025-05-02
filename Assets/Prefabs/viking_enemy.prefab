@@ -5102,6 +5102,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 75140ed55d663d84d8888b6658b1184e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1458572152347253143}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 75140ed55d663d84d8888b6658b1184e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4368772062811955264}
   m_SourcePrefab: {fileID: 100100000, guid: 75140ed55d663d84d8888b6658b1184e, type: 3}
 --- !u!4 &3407960210131304146 stripped
 Transform:
@@ -5293,11 +5296,13 @@ MonoBehaviour:
     clips:
     - {fileID: 8300000, guid: 9494691e842fa134992d909c6a0c26dc, type: 3}
     pitchVariation: 0.8
+    volume: 1
     noRepeat: 0
   - eventName: Land
     clips:
     - {fileID: 8300000, guid: e97f7bf04be66df4a86df5817e78ec5a, type: 3}
     pitchVariation: 0.8
+    volume: 1
     noRepeat: 0
   - eventName: Footstep
     clips:
@@ -5311,6 +5316,7 @@ MonoBehaviour:
     - {fileID: 8300000, guid: 765ac3f05f03a5544ad96503c1dfd166, type: 3}
     - {fileID: 8300000, guid: c501672aca73c754bb504eb2a019459d, type: 3}
     pitchVariation: 0.8
+    volume: 1
     noRepeat: 1
   - eventName: Swing
     clips:
@@ -5318,6 +5324,7 @@ MonoBehaviour:
     - {fileID: 8300000, guid: 639958da58790c644bcd72bb9c1d20fc, type: 3}
     - {fileID: 8300000, guid: 7d0f0efab47d61848b6ac253fdfccc2e, type: 3}
     pitchVariation: 0.8
+    volume: 1
     noRepeat: 1
 --- !u!114 &6252254898539983023
 MonoBehaviour:
@@ -5332,6 +5339,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 10000
+  deathSequence: {fileID: 0}
 --- !u!114 &1475713745477728930
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5512,6 +5520,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   overrideMaterial: {fileID: 2100000, guid: 9c91326d2e9ceea43abeaa52a125cd8a, type: 2}
   baseColorPropertyName: _Color
+--- !u!195 &4368772062811955264
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8303980003325856569}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!4 &8680258911906763139 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 75140ed55d663d84d8888b6658b1184e, type: 3}
