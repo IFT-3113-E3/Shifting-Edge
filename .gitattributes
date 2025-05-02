@@ -25,6 +25,7 @@
 *.ttf binary
 *.mat binary
 *.asset binary
+*.exr binary
 
 # Handling of C-specific and C++-specific files
 *.c linguist-language=C
