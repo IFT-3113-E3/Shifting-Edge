@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Rendering.Universal.Internal;
 using UnityEngine.UI;
 
 [ExecuteInEditMode]
@@ -8,19 +7,19 @@ public class ItemSelection : MonoBehaviour
     public Button[] itemButtons;
     public float radius = 200f;
     public Vector2 centerOffset = Vector2.zero;
-    public KeyCode toggleKey = KeyCode.Tab; // Touche pour afficher/masquer les items
+    public KeyCode toggleKey = KeyCode.Tab;
 
     void Start()
     {
         ArrangeButtonToCircle();
-        SetItemsActive(false); // Masquer les items au démarrage
+        SetItemsActive(false);
     }
 
     void Update()
     {
         if (Input.GetKeyDown(toggleKey))
         {
-            SetItemsActive(true); // Afficher les items
+            SetItemsActive(true);
         }
     }
 
@@ -46,12 +45,6 @@ public class ItemSelection : MonoBehaviour
             if (!itemButtons[i].TryGetComponent<RectTransform>(out var rectTransform))
                 continue;
             rectTransform.anchoredPosition = buttonPosition;
-            // rectTransform.localEulerAngles = new Vector3(0, 0, -angle);
-
-            // foreach (var image in itemButtons[i].GetComponentsInChildren<Image>())
-            // {
-            //     image.rectTransform.sizeDelta = new Vector2(radius, radius);
-            // }
         }
     }
 
@@ -66,6 +59,6 @@ public class ItemSelection : MonoBehaviour
 
     public void OnItemClicked()
     {
-        SetItemsActive(false); // Masquer les items lorsqu'un item est cliqué
+        SetItemsActive(false);
     }
 }
