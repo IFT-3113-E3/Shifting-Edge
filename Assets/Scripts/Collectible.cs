@@ -2,14 +2,14 @@ using UnityEngine;
 
 public class Collectible : MonoBehaviour
 {
-    public static int totalCollected = 0;
+    public CollectibleData collectibleData;
 
     private bool isCollected = false;
     [SerializeField] private GameObject cristal;
     private Material cristalMaterial;
     private Light pointLight;
 
-    void Start()
+    private void Start()
     {
         if (cristal != null)
         {
@@ -29,20 +29,47 @@ public class Collectible : MonoBehaviour
                 }
             }
         }
+        CheckCollectedState();
     }
 
-    void OnTriggerEnter(Collider other)
+    private void CheckCollectedState()
+    {
+        if (GameManager.Instance.GameSession.GameProgression.HasCollected(collectibleData.id))
+        {
+            isCollected = true;
+            EnableEmission();
+            EnablePointLight();
+            gameObject.SetActive(false);
+        }
+        else
+        {
+            isCollected = false;
+            DisableEmission();
+            if (pointLight != null)
+            {
+                pointLight.enabled = false;
+            }
+            gameObject.SetActive(true);
+        }
+    }
+    
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!other.CompareTag("Player")) return;
+        Collect();
+    }
+    
+    private void Collect()
     {
         if (isCollected) return;
 
-        if (other.CompareTag("Player"))
-        {
-            isCollected = true;
-            totalCollected++;
-            EnableEmission();
-            EnablePointLight();
-            Destroy(gameObject);
-        }
+        isCollected = true;
+        GameManager.Instance.GameSession.GameProgression.MarkCollectibleCollected(
+            collectibleData.id);
+        EnableEmission();
+        EnablePointLight();
+        // Set the collectible to inactive after a delay
+        gameObject.SetActive(false);
     }
 
     private void DisableEmission()

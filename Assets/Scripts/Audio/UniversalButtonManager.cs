@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Audio;
@@ -52,7 +53,7 @@ public class UniversalButtonManager : MonoBehaviour, IPointerEnterHandler, IPoin
             audioSource.PlayOneShot(clickSound);
     }
 
-    private System.Collections.IEnumerator FadeToTransparency(float targetAlpha)
+    private IEnumerator FadeToTransparency(float targetAlpha)
     {
         float currentTextAlpha = buttonText != null ? buttonText.color.a : 1f;
         float time = 0;
@@ -60,12 +61,12 @@ public class UniversalButtonManager : MonoBehaviour, IPointerEnterHandler, IPoin
         // Easing
         while (time < transitionSpeed)
         {
-            time += Time.deltaTime;
+            time += Time.unscaledDeltaTime;
 
             float newTextAlpha = Mathf.Lerp(currentTextAlpha, targetAlpha, time / transitionSpeed);
             buttonText.color = new Color(originalTextColor.r, originalTextColor.g, originalTextColor.b, newTextAlpha);
 
-            yield return null;
+            yield return new WaitForEndOfFrame();
         }
 
         buttonText.color = new Color(originalTextColor.r, originalTextColor.g, originalTextColor.b, targetAlpha);

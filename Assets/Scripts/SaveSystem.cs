@@ -48,13 +48,9 @@ public static class SaveSystem
             Debug.LogError($"Invalid save slot: {slot}. Must be between 0 and {MaxSaveSlots - 1}.");
             return;
         }
-        
-        var data = new SessionSaveData
-        {
-            worldSectionId = session.worldSectionId,
-            spawnPointId = session.spawnPointId
-        };
-        session.PlayerStats.SaveData(ref data);
+
+        var data = new SessionSaveData();
+        session.SaveData(ref data);
 
         var json = JsonUtility.ToJson(data, prettyPrint: true);
         File.WriteAllText(GetSavePath(slot), json);

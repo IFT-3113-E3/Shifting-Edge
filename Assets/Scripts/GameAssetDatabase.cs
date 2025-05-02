@@ -12,24 +12,38 @@ public class GameAssetDatabase : ScriptableObject
     [Header("World assets")]
     public WorldSection[] worldSections;
     
+    [Header("Collectible assets")]
+    public CollectibleData[] collectibles;
+    
     // [Header("UI assets")]
     // public GameObject startMenuPrefab;
     
     private Dictionary<string, WorldSection> _worldSectionDictionary;
+    private Dictionary<string, CollectibleData> _collectibleDictionary;
 
     private void OnEnable()
     {
-        if (worldSections == null || worldSections.Length == 0)
+        if (worldSections != null && worldSections.Length != 0)
         {
-            return;
+            _worldSectionDictionary = new Dictionary<string, WorldSection>();
+            foreach (var section in worldSections)
+            {
+                if (!_worldSectionDictionary.TryAdd(section.sectionId, section))
+                {
+                    Debug.LogError($"Duplicate world section ID found: {section.sectionId}");
+                }
+            }
         }
         
-        _worldSectionDictionary = new Dictionary<string, WorldSection>();
-        foreach (var section in worldSections)
+        if (collectibles != null && collectibles.Length != 0)
         {
-            if (!_worldSectionDictionary.TryAdd(section.sectionId, section))
+            _collectibleDictionary = new Dictionary<string, CollectibleData>();
+            foreach (var collectible in collectibles)
             {
-                Debug.LogError($"Duplicate world section ID found: {section.sectionId}");
+                if (!_collectibleDictionary.TryAdd(collectible.id, collectible))
+                {
+                    Debug.LogError($"Duplicate collectible ID found: {collectible.id}");
+                }
             }
         }
     }
@@ -42,6 +56,17 @@ public class GameAssetDatabase : ScriptableObject
         }
 
         Debug.LogError($"World section with ID {sectionId} not found.");
+        return null;
+    }
+    
+    public CollectibleData GetCollectible(string collectibleId)
+    {
+        if (_collectibleDictionary.TryGetValue(collectibleId, out var collectible))
+        {
+            return collectible;
+        }
+
+        Debug.LogError($"Collectible with ID {collectibleId} not found.");
         return null;
     }
 }

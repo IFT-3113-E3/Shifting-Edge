@@ -71,24 +71,6 @@ public class GameManager : MonoBehaviour
         _currentGameState = GameState.MainMenu;
     }
     
-    private void Update()
-    {
-        if (_currentGameState == GameState.InGame)
-        {
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                PauseGame();
-            }
-        }
-        else if (_currentGameState == GameState.Paused)
-        {
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                ResumeGame();
-            }
-        }
-    }
-    
     public void OnPlayerDeath()
     {
         if (_currentGameState != GameState.InGame) return;
@@ -150,7 +132,8 @@ public class GameManager : MonoBehaviour
         string startSectionId = AssetDb.GetWorldSection("ice1").sectionId;
         string spawnPointId = "SpawnPoint";
         PlayerStats playerStats = ScriptableObject.CreateInstance<PlayerStats>();
-        return new GameSession(startSectionId, spawnPointId, playerStats);
+        var gameProgression = new GameProgression();
+        return new GameSession(startSectionId, spawnPointId, playerStats, gameProgression);
     }
 
     private GameSession LoadGameSessionFromSave(SessionSaveData saveData)
@@ -161,14 +144,10 @@ public class GameManager : MonoBehaviour
             return null;
         }
 
-        var worldSectionId = saveData.worldSectionId;
-        var spawnPointId = saveData.spawnPointId;
+        var session = new GameSession();
+        session.LoadData(saveData);
 
-        var playerStats = ScriptableObject.CreateInstance<PlayerStats>();
-        playerStats.currentHealth = saveData.currentHealth;
-        playerStats.maxHealth = saveData.maxHealth;
-
-        return new GameSession(worldSectionId, spawnPointId, playerStats);
+        return session;
     }
     
     public void PauseGame()

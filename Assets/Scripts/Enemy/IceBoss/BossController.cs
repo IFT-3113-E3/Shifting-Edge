@@ -34,6 +34,12 @@ namespace Enemy.IceBoss
 
         void Start()
         {
+            if (GameManager.Instance.GameSession.GameProgression.HasDefeated("IceBoss"))
+            {
+                gameObject.SetActive(false);
+                return;
+            }
+            
             if (!cameraEffects)
             {
                 cameraEffects = FindFirstObjectByType<CameraEffects>();
@@ -349,6 +355,7 @@ namespace Enemy.IceBoss
             {
                 defeatedFsm.AddState("Despawning", onEnter: state =>
                 {
+                    GameManager.Instance.GameSession.GameProgression.MarkBossDefeated("IceBoss");
                     _context.animator.Despawn(() =>
                     {
                         _context.orbitCamera.RemoveAdditionalTarget(_context.animator.transform);

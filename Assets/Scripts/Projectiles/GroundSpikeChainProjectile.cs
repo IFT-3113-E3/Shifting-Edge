@@ -62,7 +62,6 @@ namespace Projectiles
             {
                 // check if this is the last spike
                 bool isFinalSpike = _self.TimeToLive - Time.deltaTime - spawnInterval <= 0f;
-                Debug.Log($"Is final spike: {isFinalSpike}");
                 SpawnSpike(isFinalSpike);
                 _timeSinceLastSpawn = 0f;
             }

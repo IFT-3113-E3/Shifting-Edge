@@ -10,6 +10,10 @@ public class PlayerManager : MonoBehaviour
 
     public Player Player => _playerInstance;
     
+    public bool IsPlayerSpawned => _playerInstance != null;
+    
+    public event Action<Player> OnPlayerSpawned;
+    
     public void Initialize(GameSession gameSession, Player playerPrefab)
     {
         _playerPrefab = playerPrefab;
@@ -29,6 +33,8 @@ public class PlayerManager : MonoBehaviour
 
         _playerInstance.Bind(_gameSession.PlayerStats);
         _playerInstance.OnDeath += HandlePlayerDeath;
+        
+        OnPlayerSpawned?.Invoke(_playerInstance);
         
         EnableInput(true);
     }

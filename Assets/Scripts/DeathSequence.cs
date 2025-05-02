@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -14,6 +15,11 @@ public class DeathSequence : MonoBehaviour
     public string menuSceneName = "MainMenu";
 
     private bool isDead = false;
+
+    private void Start()
+    {
+        
+    }
 
     public void TriggerDeath()
     {
@@ -59,7 +65,7 @@ public class DeathSequence : MonoBehaviour
             {
                 anyKeyPressed = true;
                 Time.timeScale = 1f;
-                SceneManager.LoadScene(menuSceneName);
+                GameManager.Instance.ReturnToMainMenu();
             }
             yield return null;
         }

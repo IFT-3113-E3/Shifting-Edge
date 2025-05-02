@@ -51,11 +51,15 @@ public class PlayerStats : ScriptableObject
     {
         saveData.currentHealth = currentHealth;
         saveData.maxHealth = maxHealth;
+        saveData.maxAbilityStacks = maxAbilityStacks;
+        saveData.abilityStacks = abilityStacks;
     }
 
     public void LoadData(SessionSaveData saveData)
     {
         currentHealth = saveData.currentHealth;
         maxHealth = saveData.maxHealth;
+        maxAbilityStacks = saveData.maxAbilityStacks;
+        abilityStacks = saveData.abilityStacks;
     }
 }

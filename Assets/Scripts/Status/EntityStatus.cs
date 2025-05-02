@@ -34,9 +34,6 @@ namespace Status
         public event Action<float> OnHealthChanged;
 
         private readonly List<IStatusEffect> _activeEffects = new();
-
-        public DeathSequence deathSequence;
-
         
         private void Awake()
         {
@@ -125,7 +122,6 @@ namespace Status
             IsDead = true;
             OnDeath?.Invoke(damageRequest);
             // gameObject.SetActive(false);
-            deathSequence.TriggerDeath();
         }
 
         public void Revive()

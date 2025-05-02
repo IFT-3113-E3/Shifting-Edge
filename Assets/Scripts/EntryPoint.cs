@@ -1,13 +1,15 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using World;
+using Object = UnityEngine.Object;
 
 public static class BoostrapperHook
 {
     private const string SceneName = "BootstrapScene";
     
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    private static async void OnRuntimeMethodLoad()
+    private static void OnRuntimeMethodLoad()
     {
         for (var sceneIndex = 0; sceneIndex < SceneManager.sceneCount; sceneIndex++)
         {
@@ -16,7 +18,7 @@ public static class BoostrapperHook
             Debug.Log($"Bootstrap scene '{SceneName}' already loaded.");
             return;
         }
-        await SceneManager.LoadSceneAsync(SceneName);
+        SceneManager.LoadScene(SceneName);
     }
 }
 
