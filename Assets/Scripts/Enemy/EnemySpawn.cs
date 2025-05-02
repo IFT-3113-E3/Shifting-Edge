@@ -246,7 +246,7 @@ public class EnemySpawner : MonoBehaviour
         {
             GameObject enemy = spawnedEnemies[i];
 
-            if (enemy == null)
+            if (enemy == null || !enemy.activeSelf)
             {
                 spawnedEnemies.RemoveAt(i);
                 continue;

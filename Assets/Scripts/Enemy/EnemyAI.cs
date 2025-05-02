@@ -43,11 +43,24 @@ public class EnemyAI : MonoBehaviour
     private float spawnAreaRadius;   // Radius of the spawn area
     private Vector3 currentPatrolTarget;
     private bool isInitialized = false;
+    
+    private EntityStatus _entityStatus;
 
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+        _entityStatus = GetComponent<EntityStatus>();
+        
+        _entityStatus.OnDeath += HandleDeath;
+    }
+
+    void HandleDeath(DamageRequest damageRequest)
+    {
+        // Stop all AI behavior
+        agent.isStopped = true;
+        _entityStatus.OnDeath -= HandleDeath;
+        Destroy(gameObject);
     }
 
     public void Initialize(Transform playerTransform, Vector3 areaCenter, float areaRadius)
