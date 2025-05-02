@@ -2,39 +2,60 @@ using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
 using System.Collections.Generic;
+using Status;
 
-[System.Serializable]
-public class EnemySpawnData
-{
-    public GameObject enemyPrefab;
-    public string enemyId; // Nouvel identifiant qui sera utilisé pour récupérer les données
-    public int minSpawnCount = 2;
-    public int maxSpawnCount = 5;
-    public float spawnHeight = 0.5f;
-    [Range(0, 100)]
-    public int spawnChance = 30; // Pourcentage de chance qu'un chunk génère des ennemis
-}
 
-public class EnemySpawn : MonoBehaviour
+public class EnemySpawner : MonoBehaviour
 {
-    public List<EnemySpawnData> enemyTypes = new();
+    [System.Serializable]
+    public class EnemySpawnData
+    {
+        public string enemyId;
+        public GameObject enemyPrefab;
+        public int minSpawnCount = 2;
+        public int maxSpawnCount = 5;
+        public float spawnHeight = 0.5f;
+        [Range(0, 100)]
+        public int spawnChance = 100;
+    }
+    [Header("Spawn Settings")]
+    public List<EnemySpawnData> enemyTypes = new()
+    {
+        new EnemySpawnData { enemyId = "1", enemyPrefab = null, minSpawnCount = 3, maxSpawnCount = 5, spawnChance = 100 },
+        new EnemySpawnData { enemyId = "2", enemyPrefab = null, minSpawnCount = 4, maxSpawnCount = 5, spawnChance = 100 },
+    };
+    public Terrain targetTerrain;
+    [Range(0f, 60f)]
+    public float maxSlopeAngle = 20f;
+
+    [Header("Spawn Frequency")]
+    public float minSpawnInterval = 5f;
+    public float maxSpawnInterval = 15f;
+    public int maxEnemiesOnTerrain = 50;
+
+    [Header("Distance Parameters")]
     public float minDistanceFromPlayer = 15f;
-    public float despawnDistance = 50f;
+    public float maxDistanceFromPlayer = 5000f;
+    public float despawnDistance = 5000f;
 
-    private ChunkManager chunkManager;
-    private Transform player;
+    [Header("References")]
     public GameObject healthBarPrefab;
 
-    private readonly Dictionary<Vector2Int, List<GameObject>> spawnedEnemies = new();
+    private Transform player;
+    private List<GameObject> spawnedEnemies = new List<GameObject>();
+    private int currentEnemyCount = 0;
 
     void Awake()
     {
-        chunkManager = GetComponent<ChunkManager>();
-        if (chunkManager == null)
+        if (targetTerrain == null)
         {
-            Debug.LogError("EnemySpawner requires a ChunkManager component on the same GameObject.");
-            enabled = false;
-            return;
+            targetTerrain = FindObjectOfType<Terrain>();
+            if (targetTerrain == null)
+            {
+                Debug.LogError("No terrain found! Please assign a terrain to the EnemySpawner.");
+                enabled = false;
+                return;
+            }
         }
     }
 
@@ -48,146 +69,165 @@ public class EnemySpawn : MonoBehaviour
             return;
         }
 
-        StartCoroutine(CheckForNewChunks());
+        // Start spawning enemies
+        StartCoroutine(SpawnEnemiesRoutine());
     }
 
-    IEnumerator CheckForNewChunks()
+    IEnumerator SpawnEnemiesRoutine()
     {
-        // Attendre que la NavMesh soit générée
-        yield return new WaitForSeconds(1f);
-
-        HashSet<Vector2Int> processedChunks = new();
+        yield return new WaitForSeconds(1f); // Wait for NavMesh to be fully generated
 
         while (true)
         {
-            foreach (var chunk in GetLoadedChunks())
+            // Check if player exists
+            if (player == null)
             {
-                if (!processedChunks.Contains(chunk) && !spawnedEnemies.ContainsKey(chunk))
+                player = GameObject.FindGameObjectWithTag("Player")?.transform;
+                if (player == null)
                 {
-                    yield return new WaitForSeconds(0.5f);
-                    TrySpawnEnemiesInChunk(chunk);
-                    processedChunks.Add(chunk);
+                    yield return new WaitForSeconds(1f);
+                    continue;
                 }
             }
 
+            // Remove null references (destroyed enemies)
+            spawnedEnemies.RemoveAll(enemy => enemy == null);
+            currentEnemyCount = spawnedEnemies.Count;
+
+            // Only spawn more enemies if we're below the maximum
+            if (currentEnemyCount < maxEnemiesOnTerrain)
+            {
+                Debug.Log($"Current enemy count: {currentEnemyCount}, Max allowed: {maxEnemiesOnTerrain}");
+                Debug.Log($"Spawning enemies...");
+                Debug.Log($"Enemy types available: {enemyTypes.Count}");
+                // Spawn each type of enemy
+                foreach (var enemyType in enemyTypes)
+                {
+                    Debug.Log($"Checking spawn chance for {enemyType.enemyId}");
+                    if (Random.Range(0, 100) >= enemyType.spawnChance) continue;
+
+                    int spawnCount = Random.Range(enemyType.minSpawnCount, enemyType.maxSpawnCount + 1);
+
+                    // Limit spawn count to keep under the maximum
+                    spawnCount = Mathf.Min(spawnCount, maxEnemiesOnTerrain - currentEnemyCount);
+
+                    // Skip if we can't spawn any more
+                    if (spawnCount <= 0) continue;
+
+                    yield return StartCoroutine(SpawnEnemiesOfType(enemyType, spawnCount));
+                }
+            }
+
+            // Check for enemies to despawn
             CheckForDespawn();
-            yield return new WaitForSeconds(1f);
+
+            Debug.Log($"Current enemy count: {currentEnemyCount}");
+            // Random interval before next spawn attempt
+            float waitTime = Random.Range(minSpawnInterval, maxSpawnInterval);
+            yield return new WaitForSeconds(waitTime);
         }
     }
 
-    private HashSet<Vector2Int> GetLoadedChunks()
+    IEnumerator SpawnEnemiesOfType(EnemySpawnData enemyType, int spawnCount)
     {
-        HashSet<Vector2Int> results = new();
+        Debug.Log($"Spawning {spawnCount} of {enemyType.enemyId}");
 
-        Vector3 playerPos = player.position;
-        Vector2Int playerChunk = new(
-            Mathf.FloorToInt(playerPos.x / chunkManager.chunkSize),
-            Mathf.FloorToInt(playerPos.z / chunkManager.chunkSize)
-        );
-
-        for (int z = -chunkManager.renderDistance; z <= chunkManager.renderDistance; z++)
+        // Try to get enemy data if using the Enemy Manager system
+        EnemyData enemyData = null;
+        if (!string.IsNullOrEmpty(enemyType.enemyId) && EnemyManager.Instance != null)
         {
-            for (int x = -chunkManager.renderDistance; x <= chunkManager.renderDistance; x++)
-            {
-                Vector2Int chunkPos = playerChunk + new Vector2Int(x, z);
-                results.Add(chunkPos);
-            }
+            Debug.Log($"Getting enemy data for {enemyType.enemyId}");
+            enemyData = EnemyManager.Instance.GetEnemyData(enemyType.enemyId);
         }
 
-        return results;
-    }
-
-    // Dans la méthode TrySpawnEnemiesInChunk, ajouter cette partie lorsque vous instanciez un ennemi:
-
-    private void TrySpawnEnemiesInChunk(Vector2Int chunkPos)
-    {
-        foreach (var enemyType in enemyTypes)
+        for (int i = 0; i < spawnCount; i++)
         {
-            if (Random.Range(0, 100) >= enemyType.spawnChance) continue;
+            Vector3 spawnPoint = FindRandomSpawnPoint();
+            Debug.Log($"Spawn point found: {spawnPoint}");
 
-            int spawnCount = Random.Range(enemyType.minSpawnCount, enemyType.maxSpawnCount + 1);
-            List<GameObject> enemies = new();
-
-            // Récupérer les données de l'ennemi depuis l'EnemyManager
-            EnemyData enemyData = null;
-            if (!string.IsNullOrEmpty(enemyType.enemyId))
+            if (spawnPoint != Vector3.zero)
             {
-                enemyData = EnemyManager.Instance.GetEnemyData(enemyType.enemyId);
-            }
+                GameObject enemy = Instantiate(enemyType.enemyPrefab, spawnPoint, Quaternion.identity);
+                spawnedEnemies.Add(enemy);
+                currentEnemyCount++;
 
-            for (int i = 0; i < spawnCount; i++)
-            {
-                Vector3 spawnPosition = FindValidSpawnPoint(chunkPos);
-
-                if (spawnPosition != Vector3.zero)
+                // Apply enemy data if available
+                if (enemyData != null)
                 {
-                    GameObject enemy = Instantiate(enemyType.enemyPrefab, spawnPosition, Quaternion.identity);
-
-                    // Appliquer les données de l'ennemi si disponibles
-                    if (enemyData != null)
+                    if (enemy.TryGetComponent<EntityStatus>(out var entityStatus))
                     {
-                        if (enemy.TryGetComponent<Status.EntityStatus>(out var entityStatus))
-                        {
-                            entityStatus.maxHealth = enemyData.maxHealth;
-                            entityStatus.Revive(); // Reset health to new max value
-                        }
-
-                        // Possibilité d'attacher un composant pour afficher le nom
-                        if (!enemy.TryGetComponent<EnemyIdentity>(out var identity))
-                        {
-                            identity = enemy.AddComponent<EnemyIdentity>();
-                        }
-                        identity.SetEnemyData(enemyData);
-
-                        // Initialiser le composant XP
-                        if (!enemy.TryGetComponent<EnemyXP>(out var enemyXP))
-                        {
-                            _ = enemy.AddComponent<EnemyXP>();
-                        }
-                        // La valeur d'XP sera initialisée dans le Start() de EnemyXP
+                        entityStatus.maxHealth = enemyData.maxHealth;
+                        entityStatus.Revive(); // Reset health to new max value
                     }
 
-                    enemies.Add(enemy);
-
-                    if (enemy.TryGetComponent<EnemyAI>(out var enemyAI))
+                    if (!enemy.TryGetComponent<EnemyIdentity>(out var identity))
                     {
-                        enemyAI.Initialize(player);
+                        identity = enemy.AddComponent<EnemyIdentity>();
+                    }
+                    identity.SetEnemyData(enemyData);
+
+                    if (!enemy.TryGetComponent<EnemyXP>(out var enemyXP))
+                    {
+                        enemyXP = enemy.AddComponent<EnemyXP>();
                     }
                 }
-            }
 
-            if (enemies.Count > 0)
-            {
-                spawnedEnemies[chunkPos] = enemies;
-                Debug.Log($"Spawned {enemies.Count} enemies in chunk {chunkPos}");
+                    EnemyAI enemyAI = enemy.GetComponent<EnemyAI>();
+                    Debug.Log($"Enemy AI component found: {enemyAI != null}");
+                    
+                    if (enemyAI != null)
+                    {
+                        float patrolRadius = Random.Range(5f, 15f);
+                        enemyAI.Initialize(player, spawnPoint, patrolRadius);
+                        Debug.Log($"Enemy AI initialized with patrol radius: {patrolRadius}");
+                    } 
+                    else
+                    {
+                        Debug.LogError("EnemyAI component not found on the enemy prefab!");
+                    }
+
+                yield return new WaitForSeconds(0.1f); // Small delay between spawns
             }
         }
     }
 
-    private Vector3 FindValidSpawnPoint(Vector2Int chunkPos)
+    private Vector3 FindRandomSpawnPoint()
     {
-        // Code inchangé
-        int maxAttempts = 10;
-        int chunkSize = chunkManager.chunkSize;
+        int maxAttempts = 20;
 
         for (int attempt = 0; attempt < maxAttempts; attempt++)
         {
-            // Position aléatoire dans le chunk
-            float x = (chunkPos.x * chunkSize) + Random.Range(0f, chunkSize);
-            float z = (chunkPos.y * chunkSize) + Random.Range(0f, chunkSize);
+            // Random point within the terrain bounds
+            Vector3 randomPoint = new Vector3(
+                Random.Range(0, targetTerrain.terrainData.size.x),
+                0,
+                Random.Range(0, targetTerrain.terrainData.size.z)
+            );
 
-            Vector3 testPoint = new(x, 100f, z); // Point de départ en hauteur
+            // Convert to world position
+            randomPoint.x += targetTerrain.transform.position.x;
+            randomPoint.z += targetTerrain.transform.position.z;
+            randomPoint.y = targetTerrain.transform.position.y + 50f; // Start high above the terrain
 
-            if (Physics.Raycast(testPoint, Vector3.down, out RaycastHit hit, 200f))
+            // Raycast down to find ground
+            if (Physics.Raycast(randomPoint, Vector3.down, out RaycastHit hit, 100f))
             {
-                Vector3 spawnPoint = hit.point + Vector3.up * 0.5f; // Légèrement au-dessus du sol
+                Vector3 spawnPoint = hit.point + Vector3.up * 0.5f; // Slightly above ground
 
-                if (Vector3.Distance(spawnPoint, player.position) < minDistanceFromPlayer)
+                // Check if the slope is too steep
+                if (Vector3.Angle(hit.normal, Vector3.up) > maxSlopeAngle)
                 {
-                    continue; // si trop proche, essayer un autre point
+                    continue; // Too steep, try again
                 }
 
-                // Vérifier si ce point est sur une NavMesh valide
+                // Check distance from player
+                float distanceToPlayer = Vector3.Distance(spawnPoint, player.position);
+                if (distanceToPlayer < minDistanceFromPlayer || distanceToPlayer > maxDistanceFromPlayer)
+                {
+                    continue; // Wrong distance, try again
+                }
+
+                // Check if this point is on a valid NavMesh
                 if (NavMesh.SamplePosition(spawnPoint, out NavMeshHit navHit, 1.0f, NavMesh.AllAreas))
                 {
                     return navHit.position;
@@ -195,47 +235,61 @@ public class EnemySpawn : MonoBehaviour
             }
         }
 
-        return Vector3.zero; // Pas de position valide trouvée
+        return Vector3.zero; // No valid position found
     }
 
     private void CheckForDespawn()
     {
-        // Code inchangé
-        List<Vector2Int> chunksToRemove = new();
+        if (player == null) return;
 
-        foreach (var kvp in spawnedEnemies)
+        for (int i = spawnedEnemies.Count - 1; i >= 0; i--)
         {
-            Vector2Int chunkPos = kvp.Key;
-            List<GameObject> enemies = kvp.Value;
+            GameObject enemy = spawnedEnemies[i];
 
-            // Vérifier si le chunk est hors de portée
-            Vector3 chunkCenter = new(
-                (chunkPos.x * chunkManager.chunkSize) + (chunkManager.chunkSize / 2f),
-                0,
-                (chunkPos.y * chunkManager.chunkSize) + (chunkManager.chunkSize / 2f)
-            );
-
-            float distanceToPlayer = Vector3.Distance(new Vector3(chunkCenter.x, player.position.y, chunkCenter.z), player.position);
-
-            if (distanceToPlayer > despawnDistance)
+            if (enemy == null)
             {
-                // Supprimer tous les ennemis de ce chunk
-                foreach (var enemy in enemies)
-                {
-                    if (enemy != null)
-                    {
-                        Destroy(enemy);
-                    }
-                }
+                spawnedEnemies.RemoveAt(i);
+                continue;
+            }
 
-                chunksToRemove.Add(chunkPos);
+            // Check if enemy is too far from player
+            if (Vector3.Distance(enemy.transform.position, player.position) > despawnDistance)
+            {
+                Destroy(enemy);
+                spawnedEnemies.RemoveAt(i);
+                currentEnemyCount--;
             }
         }
+    }
 
-        // Nettoyer les entrées
-        foreach (var chunk in chunksToRemove)
+    void OnDrawGizmosSelected()
+    {
+        // Draw terrain bounds
+        if (targetTerrain != null)
         {
-            spawnedEnemies.Remove(chunk);
+            Gizmos.color = Color.green;
+            Vector3 terrainPos = targetTerrain.transform.position;
+            Vector3 terrainSize = targetTerrain.terrainData.size;
+            Gizmos.DrawWireCube(
+                terrainPos + new Vector3(terrainSize.x / 2, terrainSize.y / 2, terrainSize.z / 2),
+                terrainSize
+            );
+        }
+
+        // Draw distances from player
+        if (player != null)
+        {
+            // Despawn distance
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(player.position, despawnDistance);
+
+            // Min spawn distance
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(player.position, minDistanceFromPlayer);
+
+            // Max spawn distance
+            Gizmos.color = Color.blue;
+            Gizmos.DrawWireSphere(player.position, maxDistanceFromPlayer);
         }
     }
 }

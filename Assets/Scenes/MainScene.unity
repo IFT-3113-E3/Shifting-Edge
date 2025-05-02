@@ -2988,6 +2988,7 @@ GameObject:
   - component: {fileID: 296285411}
   - component: {fileID: 296285410}
   - component: {fileID: 296285409}
+  - component: {fileID: 296285412}
   m_Layer: 0
   m_Name: Terrain
   m_TagString: Untagged
@@ -3070,6 +3071,38 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &296285412
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 296285408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SerializedVersion: 0
+  m_AgentTypeID: 0
+  m_CollectObjects: 0
+  m_Size: {x: 10, y: 10, z: 10}
+  m_Center: {x: 0, y: 2, z: 0}
+  m_LayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_UseGeometry: 0
+  m_DefaultArea: 0
+  m_GenerateLinks: 0
+  m_IgnoreNavMeshAgent: 1
+  m_IgnoreNavMeshObstacle: 1
+  m_OverrideTileSize: 0
+  m_TileSize: 256
+  m_OverrideVoxelSize: 0
+  m_VoxelSize: 0.16666667
+  m_MinRegionArea: 2
+  m_NavMeshData: {fileID: 23800000, guid: 3cc9f9fd22062b841a19fc3c3ada53e1, type: 2}
+  m_BuildHeightMesh: 0
 --- !u!1001 &300744807
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6815,6 +6848,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 003af499a5394db4f952cdc04b87c5dd, type: 3}
+--- !u!1 &701091044 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7285803712188083261, guid: 003af499a5394db4f952cdc04b87c5dd, type: 3}
+  m_PrefabInstance: {fileID: 701091043}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &710215242
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11830,6 +11868,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1390507819}
   - component: {fileID: 1390507820}
+  - component: {fileID: 1390507821}
   m_Layer: 0
   m_Name: EnemyManager
   m_TagString: Untagged
@@ -11873,6 +11912,40 @@ MonoBehaviour:
     displayName: Mob2
     maxHealth: 50
     xpReward: 150
+--- !u!114 &1390507821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1390507818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0b4b9906dd5bb4487644642bc70508, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyTypes:
+  - enemyId: 1
+    enemyPrefab: {fileID: 8303980003325856569, guid: f20945887aa22a54fa25c9d333029707, type: 3}
+    minSpawnCount: 3
+    maxSpawnCount: 5
+    spawnHeight: 1
+    spawnChance: 100
+  - enemyId: 2
+    enemyPrefab: {fileID: 8303980003325856569, guid: f20945887aa22a54fa25c9d333029707, type: 3}
+    minSpawnCount: 3
+    maxSpawnCount: 10
+    spawnHeight: 1
+    spawnChance: 100
+  targetTerrain: {fileID: 0}
+  maxSlopeAngle: 20
+  minSpawnInterval: 5
+  maxSpawnInterval: 15
+  maxEnemiesOnTerrain: 50
+  minDistanceFromPlayer: 15
+  maxDistanceFromPlayer: 30
+  despawnDistance: 20
+  healthBarPrefab: {fileID: 701091044}
 --- !u!1001 &1400171005
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18585,11 +18658,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 237317625404452477, guid: e449c248750ed0b4e846a64d481c4594, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 722
+      value: 877
       objectReference: {fileID: 0}
     - target: {fileID: 237317625404452477, guid: e449c248750ed0b4e846a64d481c4594, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 406
+      value: 493
       objectReference: {fileID: 0}
     - target: {fileID: 883777343307218551, guid: e449c248750ed0b4e846a64d481c4594, type: 3}
       propertyPath: m_LocalPosition.x
