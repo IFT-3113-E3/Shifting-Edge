@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2339189667842886970}
   - component: {fileID: 6952708238048464308}
   - component: {fileID: 2373003335749022476}
+  - component: {fileID: 2961709499064890000}
   m_Layer: 5
   m_Name: Menu Pause Canva
   m_TagString: Untagged
@@ -107,6 +108,18 @@ MonoBehaviour:
     m_Bits: 4294967295
   gameCamera: {fileID: 0}
   canvasScaler: {fileID: 0}
+--- !u!114 &2961709499064890000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 233600591559471996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc6b5a27a80a4a93ae51a8a8909fa5d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &246319868622304083
 GameObject:
   m_ObjectHideFlags: 0
@@ -140,11 +153,11 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7564915991251346668}
-  m_Father: {fileID: 3376621028598877153}
+  m_Father: {fileID: 8436302479224040719}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 48, y: -179}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 50, y: -75}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4231439109310397340
@@ -256,6 +269,10 @@ MonoBehaviour:
   hoverSound: {fileID: 8300000, guid: 0c5ecec1da92419469ebe8561256e719, type: 3}
   clickSound: {fileID: 8300000, guid: f8eba00be6aa7784bbba92d5f96f9a8e, type: 3}
   menuMixerGroup: {fileID: 4285128729811340243, guid: 1841b968e98e4b545a81dd690d13459e, type: 2}
+  buttonText: {fileID: 0}
+  originalTextColor: {r: 0, g: 0, b: 0, a: 0}
+  hoverTransparency: 0.5
+  transitionSpeed: 0.2
 --- !u!1 &285486117884026345
 GameObject:
   m_ObjectHideFlags: 0
@@ -348,10 +365,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 24
+  m_fontSize: 16
+  m_fontSizeBase: 16
   m_fontWeight: 400
-  m_enableAutoSizing: 1
+  m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -575,11 +592,11 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3262222186438602519}
-  m_Father: {fileID: 3376621028598877153}
+  m_Father: {fileID: 8436302479224040719}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 45, y: -119}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 50, y: -45}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4761903652637298112
@@ -691,6 +708,10 @@ MonoBehaviour:
   hoverSound: {fileID: 8300000, guid: 0c5ecec1da92419469ebe8561256e719, type: 3}
   clickSound: {fileID: 8300000, guid: f8eba00be6aa7784bbba92d5f96f9a8e, type: 3}
   menuMixerGroup: {fileID: 4285128729811340243, guid: 1841b968e98e4b545a81dd690d13459e, type: 2}
+  buttonText: {fileID: 0}
+  originalTextColor: {r: 0, g: 0, b: 0, a: 0}
+  hoverTransparency: 0.5
+  transitionSpeed: 0.2
 --- !u!1 &1733191049297013798
 GameObject:
   m_ObjectHideFlags: 0
@@ -900,6 +921,73 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &1778190910673932574
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8436302479224040719}
+  - component: {fileID: 4069132933199280852}
+  m_Layer: 5
+  m_Name: Layout
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &8436302479224040719
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1778190910673932574}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8346987506588952859}
+  - {fileID: 5104517400198453501}
+  - {fileID: 6448569158767298087}
+  - {fileID: 5456581592054243856}
+  - {fileID: 680200121249775095}
+  m_Father: {fileID: 3376621028598877153}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &4069132933199280852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1778190910673932574}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 4
+  m_Spacing: 0
+  m_ChildForceExpandWidth: 1
+  m_ChildForceExpandHeight: 1
+  m_ChildControlWidth: 0
+  m_ChildControlHeight: 0
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
+  m_ReverseArrangement: 0
 --- !u!1 &1793868865496628568
 GameObject:
   m_ObjectHideFlags: 0
@@ -1008,11 +1096,11 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8663834668222414445}
-  m_Father: {fileID: 3376621028598877153}
+  m_Father: {fileID: 8436302479224040719}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 45, y: -66}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 50, y: -15}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3151868231602470168
@@ -1124,6 +1212,10 @@ MonoBehaviour:
   hoverSound: {fileID: 8300000, guid: 0c5ecec1da92419469ebe8561256e719, type: 3}
   clickSound: {fileID: 8300000, guid: 195f3ccb128bdf6419e31ca26b15b3bd, type: 3}
   menuMixerGroup: {fileID: 4285128729811340243, guid: 1841b968e98e4b545a81dd690d13459e, type: 2}
+  buttonText: {fileID: 0}
+  originalTextColor: {r: 0, g: 0, b: 0, a: 0}
+  hoverTransparency: 0.5
+  transitionSpeed: 0.2
 --- !u!1 &2121343905481969910
 GameObject:
   m_ObjectHideFlags: 0
@@ -1216,10 +1308,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 24
+  m_fontSize: 16
+  m_fontSizeBase: 16
   m_fontWeight: 400
-  m_enableAutoSizing: 1
+  m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -1352,10 +1444,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 24
+  m_fontSize: 16
+  m_fontSizeBase: 16
   m_fontWeight: 400
-  m_enableAutoSizing: 1
+  m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -1488,10 +1580,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 24
+  m_fontSize: 16
+  m_fontSizeBase: 16
   m_fontWeight: 400
-  m_enableAutoSizing: 1
+  m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -2109,11 +2201,11 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 819353995853946814}
-  m_Father: {fileID: 3376621028598877153}
+  m_Father: {fileID: 8436302479224040719}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 45, y: -243}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 50, y: -105}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4830913679948271262
@@ -2225,6 +2317,10 @@ MonoBehaviour:
   hoverSound: {fileID: 8300000, guid: 0c5ecec1da92419469ebe8561256e719, type: 3}
   clickSound: {fileID: 8300000, guid: f8eba00be6aa7784bbba92d5f96f9a8e, type: 3}
   menuMixerGroup: {fileID: 4285128729811340243, guid: 1841b968e98e4b545a81dd690d13459e, type: 2}
+  buttonText: {fileID: 0}
+  originalTextColor: {r: 0, g: 0, b: 0, a: 0}
+  hoverTransparency: 0.5
+  transitionSpeed: 0.2
 --- !u!1 &6859746538126877639
 GameObject:
   m_ObjectHideFlags: 0
@@ -2394,11 +2490,11 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5409623993164968009}
-  m_Father: {fileID: 3376621028598877153}
+  m_Father: {fileID: 8436302479224040719}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 43, y: -312}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 50, y: -135}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8942510027052072794
@@ -2510,6 +2606,10 @@ MonoBehaviour:
   hoverSound: {fileID: 8300000, guid: 0c5ecec1da92419469ebe8561256e719, type: 3}
   clickSound: {fileID: 8300000, guid: 195f3ccb128bdf6419e31ca26b15b3bd, type: 3}
   menuMixerGroup: {fileID: 4285128729811340243, guid: 1841b968e98e4b545a81dd690d13459e, type: 2}
+  buttonText: {fileID: 0}
+  originalTextColor: {r: 0, g: 0, b: 0, a: 0}
+  hoverTransparency: 0.5
+  transitionSpeed: 0.2
 --- !u!1 &7284047106532501669
 GameObject:
   m_ObjectHideFlags: 0
@@ -2676,11 +2776,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 8346987506588952859}
-  - {fileID: 5104517400198453501}
-  - {fileID: 6448569158767298087}
-  - {fileID: 5456581592054243856}
-  - {fileID: 680200121249775095}
+  - {fileID: 8436302479224040719}
   m_Father: {fileID: 3739572863505785455}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -3165,10 +3261,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 28.1
-  m_fontSizeBase: 24
+  m_fontSize: 16
+  m_fontSizeBase: 16
   m_fontWeight: 400
-  m_enableAutoSizing: 1
+  m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
