@@ -11926,13 +11926,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyTypes:
   - enemyId: 1
-    enemyPrefab: {fileID: 8303980003325856569, guid: f20945887aa22a54fa25c9d333029707, type: 3}
+    enemyPrefab: {fileID: 8303980003325856569, guid: fc765d44d712f264f8914d34379ba185, type: 3}
     minSpawnCount: 3
     maxSpawnCount: 5
     spawnHeight: 1
     spawnChance: 100
   - enemyId: 2
-    enemyPrefab: {fileID: 8303980003325856569, guid: f20945887aa22a54fa25c9d333029707, type: 3}
+    enemyPrefab: {fileID: 8303980003325856569, guid: fc765d44d712f264f8914d34379ba185, type: 3}
     minSpawnCount: 3
     maxSpawnCount: 10
     spawnHeight: 1
@@ -18658,11 +18658,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 237317625404452477, guid: e449c248750ed0b4e846a64d481c4594, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 877
+      value: 1920
       objectReference: {fileID: 0}
     - target: {fileID: 237317625404452477, guid: e449c248750ed0b4e846a64d481c4594, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 493
+      value: 1080
       objectReference: {fileID: 0}
     - target: {fileID: 883777343307218551, guid: e449c248750ed0b4e846a64d481c4594, type: 3}
       propertyPath: m_LocalPosition.x

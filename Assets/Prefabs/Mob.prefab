@@ -5222,7 +5222,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 75140ed55d663d84d8888b6658b1184e, type: 3}
       propertyPath: m_TagString
-      value: Player
+      value: Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 5816189743937407162, guid: 75140ed55d663d84d8888b6658b1184e, type: 3}
       propertyPath: m_LocalRotation.w
@@ -5414,9 +5414,9 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 500
+  MaxDistance: 15
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -5449,7 +5449,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -5506,11 +5506,13 @@ MonoBehaviour:
     clips:
     - {fileID: 8300000, guid: 9494691e842fa134992d909c6a0c26dc, type: 3}
     pitchVariation: 0.8
+    volume: 1
     noRepeat: 0
   - eventName: Land
     clips:
     - {fileID: 8300000, guid: e97f7bf04be66df4a86df5817e78ec5a, type: 3}
     pitchVariation: 0.8
+    volume: 1
     noRepeat: 0
   - eventName: Footstep
     clips:
@@ -5524,6 +5526,7 @@ MonoBehaviour:
     - {fileID: 8300000, guid: 765ac3f05f03a5544ad96503c1dfd166, type: 3}
     - {fileID: 8300000, guid: c501672aca73c754bb504eb2a019459d, type: 3}
     pitchVariation: 0.8
+    volume: 1
     noRepeat: 1
   - eventName: Swing
     clips:
@@ -5531,6 +5534,7 @@ MonoBehaviour:
     - {fileID: 8300000, guid: 639958da58790c644bcd72bb9c1d20fc, type: 3}
     - {fileID: 8300000, guid: 7d0f0efab47d61848b6ac253fdfccc2e, type: 3}
     pitchVariation: 0.8
+    volume: 1
     noRepeat: 1
 --- !u!114 &6252254898539983023
 MonoBehaviour:
@@ -5545,6 +5549,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
+  deathSequence: {fileID: 0}
 --- !u!114 &1475713745477728930
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5574,6 +5579,7 @@ MonoBehaviour:
   attackRange: 2
   patrolRadius: 10
   idleTime: 2
+  maxDistanceFromSpawnArea: 30
   attackCooldown: 1.5
   damage: 10
   attackSpeed: 2
