@@ -32,8 +32,11 @@ namespace UI.HUD.Map
             {
                 return;
             }
+
+            var physicalCam = CameraManager.Instance.GetCamera().transform;
+            var xzProjectedCamLookDirection = Vector3.ProjectOnPlane(physicalCam.forward, Vector3.up);
             // Positionnement au-dessus du joueur et rotation de la caméra pour qu'elle regarde vers le bas
-            transform.SetPositionAndRotation(player.position + Vector3.up * height, Quaternion.Euler(90f, 270f, 0f));
+            transform.SetPositionAndRotation(player.position + Vector3.up * height, Quaternion.LookRotation(Vector3.down, xzProjectedCamLookDirection));
         }
     }
 }
