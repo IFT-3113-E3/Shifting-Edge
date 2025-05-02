@@ -25,6 +25,7 @@ namespace Enemy.IceBoss
         public EntityStatus entityStatus;
         public CameraEffects cameraEffects;
         public OrbitCamera orbitCamera;
+        public BossFightState bossFightState;
         
         public Transform spawnPoint;
         

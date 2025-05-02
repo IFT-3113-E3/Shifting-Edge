@@ -208,6 +208,7 @@ public class GameManager : MonoBehaviour
             PlayerManager.Despawn();
             await World.Uninitialize();
             
+            _gameSession.ResetTemporaryData();
             _gameSession.PlayerStats.Revive();
 
             PlayerManager.Initialize(_gameSession, AssetDb.playerPrefab);
@@ -240,7 +241,7 @@ public class GameManager : MonoBehaviour
             }
 
             await LoadingScreenManager.Instance.Show("Transitioning...");
-            
+            _gameSession.ResetTemporaryData();
             World.TransitionTo(exitId);
         }
         catch (Exception ex)

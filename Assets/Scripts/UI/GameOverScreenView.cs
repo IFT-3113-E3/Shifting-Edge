@@ -49,6 +49,7 @@ namespace UI
             while (elapsed < fadeDuration)
             {
                 fadeGroup.alpha = Mathf.Lerp(0f, 1f, elapsed / fadeDuration);
+                Time.timeScale = Mathf.Lerp(1f, 0f, elapsed / fadeDuration);
                 elapsed += Time.unscaledDeltaTime;
                 yield return null;
             }
@@ -62,7 +63,6 @@ namespace UI
                 yield return null;
             }
 
-            Time.timeScale = 1f;
             OnAnyKeyPressedToContinue?.Invoke();
         }
     }

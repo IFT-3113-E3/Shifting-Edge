@@ -1,4 +1,5 @@
-﻿using Enemy.IceBoss.States.Combat;
+﻿using System;
+using Enemy.IceBoss.States.Combat;
 using Enemy.IceBoss.States.Intro;
 using Projectiles;
 using Status;
@@ -75,7 +76,7 @@ namespace Enemy.IceBoss
             {
                 Debug.LogError("[BossController] StatusEffectManager component not found!");
             }
-
+            
             // Pre-init stuff
             _animator.OnThrowEvent += OnThrowSpike;
             _animator.OnGroundAttackEvent += OnGroundAttack;
@@ -101,8 +102,11 @@ namespace Enemy.IceBoss
                 cameraEffects = cameraEffects,
                 // speechBubbleSpawner = FindFirstObjectByType<SpeechBubbleSpawner>(),
                 spawnPoint = spawnPoint,
+                bossFightState = new BossFightState("Ísbjǫrn", (int)_entityStatus.CurrentHealth, (int)_entityStatus.maxHealth),
             };
-
+            
+            _entityStatus.OnHealthChanged += OnBossHealthChanged;
+            
             _movementController.ResetAtPointAndOrientation(
                 spawnPoint.position, spawnPoint.rotation);
             
@@ -120,6 +124,11 @@ namespace Enemy.IceBoss
             
             BuildStateMachine();
             _rootSm.Init();
+        }
+
+        private void OnBossHealthChanged(float currentHealth)
+        {
+            _context.bossFightState.SetHealth((int)currentHealth);
         }
 
         void OnThrowSpike(Transform hand)
@@ -356,6 +365,8 @@ namespace Enemy.IceBoss
                 defeatedFsm.AddState("Despawning", onEnter: state =>
                 {
                     GameManager.Instance.GameSession.GameProgression.MarkBossDefeated("IceBoss");
+                    GameManager.Instance.GameSession.RemoveBossFightState(_context.bossFightState);
+                    _context.bossFightState.SetDefeated();
                     _context.animator.Despawn(() =>
                     {
                         _context.orbitCamera.RemoveAdditionalTarget(_context.animator.transform);
@@ -383,6 +394,7 @@ namespace Enemy.IceBoss
         {
             _context.dt = Time.deltaTime;
             _rootSm.OnLogic();
+            
             //
             // if (Input.GetKeyDown(KeyCode.Y))
             // {
@@ -395,6 +407,21 @@ namespace Enemy.IceBoss
             // {
             //     OnGroundAttack();
             // }
+        }
+
+        private void OnDestroy()
+        {
+            if (_context != null)
+            {
+                _context.entityStatus.OnHealthChanged -= OnBossHealthChanged;
+            }
+
+            if (_animator != null)
+            {
+                _animator.OnThrowEvent -= OnThrowSpike;
+                _animator.OnGroundAttackEvent -= OnGroundAttack;
+                _animator.OnPunchEvent -= OnPunch;
+            }
         }
 
         private void OnDrawGizmos()

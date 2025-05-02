@@ -1,16 +1,21 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using Status;
+using TMPro;
 
 public class HealthBarExt : MonoBehaviour
 {
-    [Header("UI References")]
+    [Header("UI References")] [SerializeField]
+    private CanvasGroup canvasGroup;
+
     [SerializeField] private Image healthFillImage;
     [SerializeField] private Image borderImage;
+    [SerializeField] private TextMeshProUGUI nameText;
 
-    [Header("Settings")]
-    [SerializeField] private float smoothSpeed = 5f;
+    [Header("Settings")] [SerializeField] private float smoothSpeed = 5f;
     [SerializeField] private bool hideWhenFull = true;
+
     [SerializeField] private Gradient healthGradient = new Gradient()
     {
         colorKeys = new GradientColorKey[]
@@ -26,20 +31,18 @@ public class HealthBarExt : MonoBehaviour
         }
     };
 
-    [SerializeField] private EntityStatus _status;
     private float _targetFillAmount;
     private bool _isInitialized;
+    private Coroutine _fadeCoroutine;
 
-    private void Start()
+    private BossFightState _bossFightState;
+
+    public void Bind(BossFightState bossFightState)
     {
-        if (_status != null)
+        _bossFightState = bossFightState;
+        if (_bossFightState != null)
         {
-            SetupFromStatus(_status);
-        }
-        else
-        {
-            
-            Debug.LogError("HealthBar : Aucun EntityStatus trouvé.");
+            SetupFromStatus(_bossFightState);
         }
     }
 
@@ -62,7 +65,7 @@ public class HealthBarExt : MonoBehaviour
     {
         if (!_isInitialized) return;
 
-        _targetFillAmount = _status.CurrentHealth / _status.maxHealth;
+        _targetFillAmount = (float)_bossFightState.Health / _bossFightState.MaxHealth;
 
         if (hideWhenFull)
         {
@@ -70,40 +73,101 @@ public class HealthBarExt : MonoBehaviour
         }
     }
 
-    public void Initialize(EntityStatus status)
-    {
-        _status = status;
-        SetupFromStatus(status);
-    }
 
-    private void SetupFromStatus(EntityStatus status)
+    private void SetupFromStatus(BossFightState status)
     {
-        _targetFillAmount = status.CurrentHealth / status.maxHealth;
+        _targetFillAmount = (float)status.Health / status.MaxHealth;
         healthFillImage.fillAmount = _targetFillAmount;
         healthFillImage.color = healthGradient.Evaluate(_targetFillAmount);
+        nameText.text = status.BossType;
 
-        status.OnDamageTaken += OnDamageTaken;
+        status.OnHealthChanged += OnDamageTaken;
         _isInitialized = true;
     }
 
-    private void OnDestroy()
+    public void Unbind()
     {
-        if (_status != null)
-            _status.OnDamageTaken -= OnDamageTaken;
-    }
-
-    public void RefreshHealthBar()
-    {
-        if (_isInitialized)
+        if (_bossFightState != null)
         {
-            _targetFillAmount = _status.CurrentHealth / _status.maxHealth;
-            healthFillImage.fillAmount = _targetFillAmount;
-            healthFillImage.color = healthGradient.Evaluate(_targetFillAmount);
+            _bossFightState.OnHealthChanged -= OnDamageTaken;
         }
+
+        _targetFillAmount = 0f;
+        healthFillImage.fillAmount = _targetFillAmount;
+        healthFillImage.color = healthGradient.Evaluate(_targetFillAmount);
+        _isInitialized = false;
     }
 
-    private void OnDamageTaken(DamageRequest _)
+    private void OnDamageTaken(int health)
     {
         UpdateHealth();
+    }
+
+    public void Show()
+    {
+        if (!_isInitialized) return;
+        if (_fadeCoroutine != null)
+        {
+            StopCoroutine(_fadeCoroutine);
+        }
+
+        _fadeCoroutine = StartCoroutine(FadeIn());
+    }
+
+    public void Hide()
+    {
+        if (!_isInitialized) return;
+        if (_fadeCoroutine != null)
+        {
+            StopCoroutine(_fadeCoroutine);
+        }
+
+        _fadeCoroutine = StartCoroutine(FadeOut());
+    }
+
+    private IEnumerator FadeOut()
+    {
+        float elapsed = 0f;
+        while (elapsed < 1f)
+        {
+            canvasGroup.alpha = Mathf.Lerp(1f, 0f, elapsed);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        canvasGroup.alpha = 0f;
+    }
+
+    private IEnumerator FadeIn()
+    {
+        float elapsed = 0f;
+        while (elapsed < 1f)
+        {
+            canvasGroup.alpha = Mathf.Lerp(0f, 1f, elapsed);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        canvasGroup.alpha = 1f;
+    }
+
+    public void ShowImmediately()
+    {
+        if (_fadeCoroutine != null)
+        {
+            StopCoroutine(_fadeCoroutine);
+        }
+
+        canvasGroup.alpha = 1f;
+    }
+
+    public void HideImmediately()
+    {
+        if (_fadeCoroutine != null)
+        {
+            StopCoroutine(_fadeCoroutine);
+        }
+
+        canvasGroup.alpha = 0f;
     }
 }

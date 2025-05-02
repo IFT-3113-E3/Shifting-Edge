@@ -21,6 +21,7 @@ namespace Enemy.IceBoss.States.Intro
             // Logic for entering the engaged state
             // For example, play an animation or spawn some enemies
             Debug.Log("EngagedState: Enter");
+            GameManager.Instance.GameSession.AddBossFightState(_ctx.bossFightState);
             _mono.StartCoroutine(InteractionSequence());
         }
 

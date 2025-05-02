@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class GameSession
 {
@@ -7,6 +9,12 @@ public class GameSession
 
     public PlayerStats PlayerStats { get; private set; }
     public GameProgression GameProgression { get; private set; }
+    
+    public List<BossFightState> BossFightStates { get; private set; } = new List<BossFightState>();
+    
+    public event Action<BossFightState> OnBossFightState;
+    public event Action<BossFightState> OnBossFightStateRemoved;
+    public event Action OnGameSessionResetTempData;
     
     public GameSession()
     {
@@ -22,6 +30,43 @@ public class GameSession
         this.spawnPointId = spawnPointId;
         PlayerStats = playerStats;
         GameProgression = gameProgression;
+    }
+    
+    public void AddBossFightState(BossFightState state)
+    {
+        if (state == null)
+        {
+            Debug.LogError("Cannot add null BossFightState.");
+            return;
+        }
+        
+        BossFightStates.Add(state);
+        OnBossFightState?.Invoke(state);
+    }
+
+    public void RemoveBossFightState(BossFightState state)
+    {
+        if (state == null)
+        {
+            Debug.LogError("Cannot remove null BossFightState.");
+            return;
+        }
+        
+        if (BossFightStates.Contains(state))
+        {
+            BossFightStates.Remove(state);
+            OnBossFightStateRemoved?.Invoke(state);
+        }
+        else
+        {
+            Debug.LogWarning("BossFightState not found in the list.");
+        }
+    }
+    
+    public void ResetTemporaryData()
+    {
+        BossFightStates.Clear();
+        OnGameSessionResetTempData?.Invoke();
     }
     
     public void SaveData(ref SessionSaveData data)
