@@ -157,7 +157,7 @@ private IEnumerator BackFromOptionsRoutine()
         yield return new WaitForSecondsRealtime(sceneLoadDelay);
         if (newGame)
         {
-            GameManager.Instance.StartNewGame();
+            _ = GameManager.Instance.StartNewGame();
         }
         else
         {

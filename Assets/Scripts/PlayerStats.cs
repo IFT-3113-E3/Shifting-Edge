@@ -4,8 +4,8 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Game/PlayerStats")]
 public class PlayerStats : ScriptableObject
 {
-    public int maxHealth = 175;
-    public int currentHealth = 175;
+    public int maxHealth = 150;
+    public int currentHealth = 150;
     public bool isDead = false;
     public int maxAbilityStacks = 3;
     public int abilityStacks;

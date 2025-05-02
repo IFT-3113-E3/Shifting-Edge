@@ -106,7 +106,7 @@ public class GameManager : MonoBehaviour
     }
     
 
-    public void StartNewGame(int slot = 0)
+    public async Task StartNewGame(int slot = 0)
     {
         if (_currentGameState != GameState.MainMenu)
         {
@@ -116,15 +116,21 @@ public class GameManager : MonoBehaviour
             // overwrite the first save slot
         _currentSaveSlot = slot;
 
-        _gameSession = CreateGameSession();
-        
-        if (_gameSession == null)
-        {
-            Log.Error("Failed to create new game session.");
-            return;
-        }
-        
-        _ = StartWithGameSession(_gameSession);
+        await LoadingScreenManager.Instance.Show("Loading Game...");
+        await _gameContext.SceneService.ReplaceScene("Main", "IntroCinema");
+        await LoadingScreenManager.Instance.Hide(1f);
+
+
+        //
+        // _gameSession = CreateGameSession();
+        //
+        // if (_gameSession == null)
+        // {
+        //     Log.Error("Failed to create new game session.");
+        //     return;
+        // }
+        //
+        // _ = StartWithGameSession(_gameSession);
     }
 
     private GameSession CreateGameSession()
@@ -228,6 +234,19 @@ public class GameManager : MonoBehaviour
             await LoadingScreenManager.Instance.Hide(1f);
             await ReturnToMainMenu(); // fallback if restart fails
         }
+    }
+
+    public void OnFinishCinematic()
+    {
+        _gameSession = CreateGameSession();
+        
+        if (_gameSession == null)
+        {
+            Log.Error("Failed to create new game session.");
+            return;
+        }
+        
+        _ = StartWithGameSession(_gameSession);
     }
     
     public async void TransitionTo(string exitId)
