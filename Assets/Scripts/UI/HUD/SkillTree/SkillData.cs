@@ -23,7 +23,9 @@ public class Reward
     public enum RewardType
     {
         HealthIncrease,
-        ManaIncrease,
-        DamageBoost
+        DamageBoost,
+        MaxRollsIncrease,
+        RollCooldownReduction,
+        XPBoost
     }
 }

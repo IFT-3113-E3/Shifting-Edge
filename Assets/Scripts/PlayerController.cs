@@ -15,7 +15,9 @@ public class PlayerController : MonoBehaviour
     
     [SerializeField] private float rollForce = 15f;
     [SerializeField] private float rollCooldownTime = 0.5f; // short delay after 3 rolls
+    private float baseRollCooldownTime;
     [SerializeField] private int maxConsecutiveRolls = 3;
+    private int baseMaxConsecutiveRolls = 3;
 
     private bool _isRolling = false;
     private float _rollCooldownTimer = 0f;
@@ -382,6 +384,33 @@ public class PlayerController : MonoBehaviour
             MoveAxisRight = inputHorizontal,
         };
         _mc.SetInputs(ref inputs);
+    }
+
+    public int MaxConsecutiveRolls 
+    {
+        get => maxConsecutiveRolls;
+        set 
+        {
+            maxConsecutiveRolls = value;
+            _rollsRemaining = Mathf.Min(_rollsRemaining, maxConsecutiveRolls);
+        }
+    }
+
+    public float RollCooldownTime
+    {
+        get => rollCooldownTime;
+        set
+        {
+            rollCooldownTime = value;
+            if (rollCooldownTime < 0.1f)
+                rollCooldownTime = 0.1f;
+        }
+    }
+
+    public void ResetCooldownToBase()
+    {
+        rollCooldownTime = baseRollCooldownTime;
+        maxConsecutiveRolls = baseMaxConsecutiveRolls;
     }
 
     private void OnDestroy()

@@ -38,8 +38,11 @@ public class PlayerXP : MonoBehaviour
     {
         if (amount <= 0) return;
         
+        int boostedAmount = XPManager.Instance.CalculateBoostedXP(amount);
+        Debug.Log($"XP gagné: {amount} (avec bonus: {boostedAmount})");
+        
         int oldLevel = currentLevel;
-        currentXP += amount;
+        currentXP += boostedAmount;
         
         // Vérifier si le joueur a monté de niveau
         UpdateLevelBasedOnXP();

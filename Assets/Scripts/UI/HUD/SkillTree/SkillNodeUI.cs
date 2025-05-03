@@ -19,11 +19,10 @@ public class SkillNodeUI : MonoBehaviour
     {
         button = GetComponent<Button>();
         buttonImage = GetComponent<Image>();
-        skillNameText = GetComponentInChildren<TextMeshProUGUI>(); // Récupère automatiquement le texte
+        skillNameText = GetComponentInChildren<TextMeshProUGUI>();
 
         button.transition = Selectable.Transition.None;
 
-        // Affiche le nom de la compétence
         skillNameText.text = skillData.skillName;
 
         UpdateVisual();

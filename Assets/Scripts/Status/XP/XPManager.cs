@@ -19,6 +19,7 @@ public class XPManager : MonoBehaviour
 
     [SerializeField]
     private int maxLevel = 100;
+    private float xpMultiplier = 1f;
 
     private void Awake()
     {
@@ -69,12 +70,33 @@ public class XPManager : MonoBehaviour
         }
     }
 
+    public void AddXPMultiplier(float multiplier)
+    {
+        xpMultiplier += multiplier;
+        Debug.Log($"Multiplicateur d'XP mis à jour: {xpMultiplier}x");
+    }
+
+    public float GetCurrentXPMultiplier()
+    {
+        return xpMultiplier;
+    }
+
+    public void ResetXPBonuses()
+    {
+        xpMultiplier = 1f;
+    }
+
     // Formule pour calculer l'XP requise pour un niveau
     private int CalculateXPForLevel(int level)
     {
         // Exemple de formule: 50 * (level^1.5)
         // Vous pouvez ajuster cette formule selon vos besoins de progression
         return (int)(50 * Mathf.Pow(level, 1.5f));
+    }
+
+    public int CalculateBoostedXP(int baseXP)
+    {
+        return Mathf.RoundToInt(baseXP * xpMultiplier);
     }
 
     // Obtenir le niveau correspondant à un montant d'XP total
